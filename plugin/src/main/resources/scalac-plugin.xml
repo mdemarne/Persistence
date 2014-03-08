@@ -1,0 +1,4 @@
+<plugin>
+  <name>persistence</name>
+  <classname>scala.reflect.persistence.Plugin</classname>
+</plugin>
