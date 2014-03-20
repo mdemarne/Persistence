@@ -8,7 +8,7 @@ import scala.annotation.tailrec
 class Plugin(val global: Global) extends NscPlugin {
   import global._
 
-  val name = "AST persistence plugin for Project Palladium"
+  val name = "persistence"
   val description = """Persists typed ASTs of the entire program.
   For more information visit https://github.com/scalareflect/persistence"""
   val components = List[NscPluginComponent](PluginComponent) // Might change name
