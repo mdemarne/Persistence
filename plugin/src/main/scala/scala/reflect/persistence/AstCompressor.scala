@@ -13,7 +13,7 @@ class AstCompressor(out: DataOutputStream) extends (Node => Unit) {
     @tailrec def loop(que: List[Node]): Unit = que match {
       case Nil => /* Nothing more to parse */
       case nd :: nds =>
-        val bfs = nd.flattenBFSIdx
+        val bfs = nd.childrenBFSIdx
         val candidates = dict.keys.map(cand => bfs.intersectBFS(cand)).filter(_.size > 0)
         val max = candidates./:(List[NodeBFS]())((x,y) => if(x.size > y.size) x else y)
         max.size match {
@@ -43,7 +43,9 @@ class AstCompressor(out: DataOutputStream) extends (Node => Unit) {
         case (x :: xs, y :: ys) if x :=: y => y :: loop(xs, ys)
         case _ => Nil
       }
-      loop(lst.reverse, nds.reverse).reverse
+      val inter = loop(lst.reverse, nds.reverse).reverse
+      if (inter.size < nds.size) Nil 
+      else inter
     }
     /* Return all the subroots of a tree represented as a List[NodeBFS], as a List[Node] */
     def subRoots: List[Node] = {

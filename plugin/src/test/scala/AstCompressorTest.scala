@@ -29,6 +29,6 @@ class AstCompressorTest extends FunSuite {
     val exploitableDict = ParseTestTree.dictForTest(dict)
     println("Dictionary:")
     println(exploitableDict)
-}
+  }
 
 }
