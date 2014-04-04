@@ -50,7 +50,7 @@ class AstCompressor(out: DataOutputStream) extends (Node => Unit) {
     /* Return all the subroots of a tree represented as a List[NodeBFS], as a List[Node] */
     def subRoots: List[Node] = {
      /*TODO verify the .reverse*/ 
-     val bfsz = lst.map(x => (x, lst.filter(z => z.parentBfsIdx == x.bfsIdx).size))
+     val bfsz = lst.map(x => (x, lst.count(z => z.parentBfsIdx == x.bfsIdx)))
      bfsz.flatMap(x => x._1.node.children.drop(x._2).reverse).reverse
     }
      /* TODO: a lot of similar methods all around (ex. in Node, ListTakeAndSplit in plugin.scala, etc. Perhaps exists a way to clean that up. */
