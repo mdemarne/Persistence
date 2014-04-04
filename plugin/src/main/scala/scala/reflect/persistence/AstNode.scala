@@ -55,7 +55,8 @@ case class Node(tpe: TreeTpe.Value, mods: Option[ModifiersNode], sels: List[Sele
     }
   }
 
-  def :=:(n: Node): Boolean = (this.tpe == n.tpe && this.mods == n.mods) /* TODO: figure out exactly what we need to compare */
+  /* TODO: figure out exactly what we need to compare */
+  def :=:(n: Node): Boolean = (this.tpe == n.tpe && this.mods == n.mods)
 
   def flattenBFS = {
     @tailrec def loop(queue: List[Node], acc: List[Node]): List[Node] = queue match {

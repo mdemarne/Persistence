@@ -31,4 +31,16 @@ class AstCompressorTest extends FunSuite {
     println(exploitableDict)
   }
 
+  test("parseTreeTest3") {
+    val treeStr = "c (v v c (v v) c(v v) c(v v))"
+
+    val tree = ParseTestTree.parse(treeStr)
+    val cmp = new AstCompressor(null)
+    val dict = cmp.parse(tree.get)
+    val exploitableDict = ParseTestTree.dictForTest(dict)
+    println("Dictionary:")
+    println(exploitableDict)
+
+  }
+
 }
