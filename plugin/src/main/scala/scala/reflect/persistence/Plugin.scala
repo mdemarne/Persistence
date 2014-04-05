@@ -10,6 +10,7 @@ import java.io.FileOutputStream
 
 class Plugin(val global: Global) extends NscPlugin {
   import global._
+  import Implicits._
 
   val name = "persistence"
   val description = """Persists typed ASTs of the entire program.
@@ -46,9 +47,9 @@ class Plugin(val global: Global) extends NscPlugin {
     /* Return a simplified tree along with maps of Names / Symbols / Types zipped with occurrences in BFS order */
     class TreeDecomposer extends (Tree => DecomposedTree) {
       def apply(tree: Tree): DecomposedTree = {
-        var nameList: List[Name] = List()
-        var symbolList: List[Symbol] = List()
-        var typeList: List[Type] = List()
+        var nameList: RevList[Name] = List()
+        var symbolList: RevList[Symbol] = List()
+        var typeList: RevList[Type] = List()
         /* Traverse the tree, save names, type, symbols into corresponding list
          * and replace them in the tree by default values*/
         @tailrec def loop(trees: List[Tree], dict: Map[Tree, Node]): Map[Tree, Node] = trees match {
@@ -177,10 +178,6 @@ class Plugin(val global: Global) extends NscPlugin {
         val newTree = loop(tree flattenBFS, Map((EmptyTree -> Node.empty)))(tree)
         DecomposedTree(newTree, nameList.zipWithIdxs, symbolList.zipWithIdxs, typeList.zipWithIdxs)
       }
-      implicit class BFSListToBFSMapWithIndxs[T](lst: List[T]) {
-        /* Generate a map of (T, List[Int]), where the values are the occurrences of T in the tree in BFS order */
-        def zipWithIdxs: Map[T, List[Int]] = lst.zipWithIndex.groupBy(v => v._1).map(e => (e._1 -> e._2.map(i => i._2)))
-      }
     }
     class SymbolDecomposer { /* TODO */ }
 
@@ -222,7 +219,7 @@ class Plugin(val global: Global) extends NscPlugin {
     implicit class TreeToBFS(tree: Tree) {
       def flattenBFS = {
         @tailrec
-        def loop(queue: List[Tree], acc: List[Tree]): List[Tree] = queue match {
+        def loop(queue: List[Tree], acc: RevList[Tree]): RevList[Tree] = queue match {
           case expr :: exprs => loop(exprs ::: expr.children, expr.children.reverse ::: acc)
           case Nil => acc
         }
@@ -233,9 +230,9 @@ class Plugin(val global: Global) extends NscPlugin {
     /* Note that for test purposes, we put this class in the plugin. */
     class TreeRecomposer extends (DecomposedTree => Tree) {
       def apply(decomp: DecomposedTree): Tree = {
-        var nameList: List[Name] = decomp.namesBFS.unzipWithIdxs
-        var symbolList: List[Symbol] = decomp.symbBFS.unzipWithIdxs
-        var typeList: List[Type] = decomp.typesBFS.unzipWithIdxs
+        var nameList: RevList[Name] = decomp.namesBFS.unzipWithIdxs
+        var symbolList: RevList[Symbol] = decomp.symbBFS.unzipWithIdxs
+        var typeList: RevList[Type] = decomp.typesBFS.unzipWithIdxs
         @tailrec def loop(trees: List[Node], dict: Map[Node, Tree]): Map[Node, Tree] = trees match {
           case Nil => dict
           case x :: xs =>
@@ -363,23 +360,6 @@ class Plugin(val global: Global) extends NscPlugin {
           ret
         }
         loop(decomp.tree.flattenBFS.filter(x => x.tpe != TreeTpe.Separator), Map((Node.empty -> EmptyTree)))(decomp.tree)
-      }
-      implicit class BFSMapWithIndxToBFSList[T](lst: Map[T, List[Int]]) {
-        /* Generate a list of (T) following the indexes in the given Map[T, List[Int]] */
-        def unzipWithIdxs: List[T] = lst.flatMap(el => el._2 map (indx => (indx, el._1))).toList.sortBy(f => f._1).map(_._2)
-      }
-      implicit class ListTakeAndSplit[T](lst: List[T]) {
-        def firsts = lst.reverse.tail.reverse
-        def takeWithoutLasts(n: Int) = lst.reverse.drop(n).reverse
-        def splitOn(p: T => Boolean): List[List[T]] = {
-          def loop(xss: List[T]): List[List[T]] = xss match {
-            case Nil => Nil
-            case _ =>
-              val span = xss span (x => !p(x))
-              List(span._1) ++ (if (span._2 != Nil) loop(span._2.tail) else Nil)
-          }
-          loop(lst)
-        }
       }
     }
   }
