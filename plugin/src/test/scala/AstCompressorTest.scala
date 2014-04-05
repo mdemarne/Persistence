@@ -29,6 +29,7 @@ class AstCompressorTest extends FunSuite {
     val exploitableDict = ParseTestTree.dictForTest(dict)
     println("Dictionary:")
     println(exploitableDict)
+    assert(exploitableDict.size == 7)
   }
 
   test("parseTreeTest3") {
@@ -40,7 +41,25 @@ class AstCompressorTest extends FunSuite {
     val exploitableDict = ParseTestTree.dictForTest(dict)
     println("Dictionary:")
     println(exploitableDict)
+    assert(exploitableDict.size == 4)
+    val entry = ParseTestTree.dictEntry(TreeTpe.ValDef, 0, -1)
+    assert(exploitableDict.contains(List(entry)))
+    assert(exploitableDict(List(entry)) == 1)
+    assert(exploitableDict.keys.exists(_.size == 3))
+    assert(exploitableDict(exploitableDict.keys.find(_.size == 3).get)== 3)
+  }
 
+  test("DoublePattern") {
+    val treeStr = "c (m (v v (c (m v v) c (m (v v)))) m(v v (c c)))"
+    
+    val cmp = new AstCompressor(null)
+    val tree = ParseTestTree.parse(treeStr)
+    val dict = ParseTestTree.dictForTest(cmp.parse(tree.get))
+    println("Dictionary:")
+    println(dict)
+    assert(dict.values.toList.contains(7))
+    assert(dict.values.toList.count(_ == 2) == 4)
+    assert(dict.values.toList.count(_ == 1) == 2)
   }
 
 }

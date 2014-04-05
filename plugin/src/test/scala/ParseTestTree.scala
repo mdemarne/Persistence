@@ -38,10 +38,13 @@ object ParseTestTree extends StandardTokenParsers {
       case e => println(e); None
     }
  }
-  
+ 
+ case class dictEntry(tpe: TreeTpe.Value, idx: Int, parentIdx: Int){
+  override def toString = s"(${tpe}, ${idx}, ${parentIdx})"
+ }
  /* return an exploitable version of the dictionary from AstCompressor.parse() */ 
  def dictForTest(dict: Map[List[NodeBFS], Int]) = {
     var idx = 0
-    dict map (x => (x._1.map(y => ({idx+=1;idx},y.node.tpe,y.bfsIdx, y.parentBfsIdx)), x._2))
+    dict map (x => (x._1.map(y => dictEntry(y.node.tpe, y.bfsIdx, y.parentBfsIdx)), x._2))
   }
 }
