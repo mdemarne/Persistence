@@ -17,5 +17,5 @@ env:
   global:
    - SCALAREFLECT_MAVEN_REALM="Sonatype Nexus Repository Manager"
    - SCALAREFLECT_MAVEN_DOMAIN="oss.sonatype.org"
-   - secure: "JrKpqFF+OLpPvEqy5joX37byIJxLDHfyrePugcNd9IYq5KafrY2DEuD5gUVuIZiZOg0GdPehGLOtSbVYIUAjSkU6BAIRCQLlSIj4SBNoaEILBIsFMnvfOyreRQZdO+gzyg5rH3k/3HqMges79lqJH5SWfAlsTm+Mbh5ny1cwS8M="
-   - secure: "Ujnuh3jfyFd7mmT+X8TctuXVJ85PgtvMnHZQNPNls7JQbl4qSf0gC7CBpptFsqx7beHrvhDwhguZYf1vKSQlI9ERlNKhAMmHXsuwm+omaRQAVYvMC5nzacsr1oQoUkvHjQvlOdZvNyXiKGVTROdDi66ZaWSE94Kwi83JHLDQM8I="
+   - secure: "Ju5gWK0AG4w7PCeiZuEr37ICPd1AXv/lJPBFtMn9M2V9t9QNucg6C2ZfP3ImxvtLHEG1xzhI/wpihmVz5d5oYjw9mKag33XLbWP6DvBwrI5wfQYZnwFNtFO8gnt4a9IDRu3LSNdTvgGBCfhh4rGJFhdTPuWYkwXNAXBsEIWUZOo="
+   - secure: "BdUGPF8o/6z3jvvQ7vALBDuBVQAJwT78SbHeWbYPCTh0eXbxPjRhbIZUpfj30h++e12Fw3oENm0C7umOT0meiPzbp8RPAqAPiqDuGIHvTY3v/gS2HjUQUVyqZWpy3Uu411A4xo7AskwWOhGuc0mr9VkpQBliiCBTMc56O//1YnU="
