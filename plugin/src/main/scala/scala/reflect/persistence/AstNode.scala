@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.reflect.internal.util.Position
 
 /* Enum for the tree types */
-object TreeTpe extends Enumeration {
+object AstTag extends Enumeration {
   val PackageDef, ClassDef, ModuleDef, ValDef, DefDef, TypeDef, LabelDef, Import, Template, Block, CaseDef, Alternative, Star, Bind, UnApply, ArrayValue, Function, Assign, AssignOrNamedArg, If, Match, Return, Try, Throw, New, Typed, TypeApply, Apply, ApplyDynamic, This, Select, Ident, ReferenceToBoxed, Literal, Annotated, SingletonTypeTree, SelectFromTypeTree, CompoundTypeTree, AppliedTypeTree, TypeBoundsTree, ExistentialTypeTree, TypeTree, Super, EmptyTree, Separator = Value
 }
 
@@ -16,7 +16,7 @@ case class NodeBFS(node: Node, bfsIdx: Int, parentBfsIdx: Int) {
 
 /* Represents a node in the tree */
 /* TODO: unfortunately, Constant is dependent of global. It's why it's an Any here. */
-case class Node(tpe: TreeTpe.Value, children: List[Node], value: Option[Any] = None) {
+case class Node(tpe: AstTag.Value, children: List[Node], value: Option[Any] = None) {
   import Implicits._
 
   val childrenBFS: RevList[Node] = this.flattenBFS
@@ -87,10 +87,10 @@ case class Node(tpe: TreeTpe.Value, children: List[Node], value: Option[Any] = N
 
 /* Companion object */
 object Node {
-  //def apply(tpe: TreeTpe.Value, children: List[Node], value: Option[Any]) = new Node(tpe, children, value)
-  def apply(tpe: TreeTpe.Value, children: List[Node]) = new Node(tpe, children)
-  def apply(tpe: TreeTpe.Value, value: Any) = new Node(tpe, Nil, Some(value))
-  def empty = new Node(TreeTpe.EmptyTree, Nil)
-  def separator = new Node(TreeTpe.Separator, Nil)
+  //def apply(tpe: AstTag.Value, children: List[Node], value: Option[Any]) = new Node(tpe, children, value)
+  def apply(tpe: AstTag.Value, children: List[Node]) = new Node(tpe, children)
+  def apply(tpe: AstTag.Value, value: Any) = new Node(tpe, Nil, Some(value))
+  def empty = new Node(AstTag.EmptyTree, Nil)
+  def separator = new Node(AstTag.Separator, Nil)
 }
 

@@ -42,7 +42,7 @@ class AstCompressorTest extends FunSuite {
     println("Dictionary:")
     println(exploitableDict)
     assert(exploitableDict.size == 4)
-    val entry = ParseTestTree.dictEntry(TreeTpe.ValDef, 0, -1)
+    val entry = ParseTestTree.dictEntry(AstTag.ValDef, 0, -1)
     assert(exploitableDict.contains(List(entry)))
     assert(exploitableDict(List(entry)) == 1)
     assert(exploitableDict.keys.exists(_.size == 3))

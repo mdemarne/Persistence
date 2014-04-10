@@ -58,105 +58,105 @@ class Plugin(val global: Global) extends NscPlugin {
             typeList :+= x.tpe
             val res = x match {
               case PackageDef(pid, stats) =>
-                Node(TreeTpe.PackageDef, dict(pid) :: (stats map (dict(_))))
+                Node(AstTag.PackageDef, dict(pid) :: (stats map (dict(_))))
               case ClassDef(mods, name, tparams, impl) =>
                 nameList :+= name
-                Node(TreeTpe.ClassDef, (tparams ::: List(impl) map (dict(_))))
+                Node(AstTag.ClassDef, (tparams ::: List(impl) map (dict(_))))
               case ModuleDef(mods, name, impl) =>
                 nameList :+= name
-                Node(TreeTpe.ModuleDef, List(dict(impl)))
+                Node(AstTag.ModuleDef, List(dict(impl)))
               case ValDef(mods, name, tpt, rhs) =>
                 nameList :+= name
-                Node(TreeTpe.ValDef, List(dict(tpt), dict(rhs)))
+                Node(AstTag.ValDef, List(dict(tpt), dict(rhs)))
               case DefDef(mods, name, tparams, vparams, tpt, rhs) =>
                 nameList :+= name
                 val vnodes = vparams.map(_.map(dict(_))).flatMap(_ :+ Node.separator)
-                Node(TreeTpe.DefDef, (tparams.map(dict(_)) ::: List(Node.separator) ::: vnodes ::: List(dict(tpt), dict(rhs))))
+                Node(AstTag.DefDef, (tparams.map(dict(_)) ::: List(Node.separator) ::: vnodes ::: List(dict(tpt), dict(rhs))))
               case TypeDef(mods, name, tparams, rhs) =>
                 nameList :+ name
-                Node(TreeTpe.TypeDef, (tparams ::: List(rhs)) map (dict(_)))
+                Node(AstTag.TypeDef, (tparams ::: List(rhs)) map (dict(_)))
               case LabelDef(name, params, rhs) =>
                 nameList :+= name
-                Node(TreeTpe.LabelDef, (params ::: List(rhs)) map (dict(_)))
+                Node(AstTag.LabelDef, (params ::: List(rhs)) map (dict(_)))
               case Import(expr, selectors) =>
-                Node(TreeTpe.Import, List(dict(expr)))
+                Node(AstTag.Import, List(dict(expr)))
               case Template(parents, self, body) =>
-                Node(TreeTpe.Template, (parents.map(dict(_)) ::: List(Node.separator, dict(self), Node.separator) ::: body.map(dict(_))))
+                Node(AstTag.Template, (parents.map(dict(_)) ::: List(Node.separator, dict(self), Node.separator) ::: body.map(dict(_))))
               case Block(stats, expr) =>
-                Node(TreeTpe.Block, (stats ::: List(expr)) map (dict(_)))
+                Node(AstTag.Block, (stats ::: List(expr)) map (dict(_)))
               case CaseDef(pat, guard, body) =>
-                Node(TreeTpe.CaseDef, List(pat, guard, body) map (dict(_)))
+                Node(AstTag.CaseDef, List(pat, guard, body) map (dict(_)))
               case Alternative(trees) =>
-                Node(TreeTpe.Alternative, trees map (dict(_)))
+                Node(AstTag.Alternative, trees map (dict(_)))
               case Star(elem) =>
-                Node(TreeTpe.Star, List(dict(elem)))
+                Node(AstTag.Star, List(dict(elem)))
               case Bind(name, body) =>
                 nameList :+= name
-                Node(TreeTpe.Bind, List(dict(body)))
+                Node(AstTag.Bind, List(dict(body)))
               case UnApply(fun, args) =>
-                Node(TreeTpe.UnApply, fun :: args map (dict(_)))
+                Node(AstTag.UnApply, fun :: args map (dict(_)))
               case ArrayValue(elemtpt, elems) =>
-                Node(TreeTpe.ArrayValue, elemtpt :: elems map (dict(_)))
+                Node(AstTag.ArrayValue, elemtpt :: elems map (dict(_)))
               case Function(vparams, body) =>
-                Node(TreeTpe.Function, vparams ::: List(body) map (dict(_)))
+                Node(AstTag.Function, vparams ::: List(body) map (dict(_)))
               case Assign(lhs, rhs) =>
-                Node(TreeTpe.Assign, List(lhs, rhs) map (dict(_)))
+                Node(AstTag.Assign, List(lhs, rhs) map (dict(_)))
               case AssignOrNamedArg(lhs, rhs) =>
-                Node(TreeTpe.AssignOrNamedArg, List(lhs, rhs) map (dict(_)))
+                Node(AstTag.AssignOrNamedArg, List(lhs, rhs) map (dict(_)))
               case If(cond, thenp, elsep) =>
-                Node(TreeTpe.If, List(cond, thenp, elsep) map (dict(_)))
+                Node(AstTag.If, List(cond, thenp, elsep) map (dict(_)))
               case Match(selector, cases) =>
-                Node(TreeTpe.Match, selector :: cases map (dict(_)))
+                Node(AstTag.Match, selector :: cases map (dict(_)))
               case Return(expr) =>
-                Node(TreeTpe.Return, List(dict(expr)))
+                Node(AstTag.Return, List(dict(expr)))
               case Try(block, catches, finalizer) =>
-                Node(TreeTpe.Try, block :: catches ::: List(finalizer) map (dict(_)))
+                Node(AstTag.Try, block :: catches ::: List(finalizer) map (dict(_)))
               case Throw(expr) =>
-                Node(TreeTpe.Throw, List(dict(expr)))
+                Node(AstTag.Throw, List(dict(expr)))
               case New(tpt) =>
-                Node(TreeTpe.New, List(dict(tpt)))
+                Node(AstTag.New, List(dict(tpt)))
               case Typed(expr, tpt) =>
-                Node(TreeTpe.Typed, List(expr, tpt) map (dict(_)))
+                Node(AstTag.Typed, List(expr, tpt) map (dict(_)))
               case TypeApply(fun, args) =>
-                Node(TreeTpe.TypeApply, fun :: args map (dict(_)))
+                Node(AstTag.TypeApply, fun :: args map (dict(_)))
               case Apply(fun, args) =>
-                Node(TreeTpe.Apply, fun :: args map (dict(_)))
+                Node(AstTag.Apply, fun :: args map (dict(_)))
               case ApplyDynamic(qual, args) =>
-                Node(TreeTpe.ApplyDynamic, qual :: args map (dict(_)))
+                Node(AstTag.ApplyDynamic, qual :: args map (dict(_)))
               case This(qual) =>
                 nameList :+= qual
-                Node(TreeTpe.This, Nil)
+                Node(AstTag.This, Nil)
               case Select(qualifier, selector) =>
                 nameList :+= selector
-                Node(TreeTpe.Select, List(dict(qualifier)))
+                Node(AstTag.Select, List(dict(qualifier)))
               case Ident(name) =>
                 nameList :+= name
-                Node(TreeTpe.Ident, Nil)
+                Node(AstTag.Ident, Nil)
               case ReferenceToBoxed(ident) =>
-                Node(TreeTpe.ReferenceToBoxed, List(dict(ident)))
+                Node(AstTag.ReferenceToBoxed, List(dict(ident)))
               case Literal(value) =>
                 //Literal(value) /* TODO : what do we do with values ? Can keep them as is ? */
-                Node(TreeTpe.Literal, value) //TODO HEY what do we do here ?
+                Node(AstTag.Literal, value) //TODO HEY what do we do here ?
               case Annotated(annot, arg) =>
-                Node(TreeTpe.Annotated, List(annot, arg) map (dict(_)))
+                Node(AstTag.Annotated, List(annot, arg) map (dict(_)))
               case SingletonTypeTree(ref) =>
-                Node(TreeTpe.SingletonTypeTree, List(dict(ref)))
+                Node(AstTag.SingletonTypeTree, List(dict(ref)))
               case SelectFromTypeTree(qualifier, selector) =>
                 nameList :+= selector
-                Node(TreeTpe.SelectFromTypeTree, List(dict(qualifier)))
+                Node(AstTag.SelectFromTypeTree, List(dict(qualifier)))
               case CompoundTypeTree(templ) =>
-                Node(TreeTpe.CompoundTypeTree, List(dict(templ)))
+                Node(AstTag.CompoundTypeTree, List(dict(templ)))
               case AppliedTypeTree(tpt, args) =>
-                Node(TreeTpe.AppliedTypeTree, tpt :: args map (dict(_)))
+                Node(AstTag.AppliedTypeTree, tpt :: args map (dict(_)))
               case TypeBoundsTree(lo, hi) =>
-                Node(TreeTpe.TypeBoundsTree, List(lo, hi) map (dict(_)))
+                Node(AstTag.TypeBoundsTree, List(lo, hi) map (dict(_)))
               case ExistentialTypeTree(tpt, whereClauses) =>
-                Node(TreeTpe.ExistentialTypeTree, tpt :: whereClauses map (dict(_)))
+                Node(AstTag.ExistentialTypeTree, tpt :: whereClauses map (dict(_)))
               case t: TypeTree =>
-                Node(TreeTpe.TypeTree, Nil)
+                Node(AstTag.TypeTree, Nil)
               case Super(qual, mix) =>
                 nameList :+= mix
-                Node(TreeTpe.Super, List(dict(qual)))
+                Node(AstTag.Super, List(dict(qual)))
               case _ => sys.error(x.getClass().toString()) /* TODO : remove */
             }
             loop(xs, dict + (x -> res))
@@ -224,108 +224,108 @@ class Plugin(val global: Global) extends NscPlugin {
           case Nil => dict
           case x :: xs =>
             val res = x.tpe match {
-              case TreeTpe.PackageDef =>
+              case AstTag.PackageDef =>
                 PackageDef(dict(x.children.head).asInstanceOf[RefTree], x.children.tail map (dict(_)))
-              case TreeTpe.ClassDef =>
+              case AstTag.ClassDef =>
                 val nm = fetchName.asInstanceOf[TypeName] /* Need to fetch name first to avoid swap with name of modifier */
                 ClassDef(null, nm, x.children.firsts map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last).asInstanceOf[Template])
-              case TreeTpe.ModuleDef =>
+              case AstTag.ModuleDef =>
                 val nm = fetchName.asInstanceOf[TermName]
                 ModuleDef(null, nm, dict(x.children.head).asInstanceOf[Template])
-              case TreeTpe.ValDef =>
+              case AstTag.ValDef =>
                 val nm = fetchName.asInstanceOf[TermName]
                 ValDef(null, nm, dict(x.children.head), dict(x.children.last))
-              case TreeTpe.DefDef =>
+              case AstTag.DefDef =>
                 val params = x.children.takeWithoutLasts(2).splitOn(_ == Node.separator)
                 val vparams = params.tail.map(x => x.map(dict(_).asInstanceOf[ValDef]))
                 val nm = fetchName.asInstanceOf[TermName]
                 DefDef(null, nm, params.head.map(dict(_).asInstanceOf[TypeDef]), vparams, dict(x.children.firsts.last), dict(x.children.last))
-              case TreeTpe.TypeDef =>
+              case AstTag.TypeDef =>
                 val nm = fetchName.asInstanceOf[TypeName]
                 TypeDef(null, nm, x.children.firsts map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last))
-              case TreeTpe.LabelDef =>
+              case AstTag.LabelDef =>
                 LabelDef(fetchName.asInstanceOf[TermName], x.children.firsts map (dict(_).asInstanceOf[Ident]), dict(x.children.last))
-              case TreeTpe.Import =>
+              case AstTag.Import =>
                 Import(dict(x.children.head), null)
-              case TreeTpe.Template =>
-                val children = x.children.splitOn(c => c.tpe == TreeTpe.Separator).map(_.map(dict(_)))
+              case AstTag.Template =>
+                val children = x.children.splitOn(c => c.tpe == AstTag.Separator).map(_.map(dict(_)))
                 Template(children.head, children(1).head.asInstanceOf[ValDef], children.last)
-              case TreeTpe.Block =>
+              case AstTag.Block =>
                 Block(x.children.firsts map (dict(_)), dict(x.children.last))
-              case TreeTpe.CaseDef =>
+              case AstTag.CaseDef =>
                 CaseDef(dict(x.children.head), dict(x.children(1)), dict(x.children.last))
-              case TreeTpe.Alternative =>
+              case AstTag.Alternative =>
                 Alternative(x.children map (dict(_)))
-              case TreeTpe.Star =>
+              case AstTag.Star =>
                 Star(dict(x.children.head))
-              case TreeTpe.Bind =>
+              case AstTag.Bind =>
                 Bind(fetchName, dict(x.children.head))
-              case TreeTpe.UnApply =>
+              case AstTag.UnApply =>
                 UnApply(dict(x.children.head), x.children.tail map (dict(_)))
-              case TreeTpe.ArrayValue =>
+              case AstTag.ArrayValue =>
                 ArrayValue(dict(x.children.head), x.children.tail map (dict(_)))
-              case TreeTpe.Function =>
+              case AstTag.Function =>
                 Function(x.children.firsts map (dict(_).asInstanceOf[ValDef]), dict(x.children.last))
-              case TreeTpe.Assign =>
+              case AstTag.Assign =>
                 Assign(dict(x.children.head), dict(x.children.last))
-              case TreeTpe.AssignOrNamedArg =>
+              case AstTag.AssignOrNamedArg =>
                 AssignOrNamedArg(dict(x.children.head), dict(x.children.last))
-              case TreeTpe.If =>
+              case AstTag.If =>
                 If(dict(x.children.head), dict(x.children(1)), dict(x.children.last))
-              case TreeTpe.Match =>
+              case AstTag.Match =>
                 Match(dict(x.children.head), x.children.tail map (dict(_).asInstanceOf[CaseDef]))
-              case TreeTpe.Return =>
+              case AstTag.Return =>
                 Return(dict(x.children.head))
-              case TreeTpe.Try =>
+              case AstTag.Try =>
                 Try(dict(x.children.head), x.children.tail.firsts map (dict(_).asInstanceOf[CaseDef]), dict(x.children.last))
-              case TreeTpe.Throw =>
+              case AstTag.Throw =>
                 Throw(dict(x.children.head))
-              case TreeTpe.New =>
+              case AstTag.New =>
                 New(dict(x.children.head))
-              case TreeTpe.Typed =>
+              case AstTag.Typed =>
                 Typed(dict(x.children.head), dict(x.children.last))
-              case TreeTpe.TypeApply =>
+              case AstTag.TypeApply =>
                 TypeApply(dict(x.children.head), x.children.tail map (dict(_)))
-              case TreeTpe.Apply =>
+              case AstTag.Apply =>
                 Apply(dict(x.children.head), x.children.tail map (dict(_)))
-              case TreeTpe.ApplyDynamic =>
+              case AstTag.ApplyDynamic =>
                 ApplyDynamic(dict(x.children.head), x.children.tail map (dict(_)))
-              case TreeTpe.This =>
+              case AstTag.This =>
                 This(fetchName.asInstanceOf[TypeName])
-              case TreeTpe.Select =>
+              case AstTag.Select =>
                 Select(dict(x.children.head), fetchName)
-              case TreeTpe.Ident =>
+              case AstTag.Ident =>
                 Ident(fetchName)
-              case TreeTpe.ReferenceToBoxed =>
+              case AstTag.ReferenceToBoxed =>
                 ReferenceToBoxed(dict(x.children.head).asInstanceOf[Ident])
-              case TreeTpe.Literal =>
+              case AstTag.Literal =>
                 Literal(x.value.get.asInstanceOf[Constant]) /* TODO : value */
-              case TreeTpe.Annotated =>
+              case AstTag.Annotated =>
                 Annotated(dict(x.children.head), dict(x.children.last))
-              case TreeTpe.SingletonTypeTree =>
+              case AstTag.SingletonTypeTree =>
                 SingletonTypeTree(dict(x.children.head))
-              case TreeTpe.SelectFromTypeTree =>
+              case AstTag.SelectFromTypeTree =>
                 SelectFromTypeTree(dict(x.children.head), fetchName.asInstanceOf[TypeName])
-              case TreeTpe.CompoundTypeTree =>
+              case AstTag.CompoundTypeTree =>
                 CompoundTypeTree(dict(x.children.head).asInstanceOf[Template])
-              case TreeTpe.AppliedTypeTree =>
+              case AstTag.AppliedTypeTree =>
                 AppliedTypeTree(dict(x.children.head), x.children.tail map (dict(_)))
-              case TreeTpe.TypeBoundsTree =>
+              case AstTag.TypeBoundsTree =>
                 TypeBoundsTree(dict(x.children.head), dict(x.children.last))
-              case TreeTpe.ExistentialTypeTree =>
+              case AstTag.ExistentialTypeTree =>
                 ExistentialTypeTree(dict(x.children.head), x.children.tail map (dict(_).asInstanceOf[MemberDef]))
-              case TreeTpe.TypeTree =>
+              case AstTag.TypeTree =>
                 TypeTree()
-              case TreeTpe.Super =>
+              case AstTag.Super =>
                 Super(dict(x.children.head), fetchName.asInstanceOf[TypeName])
-              case TreeTpe.EmptyTree => EmptyTree
+              case AstTag.EmptyTree => EmptyTree
               case _ => sys.error(x.getClass().toString()) /* TODO : remove */
             }
             /* TODO: cleaner */
-            if (x.tpe != TreeTpe.EmptyTree) {
+            if (x.tpe != AstTag.EmptyTree) {
               if (typeList.head != null) res.setType(typeList.head)
               typeList = typeList.tail
-              if (symbolList.head != null && x.tpe != TreeTpe.TypeTree) res.setSymbol(symbolList.head) /* TODO: cannot set symbols to TypeTree, figure out */
+              if (symbolList.head != null && x.tpe != AstTag.TypeTree) res.setSymbol(symbolList.head) /* TODO: cannot set symbols to TypeTree, figure out */
               symbolList = symbolList.tail
             }
             loop(xs, dict + (x -> res))
@@ -336,7 +336,7 @@ class Plugin(val global: Global) extends NscPlugin {
           nameList = nameList.tail
           ret
         }
-        loop(decomp.tree.flattenBFS.filter(x => x.tpe != TreeTpe.Separator), Map((Node.empty -> EmptyTree)))(decomp.tree)
+        loop(decomp.tree.flattenBFS.filter(x => x.tpe != AstTag.Separator), Map((Node.empty -> EmptyTree)))(decomp.tree)
       }
     }
   }

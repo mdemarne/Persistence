@@ -6,21 +6,20 @@ import scala.language.implicitConversions
 
 object ParseTestTree extends StandardTokenParsers {
   lexical.delimiters ++= List("(", ")")
-  
+
   /*Map for the tpe*/
-  val strTpeMap: Map[String, TreeTpe.Value] = Map (("v" -> TreeTpe.ValDef),
-     ("c" -> TreeTpe.ClassDef), ("m" -> TreeTpe.ModuleDef), ("t" -> TreeTpe.Try))
+  val strTpeMap: Map[String, AstTag.Value] = Map(("v" -> AstTag.ValDef),
+    ("c" -> AstTag.ClassDef), ("m" -> AstTag.ModuleDef), ("t" -> AstTag.Try))
 
   /*Helper function to get type in parser*/
-  implicit def strToTpe(str: String): TreeTpe.Value = strTpeMap.getOrElse(str, TreeTpe.EmptyTree) 
+  implicit def strToTpe(str: String): AstTag.Value = strTpeMap.getOrElse(str, AstTag.EmptyTree)
   /*Parser for the tpe*/
-  def tpe: Parser[TreeTpe.Value] = (
-     ident ^^ {case e => e} 
-   )
+  def tpe: Parser[AstTag.Value] = (
+    ident ^^ { case e => e })
 
   /*Parses a simple node*/
   def NodeParse: Parser[Node] = (
-    tpe ^^ {case e => Node(e, mods = None, sels = Nil, children = Nil, pos = None, value = None)})
+    tpe ^^ { case e => Node(e, children = Nil, value = None) })
 
   /*Parses the tree*/
   def TreeParse: Parser[Node] = (
@@ -37,13 +36,13 @@ object ParseTestTree extends StandardTokenParsers {
         return Some(trees)
       case e => println(e); None
     }
- }
- 
- case class dictEntry(tpe: TreeTpe.Value, idx: Int, parentIdx: Int){
-  override def toString = s"(${tpe}, ${idx}, ${parentIdx})"
- }
- /* return an exploitable version of the dictionary from AstCompressor.parse() */ 
- def dictForTest(dict: Map[List[NodeBFS], Int]) = {
+  }
+
+  case class dictEntry(tpe: AstTag.Value, idx: Int, parentIdx: Int) {
+    override def toString = s"(${tpe}, ${idx}, ${parentIdx})"
+  }
+  /* return an exploitable version of the dictionary from AstCompressor.parse() */
+  def dictForTest(dict: Map[List[NodeBFS], Int]) = {
     var idx = 0
     dict map (x => (x._1.map(y => dictEntry(y.node.tpe, y.bfsIdx, y.parentBfsIdx)), x._2))
   }
