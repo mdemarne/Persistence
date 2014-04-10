@@ -7,6 +7,8 @@ object Implicits {
 
   type RevList[A] = List[A] /* leaves first */
 
+  type AstDict = Map[List[NodeBFS], Int] /* Represent a compression dictionary for trees of nodes */
+
   implicit class BFSListToBFSMapWithIndxs[T](lst: RevList[T]) {
     /* Generate a map of (T, List[Int]), where the values are the occurrences of T in the tree in BFS order */
     def zipWithIdxs: Map[T, List[Int]] = lst.zipWithIndex.groupBy(v => v._1).map(e => (e._1 -> e._2.map(i => i._2)))
@@ -51,7 +53,7 @@ object Implicits {
       Some(loop(lst, lst.map(n => n.copy(node = n.node.cleanCopy))).last.node)
     }
   }
-  
+
   implicit class ListTakeAndSplit[T](lst: List[T]) {
     def firsts = lst.reverse.tail.reverse
     def takeWithoutLasts(n: Int) = lst.reverse.drop(n).reverse

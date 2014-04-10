@@ -1,4 +1,4 @@
-package plugin.src.main.scala.scala.reflect.persistence
+package scala.reflect.persistence
 
 import scala.language.postfixOps
 import java.nio.ByteBuffer

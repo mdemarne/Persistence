@@ -4,7 +4,6 @@ import scala.tools.nsc.{ Global, Phase, SubComponent }
 import scala.tools.nsc.plugins.{ Plugin => NscPlugin, PluginComponent => NscPluginComponent }
 import scala.language.postfixOps
 import scala.annotation.tailrec
-import plugin.src.main.scala.scala.reflect.persistence.LzwCompressor
 import java.io.DataOutputStream
 import java.io.FileOutputStream
 

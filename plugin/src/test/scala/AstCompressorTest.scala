@@ -9,7 +9,7 @@ class AstCompressorTest extends FunSuite {
 
     val tree = ParseTestTree.parse(treeStr)
     val cmp = new AstCompressor(null)
-    val dict = cmp.parse(tree.get)
+    val dict = tree.get.computeFreqs
     val exploitableDict = ParseTestTree.dictForTest(dict)
     println("Dictionary:")
     println(exploitableDict)
@@ -25,7 +25,7 @@ class AstCompressorTest extends FunSuite {
 
     val tree = ParseTestTree.parse(treeStr)
     val cmp = new AstCompressor(null)
-    val dict = cmp.parse(tree.get)
+    val dict = tree.get.computeFreqs
     val exploitableDict = ParseTestTree.dictForTest(dict)
     println("Dictionary:")
     println(exploitableDict)
@@ -37,7 +37,7 @@ class AstCompressorTest extends FunSuite {
 
     val tree = ParseTestTree.parse(treeStr)
     val cmp = new AstCompressor(null)
-    val dict = cmp.parse(tree.get)
+    val dict = tree.get.computeFreqs
     val exploitableDict = ParseTestTree.dictForTest(dict)
     println("Dictionary:")
     println(exploitableDict)
@@ -54,7 +54,7 @@ class AstCompressorTest extends FunSuite {
     
     val cmp = new AstCompressor(null)
     val tree = ParseTestTree.parse(treeStr)
-    val dict = ParseTestTree.dictForTest(cmp.parse(tree.get))
+    val dict = ParseTestTree.dictForTest(tree.get.computeFreqs)
     println("Dictionary:")
     println(dict)
     assert(dict.values.toList.contains(7))

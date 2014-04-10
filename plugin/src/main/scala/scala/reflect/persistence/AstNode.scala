@@ -59,6 +59,34 @@ case class Node(tpe: TreeTpe.Value, mods: Option[ModifiersNode], sels: List[Sele
     }
     loop((this, 0) :: Nil, NodeBFS(this, 0, -1) :: Nil)
   }
+  
+  /* TODO: perhaps dict can be a val passed to loop */
+  /* Compute a dictionary for the compression algorithm, based on LZW and the tree in BFS order */
+  def computeFreqs = {
+    var dict: AstDict = Map(this.getSubBFS(1) -> 0)
+    @tailrec def loop(que: List[Node]): Unit = que match {
+      case Nil => /* Nothing more to parse */
+      case nd :: nds =>
+        val bfs = nd.childrenBFSIdx
+        val candidates = dict.keys.map(cand => bfs.intersectBFS(cand)).filter(_.size > 0)
+        val max = candidates./:(List[NodeBFS]())((x, y) => if (x.size > y.size) x else y)
+        max.size match {
+          case 0 => /* nothing found, we add the new node to dict and all its children to the queue */
+            dict += (bfs.takeSubtree(1) -> 1)
+            loop(nds ++ nd.children)
+          case sz if sz == bfs.size => /* perfect subtree matching */
+            dict += (max -> (dict(max) + 1)) /* update the frequency of max in dict */
+            loop(nds)
+          case sz => /* the match does not cover all the subtree */
+            val nwst = bfs.takeSubtree(sz + 1)
+            dict += (nwst -> 1) /* add max + one more node */
+            candidates foreach (cdt => dict += (cdt -> (dict(cdt) + 1))) /* update counter for all prefix trees */
+            loop(nds ++ nwst.subRoots) /* add children of bfs.take(max.size + 1) to que */
+        }
+    }
+    loop(this :: Nil)
+    dict
+  }
 
   def setPos(pos: Position) = this.pos = Some(pos)
 }
