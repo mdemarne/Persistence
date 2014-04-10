@@ -12,6 +12,8 @@ object TreeTpe extends Enumeration {
 case class NodeBFS(node: Node, bfsIdx: Int, parentBfsIdx: Int) {
 
   def addChild(nd: Node) = this.copy(node = this.node.copy(children = nd :: this.node.children))
+
+  def equalsStructure(that: NodeBFS): Boolean = (this.node.tpe == that.node.tpe && this.bfsIdx == that.bfsIdx && this.parentBfsIdx == that.parentBfsIdx)
 }
 
 /* Represents a node in the tree */
@@ -30,7 +32,7 @@ case class Node(tpe: TreeTpe.Value, children: List[Node], value: Option[Any] = N
   /*TODO never called, might be useful later*/
   /* Return a subtree of 'this' with only the n children traversed in BFS order */
   def getSubtree(i: Int): Node = getSubBFS(i).toTree.get
-
+ 
   /* Return a version of the node without any child */
   def cleanCopy: Node = this.copy(children = Nil)
 
