@@ -61,25 +61,25 @@ class Plugin(val global: Global) extends NscPlugin {
                 Node(TreeTpe.PackageDef, dict(pid) :: (stats map (dict(_))))
               case ClassDef(mods, name, tparams, impl) =>
                 nameList :+= name
-                Node(TreeTpe.ClassDef, Some(modifiersDecomposer(mods)), (tparams ::: List(impl) map (dict(_))))
+                Node(TreeTpe.ClassDef, (tparams ::: List(impl) map (dict(_))))
               case ModuleDef(mods, name, impl) =>
                 nameList :+= name
-                Node(TreeTpe.ModuleDef, Some(modifiersDecomposer(mods)), List(dict(impl)))
+                Node(TreeTpe.ModuleDef, List(dict(impl)))
               case ValDef(mods, name, tpt, rhs) =>
                 nameList :+= name
-                Node(TreeTpe.ValDef, Some(modifiersDecomposer(mods)), List(dict(tpt), dict(rhs)))
+                Node(TreeTpe.ValDef, List(dict(tpt), dict(rhs)))
               case DefDef(mods, name, tparams, vparams, tpt, rhs) =>
                 nameList :+= name
                 val vnodes = vparams.map(_.map(dict(_))).flatMap(_ :+ Node.separator)
-                Node(TreeTpe.DefDef, Some(modifiersDecomposer(mods)), (tparams.map(dict(_)) ::: List(Node.separator) ::: vnodes ::: List(dict(tpt), dict(rhs))))
+                Node(TreeTpe.DefDef, (tparams.map(dict(_)) ::: List(Node.separator) ::: vnodes ::: List(dict(tpt), dict(rhs))))
               case TypeDef(mods, name, tparams, rhs) =>
                 nameList :+ name
-                Node(TreeTpe.TypeDef, Some(modifiersDecomposer(mods)), (tparams ::: List(rhs)) map (dict(_)))
+                Node(TreeTpe.TypeDef, (tparams ::: List(rhs)) map (dict(_)))
               case LabelDef(name, params, rhs) =>
                 nameList :+= name
-                Node(TreeTpe.LabelDef, None, (params ::: List(rhs)) map (dict(_)))
+                Node(TreeTpe.LabelDef, (params ::: List(rhs)) map (dict(_)))
               case Import(expr, selectors) =>
-                Node(TreeTpe.Import, selectors map (selectorDecomposer(_)), List(dict(expr)))
+                Node(TreeTpe.Import, List(dict(expr)))
               case Template(parents, self, body) =>
                 Node(TreeTpe.Template, (parents.map(dict(_)) ::: List(Node.separator, dict(self), Node.separator) ::: body.map(dict(_))))
               case Block(stats, expr) =>
@@ -159,21 +159,9 @@ class Plugin(val global: Global) extends NscPlugin {
                 Node(TreeTpe.Super, List(dict(qual)))
               case _ => sys.error(x.getClass().toString()) /* TODO : remove */
             }
-            res.setPos(x.pos)
             loop(xs, dict + (x -> res))
         }
-        /* generate names / symbols / types lists and simplify the annotations of modifiers */
-        def modifiersDecomposer(m: Modifiers): ModifiersNode = {
-          nameList :+= m.privateWithin
-          val mdAnnotations: List[Node] = m.annotations map (anno => loop(anno flattenBFS, Map((EmptyTree -> Node.empty)))(anno))
-          new ModifiersNode(m.flags, mdAnnotations)
-        }
-        /* generate a Selector node with indices */
-        def selectorDecomposer(sel: ImportSelector): SelectorNode = {
-          nameList ++= sel.name :: sel.rename :: Nil
-          SelectorNode(sel.namePos, sel.renamePos)
-        }
-
+              
         val newTree = loop(tree flattenBFS, Map((EmptyTree -> Node.empty)))(tree)
         DecomposedTree(newTree, nameList.zipWithIdxs, symbolList.zipWithIdxs, typeList.zipWithIdxs)
       }
@@ -240,25 +228,25 @@ class Plugin(val global: Global) extends NscPlugin {
                 PackageDef(dict(x.children.head).asInstanceOf[RefTree], x.children.tail map (dict(_)))
               case TreeTpe.ClassDef =>
                 val nm = fetchName.asInstanceOf[TypeName] /* Need to fetch name first to avoid swap with name of modifier */
-                ClassDef(modifiersRecomposer(x.mods.get), nm, x.children.firsts map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last).asInstanceOf[Template])
+                ClassDef(null, nm, x.children.firsts map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last).asInstanceOf[Template])
               case TreeTpe.ModuleDef =>
                 val nm = fetchName.asInstanceOf[TermName]
-                ModuleDef(modifiersRecomposer(x.mods.get), nm, dict(x.children.head).asInstanceOf[Template])
+                ModuleDef(null, nm, dict(x.children.head).asInstanceOf[Template])
               case TreeTpe.ValDef =>
                 val nm = fetchName.asInstanceOf[TermName]
-                ValDef(modifiersRecomposer(x.mods.get), nm, dict(x.children.head), dict(x.children.last))
+                ValDef(null, nm, dict(x.children.head), dict(x.children.last))
               case TreeTpe.DefDef =>
                 val params = x.children.takeWithoutLasts(2).splitOn(_ == Node.separator)
                 val vparams = params.tail.map(x => x.map(dict(_).asInstanceOf[ValDef]))
                 val nm = fetchName.asInstanceOf[TermName]
-                DefDef(modifiersRecomposer(x.mods.get), nm, params.head.map(dict(_).asInstanceOf[TypeDef]), vparams, dict(x.children.firsts.last), dict(x.children.last))
+                DefDef(null, nm, params.head.map(dict(_).asInstanceOf[TypeDef]), vparams, dict(x.children.firsts.last), dict(x.children.last))
               case TreeTpe.TypeDef =>
                 val nm = fetchName.asInstanceOf[TypeName]
-                TypeDef(modifiersRecomposer(x.mods.get), nm, x.children.firsts map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last))
+                TypeDef(null, nm, x.children.firsts map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last))
               case TreeTpe.LabelDef =>
                 LabelDef(fetchName.asInstanceOf[TermName], x.children.firsts map (dict(_).asInstanceOf[Ident]), dict(x.children.last))
               case TreeTpe.Import =>
-                Import(dict(x.children.head), x.sels map (selectorRecomposer(_)))
+                Import(dict(x.children.head), null)
               case TreeTpe.Template =>
                 val children = x.children.splitOn(c => c.tpe == TreeTpe.Separator).map(_.map(dict(_)))
                 Template(children.head, children(1).head.asInstanceOf[ValDef], children.last)
@@ -342,17 +330,7 @@ class Plugin(val global: Global) extends NscPlugin {
             }
             loop(xs, dict + (x -> res))
         }
-        def modifiersRecomposer(m: ModifiersNode): Modifiers = {
-          val privateWithin = fetchName /* necessary to avoid inversion */
-          val mdAnnotations: List[Tree] = m.annotations map (anno => loop(anno flattenBFS, Map((Node.empty -> EmptyTree)))(anno))
-          val ret = Modifiers(m.flags, privateWithin, mdAnnotations)
-          ret
-        }
-        /* generate a Selector node with indices */
-        def selectorRecomposer(sel: SelectorNode): ImportSelector = {
-          val ret = ImportSelector(fetchName, sel.namePos, fetchName, sel.renamePos)
-          ret
-        }
+        
         def fetchName = {
           val ret = nameList.head
           nameList = nameList.tail
