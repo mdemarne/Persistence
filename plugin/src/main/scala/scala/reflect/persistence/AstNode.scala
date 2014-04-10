@@ -18,7 +18,7 @@ case class NodeBFS(node: Node, bfsIdx: Int, parentBfsIdx: Int) {
 
 /* Represents a node in the tree */
 /* TODO: unfortunately, Constant is dependent of global. It's why it's an Any here. */
-case class Node(tpe: AstTag.Value, children: List[Node], value: Option[Any] = None) {
+case class Node(tpe: AstTag.Value, children: List[Node]) {
   import Implicits._
 
   val childrenBFS: RevList[Node] = this.flattenBFS
@@ -89,9 +89,7 @@ case class Node(tpe: AstTag.Value, children: List[Node], value: Option[Any] = No
 
 /* Companion object */
 object Node {
-  //def apply(tpe: AstTag.Value, children: List[Node], value: Option[Any]) = new Node(tpe, children, value)
-  def apply(tpe: AstTag.Value, children: List[Node]) = new Node(tpe, children)
-  def apply(tpe: AstTag.Value, value: Any) = new Node(tpe, Nil, Some(value))
+  def apply(tpe: AstTag.Value) = new Node(tpe, Nil)
   def empty = new Node(AstTag.EmptyTree, Nil)
   def separator = new Node(AstTag.Separator, Nil)
 }

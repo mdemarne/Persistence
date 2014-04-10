@@ -25,13 +25,14 @@ class Plugin(val global: Global) extends NscPlugin {
 
     def newPhase(prev: Phase) = new StdPhase(prev) {
       def apply(unit: CompilationUnit) {
-        /* TODO: remove those (there for test) */
+        /* TODO: remove those (there for test dependent of global) */
         val decomposedTree = new TreeDecomposer()(unit body)
         val recomposedTree = new TreeRecomposer()(decomposedTree)
         println("Original:")
         println(unit body)
-        println("Recomposed:")
-        println(recomposedTree)
+        /* TODO: due to the minimal tree saving, the recomposer puts null for mods and values, which crashes the prettyprinter. */
+        /*println("Recomposed:")*/
+        /*println(recomposedTree)*/
         /*val lzwComp = new LzwCompressor(new DataOutputStream(new FileOutputStream("test.cmp")))*/
         /*new NameCompressor(lzwComp)(decomposedTree namesBFS)*/
         /*new SymbolCompressor(lzwComp)(decomposedTree symbBFS)*/
@@ -41,7 +42,7 @@ class Plugin(val global: Global) extends NscPlugin {
     }
 
     /*Wrapper for treeDecomposer's function*/
-    case class DecomposedTree(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]])
+    case class DecomposedTree(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]], constBFS : Map[Constant, List[Int]])
 
     /* Return a simplified tree along with maps of Names / Symbols / Types zipped with occurrences in BFS order */
     class TreeDecomposer extends (Tree => DecomposedTree) {
@@ -49,6 +50,7 @@ class Plugin(val global: Global) extends NscPlugin {
         var nameList: RevList[Name] = List()
         var symbolList: RevList[Symbol] = List()
         var typeList: RevList[Type] = List()
+        var constList: RevList[Constant] = List()
         /* Traverse the tree, save names, type, symbols into corresponding list
          * and replace them in the tree by default values*/
         @tailrec def loop(trees: List[Tree], dict: Map[Tree, Node]): Map[Tree, Node] = trees match {
@@ -135,8 +137,8 @@ class Plugin(val global: Global) extends NscPlugin {
               case ReferenceToBoxed(ident) =>
                 Node(AstTag.ReferenceToBoxed, List(dict(ident)))
               case Literal(value) =>
-                //Literal(value) /* TODO : what do we do with values ? Can keep them as is ? */
-                Node(AstTag.Literal, value) //TODO HEY what do we do here ?
+                constList :+= value
+                Node(AstTag.Literal)
               case Annotated(annot, arg) =>
                 Node(AstTag.Annotated, List(annot, arg) map (dict(_)))
               case SingletonTypeTree(ref) =>
@@ -163,9 +165,10 @@ class Plugin(val global: Global) extends NscPlugin {
         }
               
         val newTree = loop(tree flattenBFS, Map((EmptyTree -> Node.empty)))(tree)
-        DecomposedTree(newTree, nameList.zipWithIdxs, symbolList.zipWithIdxs, typeList.zipWithIdxs)
+        DecomposedTree(newTree, nameList.zipWithIdxs, symbolList.zipWithIdxs, typeList.zipWithIdxs, constList.zipWithIdxs)
       }
     }
+    
     class SymbolDecomposer { /* TODO */ }
 
     class NameCompressor(comp: LzwCompressor) extends (Map[Name, List[Int]] => Unit) {
@@ -200,6 +203,8 @@ class Plugin(val global: Global) extends NscPlugin {
       /* TODO: the types here are the same as in the AST, no need to store them twice */
       def apply(symbBFS: Map[Symbol, List[Int]]) = { ??? }
     }
+    
+    class ConstantCompressor{ /* TODO */ }
     class TypeCompressor { /* TODO */ }
 
     /* Generate a list of trees in BFS order */
@@ -220,6 +225,7 @@ class Plugin(val global: Global) extends NscPlugin {
         var nameList: RevList[Name] = decomp.namesBFS.unzipWithIdxs
         var symbolList: RevList[Symbol] = decomp.symbBFS.unzipWithIdxs
         var typeList: RevList[Type] = decomp.typesBFS.unzipWithIdxs
+        var constList: RevList[Constant] = decomp.constBFS.unzipWithIdxs
         @tailrec def loop(trees: List[Node], dict: Map[Node, Tree]): Map[Node, Tree] = trees match {
           case Nil => dict
           case x :: xs =>
@@ -228,7 +234,7 @@ class Plugin(val global: Global) extends NscPlugin {
                 PackageDef(dict(x.children.head).asInstanceOf[RefTree], x.children.tail map (dict(_)))
               case AstTag.ClassDef =>
                 val nm = fetchName.asInstanceOf[TypeName] /* Need to fetch name first to avoid swap with name of modifier */
-                ClassDef(null, nm, x.children.firsts map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last).asInstanceOf[Template])
+                ClassDef(null, nm, x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last).asInstanceOf[Template])
               case AstTag.ModuleDef =>
                 val nm = fetchName.asInstanceOf[TermName]
                 ModuleDef(null, nm, dict(x.children.head).asInstanceOf[Template])
@@ -236,22 +242,22 @@ class Plugin(val global: Global) extends NscPlugin {
                 val nm = fetchName.asInstanceOf[TermName]
                 ValDef(null, nm, dict(x.children.head), dict(x.children.last))
               case AstTag.DefDef =>
-                val params = x.children.takeWithoutLasts(2).splitOn(_ == Node.separator)
+                val params = x.children.dropRight(2).splitOn(_ == Node.separator)
                 val vparams = params.tail.map(x => x.map(dict(_).asInstanceOf[ValDef]))
                 val nm = fetchName.asInstanceOf[TermName]
-                DefDef(null, nm, params.head.map(dict(_).asInstanceOf[TypeDef]), vparams, dict(x.children.firsts.last), dict(x.children.last))
+                DefDef(null, nm, params.head.map(dict(_).asInstanceOf[TypeDef]), vparams, dict(x.children.init.last), dict(x.children.last))
               case AstTag.TypeDef =>
                 val nm = fetchName.asInstanceOf[TypeName]
-                TypeDef(null, nm, x.children.firsts map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last))
+                TypeDef(null, nm, x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last))
               case AstTag.LabelDef =>
-                LabelDef(fetchName.asInstanceOf[TermName], x.children.firsts map (dict(_).asInstanceOf[Ident]), dict(x.children.last))
+                LabelDef(fetchName.asInstanceOf[TermName], x.children.init map (dict(_).asInstanceOf[Ident]), dict(x.children.last))
               case AstTag.Import =>
                 Import(dict(x.children.head), null)
               case AstTag.Template =>
                 val children = x.children.splitOn(c => c.tpe == AstTag.Separator).map(_.map(dict(_)))
                 Template(children.head, children(1).head.asInstanceOf[ValDef], children.last)
               case AstTag.Block =>
-                Block(x.children.firsts map (dict(_)), dict(x.children.last))
+                Block(x.children.init map (dict(_)), dict(x.children.last))
               case AstTag.CaseDef =>
                 CaseDef(dict(x.children.head), dict(x.children(1)), dict(x.children.last))
               case AstTag.Alternative =>
@@ -265,7 +271,7 @@ class Plugin(val global: Global) extends NscPlugin {
               case AstTag.ArrayValue =>
                 ArrayValue(dict(x.children.head), x.children.tail map (dict(_)))
               case AstTag.Function =>
-                Function(x.children.firsts map (dict(_).asInstanceOf[ValDef]), dict(x.children.last))
+                Function(x.children.init map (dict(_).asInstanceOf[ValDef]), dict(x.children.last))
               case AstTag.Assign =>
                 Assign(dict(x.children.head), dict(x.children.last))
               case AstTag.AssignOrNamedArg =>
@@ -277,7 +283,7 @@ class Plugin(val global: Global) extends NscPlugin {
               case AstTag.Return =>
                 Return(dict(x.children.head))
               case AstTag.Try =>
-                Try(dict(x.children.head), x.children.tail.firsts map (dict(_).asInstanceOf[CaseDef]), dict(x.children.last))
+                Try(dict(x.children.head), x.children.tail.init map (dict(_).asInstanceOf[CaseDef]), dict(x.children.last))
               case AstTag.Throw =>
                 Throw(dict(x.children.head))
               case AstTag.New =>
@@ -299,7 +305,9 @@ class Plugin(val global: Global) extends NscPlugin {
               case AstTag.ReferenceToBoxed =>
                 ReferenceToBoxed(dict(x.children.head).asInstanceOf[Ident])
               case AstTag.Literal =>
-                Literal(x.value.get.asInstanceOf[Constant]) /* TODO : value */
+                val const = constList.head
+                constList = constList.tail
+                Literal(const) /* TODO : value */
               case AstTag.Annotated =>
                 Annotated(dict(x.children.head), dict(x.children.last))
               case AstTag.SingletonTypeTree =>

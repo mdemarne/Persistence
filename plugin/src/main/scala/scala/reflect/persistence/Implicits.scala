@@ -55,8 +55,6 @@ object Implicits {
   }
 
   implicit class ListTakeAndSplit[T](lst: List[T]) {
-    def firsts = lst.reverse.tail.reverse
-    def takeWithoutLasts(n: Int) = lst.reverse.drop(n).reverse
     def splitOn(p: T => Boolean): List[List[T]] = {
       def loop(xss: List[T]): List[List[T]] = xss match {
         case Nil => Nil

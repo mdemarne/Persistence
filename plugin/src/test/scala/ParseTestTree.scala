@@ -19,7 +19,7 @@ object ParseTestTree extends StandardTokenParsers {
 
   /*Parses a simple node*/
   def NodeParse: Parser[Node] = (
-    tpe ^^ { case e => Node(e, children = Nil, value = None) })
+    tpe ^^ { case e => Node(e) })
 
   /*Parses the tree*/
   def TreeParse: Parser[Node] = (
