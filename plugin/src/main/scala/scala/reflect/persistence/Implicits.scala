@@ -21,7 +21,7 @@ object Implicits {
     /* Return a common subtree of this and n if exists, with the size of the subtree in BFS order */
     def intersectBFS(nds: RevList[NodeBFS]): RevList[NodeBFS] = {
       def loop(nds1: RevList[NodeBFS], nds2: RevList[NodeBFS]): RevList[NodeBFS] = (nds1, nds2) match {
-        case (x :: xs, y :: ys) if x :=: y => y :: loop(xs, ys)
+        case (x :: xs, y :: ys) if x == y => y :: loop(xs, ys)
         case _ => Nil
       }
       val inter = loop(lst.reverse, nds.reverse).reverse
