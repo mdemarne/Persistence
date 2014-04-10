@@ -60,7 +60,7 @@ case class Node(tpe: AstTag.Value, children: List[Node]) {
   /* TODO: perhaps dict can be a val passed to loop */
   /* Compute a dictionary for the compression algorithm, based on LZW and the tree in BFS order */
   def computeFreqs = {
-    var dict: AstDict = Map(this.getSubBFS(1) -> 0)
+    var dict: NodeDict = Map(this.getSubBFS(1) -> 0)
     @tailrec def loop(que: List[Node]): Unit = que match {
       case Nil => /* Nothing more to parse */
       case nd :: nds =>

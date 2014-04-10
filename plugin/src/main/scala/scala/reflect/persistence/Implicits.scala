@@ -7,7 +7,7 @@ object Implicits {
 
   type RevList[A] = List[A] /* leaves first */
 
-  type AstDict = Map[List[NodeBFS], Int] /* Represent a compression dictionary for trees of nodes */
+  type NodeDict = Map[List[NodeBFS], Int] /* Represent a compression dictionary for trees of nodes */
 
   implicit class BFSListToBFSMapWithIndxs[T](lst: RevList[T]) {
     /* Generate a map of (T, List[Int]), where the values are the occurrences of T in the tree in BFS order */
