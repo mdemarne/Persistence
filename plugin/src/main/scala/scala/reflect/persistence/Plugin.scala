@@ -234,21 +234,21 @@ class Plugin(val global: Global) extends NscPlugin {
                 PackageDef(dict(x.children.head).asInstanceOf[RefTree], x.children.tail map (dict(_)))
               case AstTag.ClassDef =>
                 val nm = fetchName.asInstanceOf[TypeName] /* Need to fetch name first to avoid swap with name of modifier */
-                ClassDef(null, nm, x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last).asInstanceOf[Template])
+                ClassDef(NoMods, nm, x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last).asInstanceOf[Template])
               case AstTag.ModuleDef =>
                 val nm = fetchName.asInstanceOf[TermName]
-                ModuleDef(null, nm, dict(x.children.head).asInstanceOf[Template])
+                ModuleDef(NoMods, nm, dict(x.children.head).asInstanceOf[Template])
               case AstTag.ValDef =>
                 val nm = fetchName.asInstanceOf[TermName]
-                ValDef(null, nm, dict(x.children.head), dict(x.children.last))
+                ValDef(NoMods, nm, dict(x.children.head), dict(x.children.last))
               case AstTag.DefDef =>
                 val params = x.children.dropRight(2).splitOn(_ == Node.separator)
                 val vparams = params.tail.map(x => x.map(dict(_).asInstanceOf[ValDef]))
                 val nm = fetchName.asInstanceOf[TermName]
-                DefDef(null, nm, params.head.map(dict(_).asInstanceOf[TypeDef]), vparams, dict(x.children.init.last), dict(x.children.last))
+                DefDef(NoMods, nm, params.head.map(dict(_).asInstanceOf[TypeDef]), vparams, dict(x.children.init.last), dict(x.children.last))
               case AstTag.TypeDef =>
                 val nm = fetchName.asInstanceOf[TypeName]
-                TypeDef(null, nm, x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last))
+                TypeDef(NoMods, nm, x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last))
               case AstTag.LabelDef =>
                 LabelDef(fetchName.asInstanceOf[TermName], x.children.init map (dict(_).asInstanceOf[Ident]), dict(x.children.last))
               case AstTag.Import =>

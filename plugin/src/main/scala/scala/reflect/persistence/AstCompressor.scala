@@ -1,4 +1,5 @@
 package scala.reflect.persistence
+
 import java.io.DataOutputStream
 import scala.annotation.tailrec
 
