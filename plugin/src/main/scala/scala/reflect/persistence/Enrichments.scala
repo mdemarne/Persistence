@@ -8,17 +8,17 @@ object Enrichments {
 
   type NodeDict = Map[List[NodeBFS], Int] /* Represent a compression dictionary for trees of nodes */
 
-  implicit class BFSListToBFSMapWithIndxs[T](lst: RevList[T]) {
+  implicit class RichRevList[T](lst: RevList[T]) {
     /* Generate a map of (T, List[Int]), where the values are the occurrences of T in the tree in BFS order */
     def zipWithIdxs: Map[T, List[Int]] = lst.zipWithIndex.groupBy(v => v._1).map(e => (e._1 -> e._2.map(i => i._2)))
   }
 
-  implicit class BFSMapWithIndxToBFSList[T](lst: Map[T, List[Int]]) {
+  implicit class RichMap[T](lst: Map[T, List[Int]]) {
     /* Generate a list of (T) following the indexes in the given Map[T, List[Int]] */
     def unzipWithIdxs: RevList[T] = lst.flatMap(el => el._2 map (indx => (indx, el._1))).toList.sortBy(f => f._1).map(_._2)
   }
 
-  implicit class ListNodeBFS(lst: RevList[NodeBFS]) {
+  implicit class RichRevListNodeBFS(lst: RevList[NodeBFS]) {
     /* Return a common subtree of this and n if exists, with the size of the subtree in BFS order */
     def intersectBFS(nds: RevList[NodeBFS]): RevList[NodeBFS] = {
       def loop(nds1: RevList[NodeBFS], nds2: RevList[NodeBFS]): RevList[NodeBFS] = (nds1, nds2) match {
@@ -39,7 +39,7 @@ object Enrichments {
     /* TODO never called, might be useful later */
     /* From a list of NodeBFS, return a reconstructed tree. The NodeBFS must be well formated */
     def toTree: Option[Node] = {
-      /* Recursively goes through the old list of NodeBFS to reconstruct a list of NodeBFS where each 
+      /* Recursively goes through the old list of NodeBFS to reconstruct a list of NodeBFS where each
        * Node contains only the children present in the subtree represented by the nodes of the old list. */
       @tailrec def loop(old: RevList[NodeBFS], nw: RevList[NodeBFS]): List[NodeBFS] = old match {
         case x :: xs =>
