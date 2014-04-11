@@ -9,7 +9,7 @@ import java.io.FileOutputStream
 
 class Plugin(val global: Global) extends NscPlugin {
   import global._
-  import Implicits._
+  import Enrichments._
 
   val name = "persistence"
   val description = """Persists typed ASTs of the entire program.
@@ -30,18 +30,18 @@ class Plugin(val global: Global) extends NscPlugin {
         val recomposedTree = new TreeRecomposer()(decomposedTree)
         println("Original:")
         println(unit body)
-        /* TODO: due to the minimal tree saving, the recomposer puts null for mods and values, which crashes the prettyprinter. */
-        /*println("Recomposed:")*/
-        /*println(recomposedTree)*/
-        /*val lzwComp = new LzwCompressor(new DataOutputStream(new FileOutputStream("test.cmp")))*/
-        /*new NameCompressor(lzwComp)(decomposedTree namesBFS)*/
-        /*new SymbolCompressor(lzwComp)(decomposedTree symbBFS)*/
-        /*lzwComp.flush*/
+        /* TODO: due to the simplifications of the trees, the output isn't correct. */
+        println("Recomposed:")
+        println(recomposedTree)
+        /* val lzwComp = new LzwCompressor(new DataOutputStream(new FileOutputStream("test.cmp"))) */
+        /* new NameCompressor(lzwComp)(decomposedTree namesBFS) */
+        /* new SymbolCompressor(lzwComp)(decomposedTree symbBFS) */
+        /* lzwComp.flush */
         /* TODO: implement this */
       }
     }
 
-    /*Wrapper for treeDecomposer's function*/
+    /* Wrapper for treeDecomposer's function */
     case class DecomposedTree(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]], constBFS : Map[Constant, List[Int]])
 
     /* Return a simplified tree along with maps of Names / Symbols / Types zipped with occurrences in BFS order */
@@ -60,105 +60,105 @@ class Plugin(val global: Global) extends NscPlugin {
             typeList :+= x.tpe
             val res = x match {
               case PackageDef(pid, stats) =>
-                Node(AstTag.PackageDef, dict(pid) :: (stats map (dict(_))))
+                Node(NodeTag.PackageDef, dict(pid) :: (stats map (dict(_))))
               case ClassDef(mods, name, tparams, impl) =>
                 nameList :+= name
-                Node(AstTag.ClassDef, (tparams ::: List(impl) map (dict(_))))
+                Node(NodeTag.ClassDef, (tparams ::: List(impl) map (dict(_))))
               case ModuleDef(mods, name, impl) =>
                 nameList :+= name
-                Node(AstTag.ModuleDef, List(dict(impl)))
+                Node(NodeTag.ModuleDef, List(dict(impl)))
               case ValDef(mods, name, tpt, rhs) =>
                 nameList :+= name
-                Node(AstTag.ValDef, List(dict(tpt), dict(rhs)))
+                Node(NodeTag.ValDef, List(dict(tpt), dict(rhs)))
               case DefDef(mods, name, tparams, vparams, tpt, rhs) =>
                 nameList :+= name
                 val vnodes = vparams.map(_.map(dict(_))).flatMap(_ :+ Node.separator)
-                Node(AstTag.DefDef, (tparams.map(dict(_)) ::: List(Node.separator) ::: vnodes ::: List(dict(tpt), dict(rhs))))
+                Node(NodeTag.DefDef, (tparams.map(dict(_)) ::: List(Node.separator) ::: vnodes ::: List(dict(tpt), dict(rhs))))
               case TypeDef(mods, name, tparams, rhs) =>
                 nameList :+ name
-                Node(AstTag.TypeDef, (tparams ::: List(rhs)) map (dict(_)))
+                Node(NodeTag.TypeDef, (tparams ::: List(rhs)) map (dict(_)))
               case LabelDef(name, params, rhs) =>
                 nameList :+= name
-                Node(AstTag.LabelDef, (params ::: List(rhs)) map (dict(_)))
+                Node(NodeTag.LabelDef, (params ::: List(rhs)) map (dict(_)))
               case Import(expr, selectors) =>
-                Node(AstTag.Import, List(dict(expr)))
+                Node(NodeTag.Import, List(dict(expr)))
               case Template(parents, self, body) =>
-                Node(AstTag.Template, (parents.map(dict(_)) ::: List(Node.separator, dict(self), Node.separator) ::: body.map(dict(_))))
+                Node(NodeTag.Template, (parents.map(dict(_)) ::: List(Node.separator, dict(self), Node.separator) ::: body.map(dict(_))))
               case Block(stats, expr) =>
-                Node(AstTag.Block, (stats ::: List(expr)) map (dict(_)))
+                Node(NodeTag.Block, (stats ::: List(expr)) map (dict(_)))
               case CaseDef(pat, guard, body) =>
-                Node(AstTag.CaseDef, List(pat, guard, body) map (dict(_)))
+                Node(NodeTag.CaseDef, List(pat, guard, body) map (dict(_)))
               case Alternative(trees) =>
-                Node(AstTag.Alternative, trees map (dict(_)))
+                Node(NodeTag.Alternative, trees map (dict(_)))
               case Star(elem) =>
-                Node(AstTag.Star, List(dict(elem)))
+                Node(NodeTag.Star, List(dict(elem)))
               case Bind(name, body) =>
                 nameList :+= name
-                Node(AstTag.Bind, List(dict(body)))
+                Node(NodeTag.Bind, List(dict(body)))
               case UnApply(fun, args) =>
-                Node(AstTag.UnApply, fun :: args map (dict(_)))
+                Node(NodeTag.UnApply, fun :: args map (dict(_)))
               case ArrayValue(elemtpt, elems) =>
-                Node(AstTag.ArrayValue, elemtpt :: elems map (dict(_)))
+                Node(NodeTag.ArrayValue, elemtpt :: elems map (dict(_)))
               case Function(vparams, body) =>
-                Node(AstTag.Function, vparams ::: List(body) map (dict(_)))
+                Node(NodeTag.Function, vparams ::: List(body) map (dict(_)))
               case Assign(lhs, rhs) =>
-                Node(AstTag.Assign, List(lhs, rhs) map (dict(_)))
+                Node(NodeTag.Assign, List(lhs, rhs) map (dict(_)))
               case AssignOrNamedArg(lhs, rhs) =>
-                Node(AstTag.AssignOrNamedArg, List(lhs, rhs) map (dict(_)))
+                Node(NodeTag.AssignOrNamedArg, List(lhs, rhs) map (dict(_)))
               case If(cond, thenp, elsep) =>
-                Node(AstTag.If, List(cond, thenp, elsep) map (dict(_)))
+                Node(NodeTag.If, List(cond, thenp, elsep) map (dict(_)))
               case Match(selector, cases) =>
-                Node(AstTag.Match, selector :: cases map (dict(_)))
+                Node(NodeTag.Match, selector :: cases map (dict(_)))
               case Return(expr) =>
-                Node(AstTag.Return, List(dict(expr)))
+                Node(NodeTag.Return, List(dict(expr)))
               case Try(block, catches, finalizer) =>
-                Node(AstTag.Try, block :: catches ::: List(finalizer) map (dict(_)))
+                Node(NodeTag.Try, block :: catches ::: List(finalizer) map (dict(_)))
               case Throw(expr) =>
-                Node(AstTag.Throw, List(dict(expr)))
+                Node(NodeTag.Throw, List(dict(expr)))
               case New(tpt) =>
-                Node(AstTag.New, List(dict(tpt)))
+                Node(NodeTag.New, List(dict(tpt)))
               case Typed(expr, tpt) =>
-                Node(AstTag.Typed, List(expr, tpt) map (dict(_)))
+                Node(NodeTag.Typed, List(expr, tpt) map (dict(_)))
               case TypeApply(fun, args) =>
-                Node(AstTag.TypeApply, fun :: args map (dict(_)))
+                Node(NodeTag.TypeApply, fun :: args map (dict(_)))
               case Apply(fun, args) =>
-                Node(AstTag.Apply, fun :: args map (dict(_)))
+                Node(NodeTag.Apply, fun :: args map (dict(_)))
               case ApplyDynamic(qual, args) =>
-                Node(AstTag.ApplyDynamic, qual :: args map (dict(_)))
+                Node(NodeTag.ApplyDynamic, qual :: args map (dict(_)))
               case This(qual) =>
                 nameList :+= qual
-                Node(AstTag.This, Nil)
+                Node(NodeTag.This, Nil)
               case Select(qualifier, selector) =>
                 nameList :+= selector
-                Node(AstTag.Select, List(dict(qualifier)))
+                Node(NodeTag.Select, List(dict(qualifier)))
               case Ident(name) =>
                 nameList :+= name
-                Node(AstTag.Ident, Nil)
+                Node(NodeTag.Ident, Nil)
               case ReferenceToBoxed(ident) =>
-                Node(AstTag.ReferenceToBoxed, List(dict(ident)))
+                Node(NodeTag.ReferenceToBoxed, List(dict(ident)))
               case Literal(value) =>
                 constList :+= value
-                Node(AstTag.Literal)
+                Node(NodeTag.Literal)
               case Annotated(annot, arg) =>
-                Node(AstTag.Annotated, List(annot, arg) map (dict(_)))
+                Node(NodeTag.Annotated, List(annot, arg) map (dict(_)))
               case SingletonTypeTree(ref) =>
-                Node(AstTag.SingletonTypeTree, List(dict(ref)))
+                Node(NodeTag.SingletonTypeTree, List(dict(ref)))
               case SelectFromTypeTree(qualifier, selector) =>
                 nameList :+= selector
-                Node(AstTag.SelectFromTypeTree, List(dict(qualifier)))
+                Node(NodeTag.SelectFromTypeTree, List(dict(qualifier)))
               case CompoundTypeTree(templ) =>
-                Node(AstTag.CompoundTypeTree, List(dict(templ)))
+                Node(NodeTag.CompoundTypeTree, List(dict(templ)))
               case AppliedTypeTree(tpt, args) =>
-                Node(AstTag.AppliedTypeTree, tpt :: args map (dict(_)))
+                Node(NodeTag.AppliedTypeTree, tpt :: args map (dict(_)))
               case TypeBoundsTree(lo, hi) =>
-                Node(AstTag.TypeBoundsTree, List(lo, hi) map (dict(_)))
+                Node(NodeTag.TypeBoundsTree, List(lo, hi) map (dict(_)))
               case ExistentialTypeTree(tpt, whereClauses) =>
-                Node(AstTag.ExistentialTypeTree, tpt :: whereClauses map (dict(_)))
+                Node(NodeTag.ExistentialTypeTree, tpt :: whereClauses map (dict(_)))
               case t: TypeTree =>
-                Node(AstTag.TypeTree, Nil)
+                Node(NodeTag.TypeTree, Nil)
               case Super(qual, mix) =>
                 nameList :+= mix
-                Node(AstTag.Super, List(dict(qual)))
+                Node(NodeTag.Super, List(dict(qual)))
               case _ => sys.error(x.getClass().toString()) /* TODO : remove */
             }
             loop(xs, dict + (x -> res))
@@ -184,11 +184,11 @@ class Plugin(val global: Global) extends NscPlugin {
         comp(nms)
         println(nms)
       }
-      /*Returns the tags grouped by 8 encoded as char*/
+      /* Returns the tags grouped by 8 encoded as char */
       def createTag(l: List[Int]): List[Char] =
         (l.grouped(8).toList).map(x => bitsToChar(x.zipWithIndex, 0))
 
-      /*Converts sequence of bits to char*/
+      /* Converts sequence of bits to char */
       def bitsToChar(l: List[(Int, Int)], acc: Byte): Char = l match {
         case Nil => acc.toChar
         case x :: xs => bitsToChar(xs, (acc + (x._1 << x._2)).toByte)
@@ -230,110 +230,110 @@ class Plugin(val global: Global) extends NscPlugin {
           case Nil => dict
           case x :: xs =>
             val res = x.tpe match {
-              case AstTag.PackageDef =>
+              case NodeTag.PackageDef =>
                 PackageDef(dict(x.children.head).asInstanceOf[RefTree], x.children.tail map (dict(_)))
-              case AstTag.ClassDef =>
+              case NodeTag.ClassDef =>
                 val nm = fetchName.asInstanceOf[TypeName] /* Need to fetch name first to avoid swap with name of modifier */
                 ClassDef(NoMods, nm, x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last).asInstanceOf[Template])
-              case AstTag.ModuleDef =>
+              case NodeTag.ModuleDef =>
                 val nm = fetchName.asInstanceOf[TermName]
                 ModuleDef(NoMods, nm, dict(x.children.head).asInstanceOf[Template])
-              case AstTag.ValDef =>
+              case NodeTag.ValDef =>
                 val nm = fetchName.asInstanceOf[TermName]
                 ValDef(NoMods, nm, dict(x.children.head), dict(x.children.last))
-              case AstTag.DefDef =>
+              case NodeTag.DefDef =>
                 val params = x.children.dropRight(2).splitOn(_ == Node.separator)
                 val vparams = params.tail.map(x => x.map(dict(_).asInstanceOf[ValDef]))
                 val nm = fetchName.asInstanceOf[TermName]
                 DefDef(NoMods, nm, params.head.map(dict(_).asInstanceOf[TypeDef]), vparams, dict(x.children.init.last), dict(x.children.last))
-              case AstTag.TypeDef =>
+              case NodeTag.TypeDef =>
                 val nm = fetchName.asInstanceOf[TypeName]
                 TypeDef(NoMods, nm, x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last))
-              case AstTag.LabelDef =>
+              case NodeTag.LabelDef =>
                 LabelDef(fetchName.asInstanceOf[TermName], x.children.init map (dict(_).asInstanceOf[Ident]), dict(x.children.last))
-              case AstTag.Import =>
-                Import(dict(x.children.head), null)
-              case AstTag.Template =>
-                val children = x.children.splitOn(c => c.tpe == AstTag.Separator).map(_.map(dict(_)))
+              case NodeTag.Import =>
+                Import(dict(x.children.head), Nil)
+              case NodeTag.Template =>
+                val children = x.children.splitOn(c => c.tpe == NodeTag.Separator).map(_.map(dict(_)))
                 Template(children.head, children(1).head.asInstanceOf[ValDef], children.last)
-              case AstTag.Block =>
+              case NodeTag.Block =>
                 Block(x.children.init map (dict(_)), dict(x.children.last))
-              case AstTag.CaseDef =>
+              case NodeTag.CaseDef =>
                 CaseDef(dict(x.children.head), dict(x.children(1)), dict(x.children.last))
-              case AstTag.Alternative =>
+              case NodeTag.Alternative =>
                 Alternative(x.children map (dict(_)))
-              case AstTag.Star =>
+              case NodeTag.Star =>
                 Star(dict(x.children.head))
-              case AstTag.Bind =>
+              case NodeTag.Bind =>
                 Bind(fetchName, dict(x.children.head))
-              case AstTag.UnApply =>
+              case NodeTag.UnApply =>
                 UnApply(dict(x.children.head), x.children.tail map (dict(_)))
-              case AstTag.ArrayValue =>
+              case NodeTag.ArrayValue =>
                 ArrayValue(dict(x.children.head), x.children.tail map (dict(_)))
-              case AstTag.Function =>
+              case NodeTag.Function =>
                 Function(x.children.init map (dict(_).asInstanceOf[ValDef]), dict(x.children.last))
-              case AstTag.Assign =>
+              case NodeTag.Assign =>
                 Assign(dict(x.children.head), dict(x.children.last))
-              case AstTag.AssignOrNamedArg =>
+              case NodeTag.AssignOrNamedArg =>
                 AssignOrNamedArg(dict(x.children.head), dict(x.children.last))
-              case AstTag.If =>
+              case NodeTag.If =>
                 If(dict(x.children.head), dict(x.children(1)), dict(x.children.last))
-              case AstTag.Match =>
+              case NodeTag.Match =>
                 Match(dict(x.children.head), x.children.tail map (dict(_).asInstanceOf[CaseDef]))
-              case AstTag.Return =>
+              case NodeTag.Return =>
                 Return(dict(x.children.head))
-              case AstTag.Try =>
+              case NodeTag.Try =>
                 Try(dict(x.children.head), x.children.tail.init map (dict(_).asInstanceOf[CaseDef]), dict(x.children.last))
-              case AstTag.Throw =>
+              case NodeTag.Throw =>
                 Throw(dict(x.children.head))
-              case AstTag.New =>
+              case NodeTag.New =>
                 New(dict(x.children.head))
-              case AstTag.Typed =>
+              case NodeTag.Typed =>
                 Typed(dict(x.children.head), dict(x.children.last))
-              case AstTag.TypeApply =>
+              case NodeTag.TypeApply =>
                 TypeApply(dict(x.children.head), x.children.tail map (dict(_)))
-              case AstTag.Apply =>
+              case NodeTag.Apply =>
                 Apply(dict(x.children.head), x.children.tail map (dict(_)))
-              case AstTag.ApplyDynamic =>
+              case NodeTag.ApplyDynamic =>
                 ApplyDynamic(dict(x.children.head), x.children.tail map (dict(_)))
-              case AstTag.This =>
+              case NodeTag.This =>
                 This(fetchName.asInstanceOf[TypeName])
-              case AstTag.Select =>
+              case NodeTag.Select =>
                 Select(dict(x.children.head), fetchName)
-              case AstTag.Ident =>
+              case NodeTag.Ident =>
                 Ident(fetchName)
-              case AstTag.ReferenceToBoxed =>
+              case NodeTag.ReferenceToBoxed =>
                 ReferenceToBoxed(dict(x.children.head).asInstanceOf[Ident])
-              case AstTag.Literal =>
+              case NodeTag.Literal =>
                 val const = constList.head
                 constList = constList.tail
-                Literal(const) /* TODO : value */
-              case AstTag.Annotated =>
+                Literal(const)
+              case NodeTag.Annotated =>
                 Annotated(dict(x.children.head), dict(x.children.last))
-              case AstTag.SingletonTypeTree =>
+              case NodeTag.SingletonTypeTree =>
                 SingletonTypeTree(dict(x.children.head))
-              case AstTag.SelectFromTypeTree =>
+              case NodeTag.SelectFromTypeTree =>
                 SelectFromTypeTree(dict(x.children.head), fetchName.asInstanceOf[TypeName])
-              case AstTag.CompoundTypeTree =>
+              case NodeTag.CompoundTypeTree =>
                 CompoundTypeTree(dict(x.children.head).asInstanceOf[Template])
-              case AstTag.AppliedTypeTree =>
+              case NodeTag.AppliedTypeTree =>
                 AppliedTypeTree(dict(x.children.head), x.children.tail map (dict(_)))
-              case AstTag.TypeBoundsTree =>
+              case NodeTag.TypeBoundsTree =>
                 TypeBoundsTree(dict(x.children.head), dict(x.children.last))
-              case AstTag.ExistentialTypeTree =>
+              case NodeTag.ExistentialTypeTree =>
                 ExistentialTypeTree(dict(x.children.head), x.children.tail map (dict(_).asInstanceOf[MemberDef]))
-              case AstTag.TypeTree =>
+              case NodeTag.TypeTree =>
                 TypeTree()
-              case AstTag.Super =>
+              case NodeTag.Super =>
                 Super(dict(x.children.head), fetchName.asInstanceOf[TypeName])
-              case AstTag.EmptyTree => EmptyTree
+              case NodeTag.EmptyTree => EmptyTree
               case _ => sys.error(x.getClass().toString()) /* TODO : remove */
             }
             /* TODO: cleaner */
-            if (x.tpe != AstTag.EmptyTree) {
+            if (x.tpe != NodeTag.EmptyTree) {
               if (typeList.head != null) res.setType(typeList.head)
               typeList = typeList.tail
-              if (symbolList.head != null && x.tpe != AstTag.TypeTree) res.setSymbol(symbolList.head) /* TODO: cannot set symbols to TypeTree, figure out */
+              if (symbolList.head != null && x.tpe != NodeTag.TypeTree) res.setSymbol(symbolList.head) /* TODO: cannot set symbols to TypeTree, figure out */
               symbolList = symbolList.tail
             }
             loop(xs, dict + (x -> res))
@@ -344,7 +344,7 @@ class Plugin(val global: Global) extends NscPlugin {
           nameList = nameList.tail
           ret
         }
-        loop(decomp.tree.flattenBFS.filter(x => x.tpe != AstTag.Separator), Map((Node.empty -> EmptyTree)))(decomp.tree)
+        loop(decomp.tree.flattenBFS.filter(x => x.tpe != NodeTag.Separator), Map((Node.empty -> EmptyTree)))(decomp.tree)
       }
     }
   }

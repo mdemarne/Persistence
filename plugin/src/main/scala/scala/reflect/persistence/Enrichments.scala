@@ -2,8 +2,7 @@ package scala.reflect.persistence
 
 import scala.annotation.tailrec
 
-/* Regroup all the implicit classes used a bit everywhere in the plugin */
-object Implicits {
+object Enrichments {
 
   type RevList[A] = List[A] /* leaves first */
 
@@ -54,7 +53,7 @@ object Implicits {
     }
   }
 
-  implicit class ListTakeAndSplit[T](lst: List[T]) {
+  implicit class RichList[T](lst: List[T]) {
     def splitOn(p: T => Boolean): List[List[T]] = {
       def loop(xss: List[T]): List[List[T]] = xss match {
         case Nil => Nil

@@ -15,7 +15,7 @@ class NodeTreeTest extends FunSuite {
   }
 
   test("getSubtreeOfBFS") {
-    val bfsWithIdx = root.get.getSubtree(4).flattenBFSIdx
+    val bfsWithIdx = root.get.getSubBFS(4)
     assert(bfsWithIdx.head.bfsIdx == 3 && bfsWithIdx.head.parentBfsIdx == 2)
     assert(bfsWithIdx(1).bfsIdx == 2 && bfsWithIdx(1).parentBfsIdx == 0)
   }

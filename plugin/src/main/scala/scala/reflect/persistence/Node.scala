@@ -3,39 +3,24 @@ package scala.reflect.persistence
 import scala.annotation.tailrec
 import scala.reflect.internal.util.Position
 
-/* Enum for the tree types */
-object AstTag extends Enumeration {
+object NodeTag extends Enumeration {
   val PackageDef, ClassDef, ModuleDef, ValDef, DefDef, TypeDef, LabelDef, Import, Template, Block, CaseDef, Alternative, Star, Bind, UnApply, ArrayValue, Function, Assign, AssignOrNamedArg, If, Match, Return, Try, Throw, New, Typed, TypeApply, Apply, ApplyDynamic, This, Select, Ident, ReferenceToBoxed, Literal, Annotated, SingletonTypeTree, SelectFromTypeTree, CompoundTypeTree, AppliedTypeTree, TypeBoundsTree, ExistentialTypeTree, TypeTree, Super, EmptyTree, Separator = Value
 }
 
-/* Store an node with its bfs index and its parent bfs index */
 case class NodeBFS(node: Node, bfsIdx: Int, parentBfsIdx: Int) {
-
   def addChild(nd: Node) = this.copy(node = this.node.copy(children = nd :: this.node.children))
-
   def equalsStructure(that: NodeBFS): Boolean = (this.node.tpe == that.node.tpe && this.bfsIdx == that.bfsIdx && this.parentBfsIdx == that.parentBfsIdx)
 }
 
-/* Represents a node in the tree */
-/* TODO: unfortunately, Constant is dependent of global. It's why it's an Any here. */
-case class Node(tpe: AstTag.Value, children: List[Node]) {
-  import Implicits._
+case class Node(tpe: NodeTag.Value, children: List[Node]) {
+  import Enrichments._
 
   val childrenBFS: RevList[Node] = this.flattenBFS
   val childrenBFSIdx: RevList[NodeBFS] = this.flattenBFSIdx
   
   def addChildren(nd: List[Node]) = this.copy(children = nd ++ this.children)
-
-  /* Return a subtree of 'this' with only n children, as a list of NodeBFS */
-  def getSubBFS(i: Int) = childrenBFSIdx.reverse.take(i).reverse
-
-  /*TODO never called, might be useful later*/
-  /* Return a subtree of 'this' with only the n children traversed in BFS order */
-  def getSubtree(i: Int): Node = getSubBFS(i).toTree.get
- 
-  /* Return a version of the node without any child */
+  def getSubBFS(i: Int) = childrenBFSIdx.takeRight(i)
   def cleanCopy: Node = this.copy(children = Nil)
-
   def flattenBFS = {
     @tailrec def loop(queue: List[Node], acc: RevList[Node]): RevList[Node] = queue match {
       case n :: ns => loop(ns ::: n.children, n.children.reverse ::: acc)
@@ -43,7 +28,6 @@ case class Node(tpe: AstTag.Value, children: List[Node]) {
     }
     loop(this :: Nil, this :: Nil)
   }
-
   /* Flatten the tree in BFS order, with nodes zipped with their indexes and their parent's indexes in BFS order */
   def flattenBFSIdx = {
     var count = 0
@@ -89,8 +73,8 @@ case class Node(tpe: AstTag.Value, children: List[Node]) {
 
 /* Companion object */
 object Node {
-  def apply(tpe: AstTag.Value) = new Node(tpe, Nil)
-  def empty = new Node(AstTag.EmptyTree, Nil)
-  def separator = new Node(AstTag.Separator, Nil)
+  def apply(tpe: NodeTag.Value) = new Node(tpe, Nil)
+  def empty = new Node(NodeTag.EmptyTree, Nil)
+  def separator = new Node(NodeTag.Separator, Nil)
 }
 
