@@ -11,7 +11,7 @@ class AstCompressor(out: DataOutputStream) {
   def encodeTree(node: Node, originDict: OrderedNodeDict): (String, OrderedNodeDict) = {
     var dict: OrderedNodeDict = originDict
     var output: String = ""
-    @tailrec def loop(que: List[Node]): Unit = que match {
+    def loop(que: List[Node]): Unit = que match {
       case Nil => /* Nothing more to parse */
       case nd :: nds =>
         val bfs = nd.childrenBFSIdx
