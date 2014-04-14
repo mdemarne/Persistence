@@ -22,27 +22,21 @@ class Plugin(val global: Global) extends NscPlugin {
 
     override val runsAfter = List("typer")
     val phaseName = "persist"
-
     def newPhase(prev: Phase) = new StdPhase(prev) {
       def apply(unit: CompilationUnit) {
         /* TODO: remove those (there for test dependent of global) */
         val decomposedTree = new TreeDecomposer()(unit body)
         val recomposedTree = new TreeRecomposer()(decomposedTree)
         println("Original:")
-        println(unit body)
-        /* TODO: due to the simplifications of the trees, the output isn't correct. */
-        println("Recomposed:")
-        println(recomposedTree)
-        /* val lzwComp = new LzwCompressor(new DataOutputStream(new FileOutputStream("test.cmp"))) */
-        /* new NameCompressor(lzwComp)(decomposedTree namesBFS) */
-        /* new SymbolCompressor(lzwComp)(decomposedTree symbBFS) */
-        /* lzwComp.flush */
+        println(showRaw(unit body))
+        decomposedTree.tree.computeFreqs.testingDict foreach (println(_))
+        
         /* TODO: implement this */
       }
     }
 
     /* Wrapper for treeDecomposer's function */
-    case class DecomposedTree(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]], constBFS : Map[Constant, List[Int]])
+    case class DecomposedTree(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]], constBFS: Map[Constant, List[Int]])
 
     /* Return a simplified tree along with maps of Names / Symbols / Types zipped with occurrences in BFS order */
     class TreeDecomposer extends (Tree => DecomposedTree) {
@@ -163,12 +157,12 @@ class Plugin(val global: Global) extends NscPlugin {
             }
             loop(xs, dict + (x -> res))
         }
-              
+
         val newTree = loop(tree flattenBFS, Map((EmptyTree -> Node.empty)))(tree)
         DecomposedTree(newTree, nameList.zipWithIdxs, symbolList.zipWithIdxs, typeList.zipWithIdxs, constList.zipWithIdxs)
       }
     }
-    
+
     class SymbolDecomposer { /* TODO */ }
 
     class NameCompressor(comp: LzwCompressor) extends (Map[Name, List[Int]] => Unit) {
@@ -203,8 +197,8 @@ class Plugin(val global: Global) extends NscPlugin {
       /* TODO: the types here are the same as in the AST, no need to store them twice */
       def apply(symbBFS: Map[Symbol, List[Int]]) = { ??? }
     }
-    
-    class ConstantCompressor{ /* TODO */ }
+
+    class ConstantCompressor { /* TODO */ }
     class TypeCompressor { /* TODO */ }
 
     /* Generate a list of trees in BFS order */
@@ -338,7 +332,7 @@ class Plugin(val global: Global) extends NscPlugin {
             }
             loop(xs, dict + (x -> res))
         }
-        
+
         def fetchName = {
           val ret = nameList.head
           nameList = nameList.tail

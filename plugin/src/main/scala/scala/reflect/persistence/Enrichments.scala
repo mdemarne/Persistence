@@ -8,6 +8,16 @@ object Enrichments {
 
   type NodeDict = Map[List[NodeBFS], Int] /* Represent a compression dictionary for trees of nodes */
 
+  /* TODO: move that elsewhere? */
+  /* Meta entry for dictionary testing */
+  case class MetaEntry(tpe: NodeTag.Value, idx: Int, parentIdx: Int) {
+      override def toString = s"(${tpe}, ${idx}, ${parentIdx})"
+    } 
+  
+  implicit class RichNodeDict(dict: NodeDict) {
+    def testingDict = dict map (x => (x._1.map(y => MetaEntry(y.node.tpe, y.bfsIdx, y.parentBfsIdx)), x._2))
+  }
+
   implicit class RichRevList[T](lst: RevList[T]) {
     /* Generate a map of (T, List[Int]), where the values are the occurrences of T in the tree in BFS order */
     def zipWithIdxs: Map[T, List[Int]] = lst.zipWithIndex.groupBy(v => v._1).map(e => (e._1 -> e._2.map(i => i._2)))

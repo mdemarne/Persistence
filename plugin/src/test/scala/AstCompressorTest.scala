@@ -1,5 +1,6 @@
 import org.scalatest.FunSuite
 import scala.reflect.persistence._
+import scala.reflect.persistence.Enrichments._
 
 class AstCompressorTest extends FunSuite {
 
@@ -8,9 +9,7 @@ class AstCompressorTest extends FunSuite {
     val treeStr = "n ( n ( n n ) n )"
 
     val tree = ParseTestTree.parse(treeStr)
-    val cmp = new AstCompressor(null)
-    val dict = tree.get.computeFreqs
-    val exploitableDict = ParseTestTree.dictForTest(dict)
+    val exploitableDict = tree.get.computeFreqs.testingDict
     println("Dictionary:")
     println(exploitableDict)
 
@@ -24,9 +23,7 @@ class AstCompressorTest extends FunSuite {
     val treeStr = "c (n (m m v) m ( v v v v v ) m ( v v ) m (c v))"
 
     val tree = ParseTestTree.parse(treeStr)
-    val cmp = new AstCompressor(null)
-    val dict = tree.get.computeFreqs
-    val exploitableDict = ParseTestTree.dictForTest(dict)
+    val exploitableDict = tree.get.computeFreqs.testingDict
     println("Dictionary:")
     println(exploitableDict)
     assert(exploitableDict.size == 7)
@@ -36,13 +33,11 @@ class AstCompressorTest extends FunSuite {
     val treeStr = "c (v v c (v v) c(v v) c(v v))"
 
     val tree = ParseTestTree.parse(treeStr)
-    val cmp = new AstCompressor(null)
-    val dict = tree.get.computeFreqs
-    val exploitableDict = ParseTestTree.dictForTest(dict)
+    val exploitableDict = tree.get.computeFreqs.testingDict
     println("Dictionary:")
     println(exploitableDict)
     assert(exploitableDict.size == 4)
-    val entry = ParseTestTree.dictEntry(NodeTag.ValDef, 0, -1)
+    val entry = MetaEntry(NodeTag.ValDef, 0, -1)
     assert(exploitableDict.contains(List(entry)))
     assert(exploitableDict(List(entry)) == 1)
     assert(exploitableDict.keys.exists(_.size == 3))
@@ -52,9 +47,8 @@ class AstCompressorTest extends FunSuite {
   test("DoublePattern") {
     val treeStr = "c (m (v v (c (m v v) c (m (v v)))) m(v v (c c)))"
     
-    val cmp = new AstCompressor(null)
     val tree = ParseTestTree.parse(treeStr)
-    val dict = ParseTestTree.dictForTest(tree.get.computeFreqs)
+    val dict = tree.get.computeFreqs.testingDict
     println("Dictionary:")
     println(dict)
     assert(dict.values.toList.contains(7))
