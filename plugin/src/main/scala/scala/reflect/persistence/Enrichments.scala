@@ -6,8 +6,8 @@ object Enrichments {
 
   type RevList[A] = List[A] /* leaves first */
 
-  type NodeDict = Map[List[NodeBFS], Int] /* Represent a compression dictionary for trees of nodes */
-
+  type NodeDict = Map[List[NodeBFS], Int] /* Represent a compression dictionary for trees of nodes with frequencies */
+		  
   /* TODO: move that elsewhere? */
   /* Meta entry for dictionary testing */
   case class MetaEntry(tpe: NodeTag.Value, idx: Int, parentIdx: Int) {
