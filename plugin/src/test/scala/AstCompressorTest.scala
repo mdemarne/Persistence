@@ -64,9 +64,11 @@ class AstCompressorTest extends FunSuite {
     val treeStr = "c (m (v v (c (m v v) c (m (v v)))) m(v v (c c)))"
 
     val tree = ParseTestTree.parse(treeStr)
-    val compressionDict = new AstCompressor(null).splitTree(tree.get)._1
+    val splitTree = new AstCompressor(null).splitTree(tree.get)
     println("Used Dictionary:")
-    compressionDict.testingDict foreach(println(_))
+    splitTree._1.testingDict foreach(println(_))
+    println("Edges:")
+    println(splitTree._3) 
   }
 
 }

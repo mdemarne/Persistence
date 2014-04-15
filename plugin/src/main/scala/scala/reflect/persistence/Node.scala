@@ -67,7 +67,7 @@ case class Node(tpe: NodeTag.Value, children: List[Node]) {
               case Some(ent) => dict+= (ent -> (dict(ent) + 1))
             } 
             candidates foreach (cdt => dict += (cdt -> (dict(cdt) + 1))) /* update counter for all prefix trees */
-            loop(nds ++ nwst.subRoots) /* add children of bfs.take(max.size + 1) to que */
+            loop(nds ++ nwst.subRoots.map(_._1)) /* add children of bfs.take(max.size + 1) to que */
         }
     }
     loop(this :: Nil)

@@ -39,10 +39,10 @@ object Enrichments {
     }
     /* true if lst match perfecly nds */
     def matchBFS(nds: RevList[NodeBFS]) = intersectBFS(nds).size == lst.size 
-    /* Return all the subroots of a tree represented as a List[NodeBFS], as a List[Node] */
-    def subRoots: List[Node] = {
+    /* Return all the subroots of a tree represented as a List[NodeBFS], as a List[Node], along with the node ID in BFS order from which it was linked */
+    def subRoots: List[(Node, Int)] = {
       val bfsz = lst.map(x => (x, lst.count(z => z.parentBfsIdx == x.bfsIdx)))
-      bfsz.flatMap(x => x._1.node.children.drop(x._2))
+      bfsz.flatMap(x => (x._1.node.children.drop(x._2).map(c => (c, x._1.bfsIdx))))
     }
     def takeSubtree(i: Int) = lst.reverse.take(i).reverse
 
