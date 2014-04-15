@@ -30,17 +30,15 @@ object Enrichments {
 
   implicit class RichRevListNodeBFS(lst: RevList[NodeBFS]) {
     /* Return a common subtree of this and n if exists, with the size of the subtree in BFS order */
-    def intersectBFS(nds: RevList[NodeBFS]): (RevList[NodeBFS], RevList[NodeBFS]) = {
-      def loop(nds1: RevList[NodeBFS], nds2: RevList[NodeBFS]): (RevList[NodeBFS], RevList[NodeBFS]) = (nds1, nds2) match {
-        case (x :: xs, y :: ys) if x.equalsStructure(y) => 
-          val rec = loop(xs, ys)
-          (x :: rec._1, y :: rec._2)
-        case _ => (Nil, Nil)
+    def intersectBFS(nds: RevList[NodeBFS]): RevList[NodeBFS] = {
+      def loop(nds1: RevList[NodeBFS], nds2: RevList[NodeBFS]): RevList[NodeBFS] = (nds1, nds2) match {
+        case (x :: xs, y :: ys) if x.equalsStructure(y) => x :: loop(xs,ys) 
+        case _ => Nil
       }
-      val inter = loop(lst.reverse, nds.reverse)
-      if (inter._1.size < nds.size) (Nil, Nil)
-      else (inter._1.reverse, inter._2.reverse)
+      loop(lst.reverse, nds.reverse).reverse
     }
+    /* true if lst match perfecly nds */
+    def matchBFS(nds: RevList[NodeBFS]) = intersectBFS(nds).size == lst.size 
     /* Return all the subroots of a tree represented as a List[NodeBFS], as a List[Node] */
     def subRoots: List[Node] = {
       val bfsz = lst.map(x => (x, lst.count(z => z.parentBfsIdx == x.bfsIdx)))

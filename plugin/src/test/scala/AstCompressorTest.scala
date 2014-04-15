@@ -4,6 +4,8 @@ import scala.reflect.persistence.Enrichments._
 
 class AstCompressorTest extends FunSuite {
 
+  /* Tests concerning computeFreqs */
+
   test("parseTreeTest1") {
 
     val treeStr = "n ( n ( n n ) n )"
@@ -41,18 +43,30 @@ class AstCompressorTest extends FunSuite {
     assert(exploitableDict.contains(List(entry)))
     assert(exploitableDict(List(entry)) == 3)
     assert(exploitableDict.keys.exists(_.size == 3))
-    assert(exploitableDict(exploitableDict.keys.find(_.size == 3).get)== 3)
+    assert(exploitableDict(exploitableDict.keys.find(_.size == 3).get) == 3)
   }
 
   test("DoublePattern") {
     val treeStr = "c (m (v v (c (m v v) c (m (v v)))) m(v v (c c)))"
-    
+
     val tree = ParseTestTree.parse(treeStr)
     val dict = tree.get.computeFreqs.testingDict
     println("Dictionary:")
     println(dict)
     assert(dict.values.toList.count(_ == 2) == 2)
     assert(dict.values.toList.count(_ == 1) == 3)
+  }
+
+  /* Tests concerning the tree actually used for compression */
+
+  test("DictTreeTest1") {
+    
+    val treeStr = "c (m (v v (c (m v v) c (m (v v)))) m(v v (c c)))"
+
+    val tree = ParseTestTree.parse(treeStr)
+    val compressionDict = new AstCompressor(null).splitTree(tree.get)._1
+    println("Used Dictionary:")
+    compressionDict.testingDict foreach(println(_))
   }
 
 }
