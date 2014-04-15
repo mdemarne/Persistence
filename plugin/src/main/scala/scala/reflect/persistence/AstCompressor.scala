@@ -17,7 +17,7 @@ class AstCompressor(out: DataOutputStream) {
       .map(entry => entry._1).toList
     /* origin dictionary, with empty frequencies */
     val originDict: NodeDict = keyList.map(k => (k, 0)) toMap
-    def loop(que: List[(Node, Int, Int)], dict: NodeDict, occ: List[List[NodeBFS]], edges: List[(Int, Int)]): (NodeDict, List[List[NodeBFS]], List[(Int, Int)]) = que match {
+    @tailrec def loop(que: List[(Node, Int, Int)], dict: NodeDict, occ: List[List[NodeBFS]], edges: List[(Int, Int)]): (NodeDict, List[List[NodeBFS]], List[(Int, Int)]) = que match {
       case Nil => (dict, occ, edges)
       case nd :: nds =>
         val bfs = nd._1.childrenBFSIdx
@@ -36,6 +36,25 @@ class AstCompressor(out: DataOutputStream) {
     (dict.filter(entry => entry._2 > 0), occ, edges)
   }
 
+  def genHuffman(dict: NodeDict) : Map[List[NodeBFS], List[Byte]] = {
+    trait HufTree {val freq: Int }
+    case class HufLeaf(key: List[NodeBFS], freq: Int) extends HufTree
+    case class HufNode(freq: Int, left: HufTree, right: HufTree) extends HufTree
+    @tailrec def computeHufTree(que: List[HufTree]): HufTree = que match {
+      case Nil => sys.error("Error in Huffman tree generation ")
+      case x :: Nil => x
+      case x :: y :: xs => computeHufTree((que :+ HufNode(x.freq + y.freq, x , y)).sortBy(_.freq))
+    }
+    def computeHufValues(hufTree: HufTree, cde: List[Byte] = Nil): List[(List[NodeBFS], List[Byte])] = hufTree match{
+      case HufLeaf(key, _) => (key, cde) :: Nil
+      case HufNode(_, left, right) => computeHufValues(left, cde :+ 0x1.toByte) ++ computeHufValues(right, cde :+ 0x0.toByte)
+    }
+    val hufQueue: List[HufTree] = dict.toList.map(entry => HufLeaf(entry._1, entry._2))
+    computeHufValues(computeHufTree(hufQueue)) toMap
+  }
+  
+  def encodeOccurrences(occ: List[List[NodeBFS]]): String = ???
+  
   def encodeDict(dict: NodeDict): String = ???
 
   def apply(node: Node): Unit = ???

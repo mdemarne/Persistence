@@ -68,7 +68,7 @@ class AstCompressorTest extends FunSuite {
     println("Used Dictionary:")
     splitTree._1.testingDict foreach(println(_))
     println("Edges:")
-    println(splitTree._3) 
+    println(splitTree._3)
   }
 
 }
