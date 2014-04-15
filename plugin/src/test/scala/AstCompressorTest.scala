@@ -14,7 +14,7 @@ class AstCompressorTest extends FunSuite {
     println(exploitableDict)
 
     assert(exploitableDict.size == 2)
-    assert(exploitableDict.head._2 == 4)
+    assert(exploitableDict.head._2 == 5)
     assert(exploitableDict.tail.head._2 == 1)
   }
 
@@ -26,7 +26,7 @@ class AstCompressorTest extends FunSuite {
     val exploitableDict = tree.get.computeFreqs.testingDict
     println("Dictionary:")
     println(exploitableDict)
-    assert(exploitableDict.size == 7)
+    assert(exploitableDict.size == 8)
   }
 
   test("parseTreeTest3") {
@@ -39,7 +39,7 @@ class AstCompressorTest extends FunSuite {
     assert(exploitableDict.size == 4)
     val entry = MetaEntry(NodeTag.ValDef, 0, -1)
     assert(exploitableDict.contains(List(entry)))
-    assert(exploitableDict(List(entry)) == 1)
+    assert(exploitableDict(List(entry)) == 3)
     assert(exploitableDict.keys.exists(_.size == 3))
     assert(exploitableDict(exploitableDict.keys.find(_.size == 3).get)== 3)
   }
@@ -51,9 +51,8 @@ class AstCompressorTest extends FunSuite {
     val dict = tree.get.computeFreqs.testingDict
     println("Dictionary:")
     println(dict)
-    assert(dict.values.toList.contains(7))
-    assert(dict.values.toList.count(_ == 2) == 4)
-    assert(dict.values.toList.count(_ == 1) == 2)
+    assert(dict.values.toList.count(_ == 2) == 2)
+    assert(dict.values.toList.count(_ == 1) == 3)
   }
 
 }
