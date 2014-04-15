@@ -60,7 +60,12 @@ case class Node(tpe: NodeTag.Value, children: List[Node]) {
             loop(nds)
           case sz => /* the match does not cover all the subtree */
             val nwst = bfs.takeSubtree(sz + 1)
+            val nwnd = nwst.head.copy(bfsIdx = 0, parentBfsIdx = -1)
             dict += (nwst -> 1) /* add max + one more node */
+            dict.keys.find(k => k.size == 1 && k.head.equalsStructure(nwnd)) match{
+              case None => dict += ((nwnd :: Nil) -> 1) /* Add the node to dict */
+              case Some(ent) => dict+= (ent -> (dict(ent) + 1))
+            } 
             candidates foreach (cdt => dict += (cdt -> (dict(cdt) + 1))) /* update counter for all prefix trees */
             loop(nds ++ nwst.subRoots) /* add children of bfs.take(max.size + 1) to que */
         }
