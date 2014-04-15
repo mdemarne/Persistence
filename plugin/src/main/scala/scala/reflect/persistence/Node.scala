@@ -49,7 +49,7 @@ case class Node(tpe: NodeTag.Value, children: List[Node]) {
       case Nil => /* Nothing more to parse */
       case nd :: nds =>
         val bfs = nd.childrenBFSIdx
-        val candidates = dict.keys.map(cand => bfs.intersectBFS(cand)).filter(_.size > 0)
+        val candidates = dict.keys.map(cand => bfs.intersectBFS(cand)._2).filter(_.size > 0)
         val max = candidates./:(List[NodeBFS]())((x, y) => if (x.size > y.size) x else y)
         max.size match {
           case 0 => /* nothing found, we add the new node to dict and all its children to the queue */
