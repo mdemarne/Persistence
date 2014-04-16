@@ -29,8 +29,18 @@ class Plugin(val global: Global) extends NscPlugin {
         val recomposedTree = new TreeRecomposer()(decomposedTree)
         println("Original:")
         println(showRaw(unit body))
+        println("Frequences dict:")
         decomposedTree.tree.computeFreqs.testingDict foreach (println(_))
+        val splitTree = new AstCompressor(null).splitTree(decomposedTree.tree)
+        println("Dict:")
+        splitTree._1.testingDict foreach (println(_))
+        println("Edges:")
+        println(splitTree._3)
+        println("Huffman Codes:")
+        val hufCodes = new AstCompressor(null).genHuffman(splitTree._1)
+        hufCodes.values foreach (c => println(c.map(v => v.toInt)))
         
+
         /* TODO: implement this */
       }
     }

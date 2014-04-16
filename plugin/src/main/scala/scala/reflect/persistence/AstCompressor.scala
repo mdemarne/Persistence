@@ -9,6 +9,7 @@ class AstCompressor(out: DataOutputStream) {
 
 
   /* Reparse the tree using the new dictionary */
+  /* TODO: should be either nester or private. Is public here for tests */
   def splitTree(node: Node): (NodeDict, List[List[NodeBFS]], List[(Int, Int)]) = {
     val keyList = node.computeFreqs.toList
       .filter(entry => entry._1.size < Math.sqrt(node.flattenBFS.size))
@@ -36,6 +37,7 @@ class AstCompressor(out: DataOutputStream) {
     (dict.filter(entry => entry._2 > 0), occ, edges)
   }
 
+  /* TODO: should be either nester or private. Is public here for tests */
   def genHuffman(dict: NodeDict) : Map[List[NodeBFS], List[Byte]] = {
     trait HufTree {val freq: Int }
     case class HufLeaf(key: List[NodeBFS], freq: Int) extends HufTree
@@ -43,7 +45,7 @@ class AstCompressor(out: DataOutputStream) {
     @tailrec def computeHufTree(que: List[HufTree]): HufTree = que match {
       case Nil => sys.error("Error in Huffman tree generation ")
       case x :: Nil => x
-      case x :: y :: xs => computeHufTree((que :+ HufNode(x.freq + y.freq, x , y)).sortBy(_.freq))
+      case x :: y :: xs => computeHufTree((xs :+ HufNode(x.freq + y.freq, x , y)).sortBy(_.freq))
     }
     def computeHufValues(hufTree: HufTree, cde: List[Byte] = Nil): List[(List[NodeBFS], List[Byte])] = hufTree match{
       case HufLeaf(key, _) => (key, cde) :: Nil

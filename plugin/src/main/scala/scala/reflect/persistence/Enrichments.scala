@@ -15,6 +15,7 @@ object Enrichments {
     } 
   
   implicit class RichNodeDict(dict: NodeDict) {
+    /* TODO: this is just there for testing*/
     def testingDict = dict map (x => (x._1.map(y => MetaEntry(y.node.tpe, y.bfsIdx, y.parentBfsIdx)), x._2))
   }
 
