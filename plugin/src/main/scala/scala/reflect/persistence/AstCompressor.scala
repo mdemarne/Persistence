@@ -6,7 +6,8 @@ import scala.language.postfixOps
 
 class AstCompressor(out: DataOutputStream) {
   import Enrichments._
-
+  
+  type HufDict = Map[List[NodeBFS], List[Byte]]
 
   /* Reparse the tree using the new dictionary */
   /* TODO: should be either nester or private. Is public here for tests */
@@ -38,7 +39,7 @@ class AstCompressor(out: DataOutputStream) {
   }
 
   /* TODO: should be either nester or private. Is public here for tests */
-  def genHuffman(dict: NodeDict) : Map[List[NodeBFS], List[Byte]] = {
+  def genHuffman(dict: NodeDict) : HufDict = {
     trait HufTree {val freq: Int }
     case class HufLeaf(key: List[NodeBFS], freq: Int) extends HufTree
     case class HufNode(freq: Int, left: HufTree, right: HufTree) extends HufTree
@@ -54,10 +55,18 @@ class AstCompressor(out: DataOutputStream) {
     val hufQueue: List[HufTree] = dict.toList.map(entry => HufLeaf(entry._1, entry._2))
     computeHufValues(computeHufTree(hufQueue)) toMap
   }
+  /* TODO: should be either nester or private. Is public here for tests */
+  /* Once the Huffman code generated based on the frequencies found while reparsing the tree, encode the list of occurences. */
+  def encodeOccurrences(occ: List[List[NodeBFS]], dict: HufDict): List[Byte] = {
+    def loop(occ: List[List[NodeBFS]], set: List[Byte]): List[Byte] = occ match {
+      case Nil => set
+      case x :: xs => loop(xs, set ++ dict(x))      
+    }
+    loop(occ, Nil)
+  }
   
-  def encodeOccurrences(occ: List[List[NodeBFS]]): String = ???
-  
-  def encodeDict(dict: NodeDict): String = ???
+  def encodeDict(dict: NodeDict) = ???
+  def encodeEdges(edges: List[(Int, Int)]) = ???
 
   def apply(node: Node): Unit = ???
 }

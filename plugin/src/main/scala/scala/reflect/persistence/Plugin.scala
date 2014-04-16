@@ -27,19 +27,22 @@ class Plugin(val global: Global) extends NscPlugin {
         /* TODO: remove those (there for test dependent of global) */
         val decomposedTree = new TreeDecomposer()(unit body)
         val recomposedTree = new TreeRecomposer()(decomposedTree)
+        val astCompressor = new AstCompressor(null)
         println("Original:")
         println(showRaw(unit body))
         println("Frequences dict:")
         decomposedTree.tree.computeFreqs.testingDict foreach (println(_))
-        val splitTree = new AstCompressor(null).splitTree(decomposedTree.tree)
+        val splitTree = astCompressor.splitTree(decomposedTree.tree)
         println("Dict:")
         splitTree._1.testingDict foreach (println(_))
         println("Edges:")
         println(splitTree._3)
         println("Huffman Codes:")
-        val hufCodes = new AstCompressor(null).genHuffman(splitTree._1)
+        val hufCodes = astCompressor.genHuffman(splitTree._1)
         hufCodes.values foreach (c => println(c.map(v => v.toInt)))
-        
+        println("Bit string for the compressed tree:")
+        astCompressor.encodeOccurrences(splitTree._2, hufCodes) foreach (print(_))
+        println()
 
         /* TODO: implement this */
       }

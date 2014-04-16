@@ -83,8 +83,13 @@ class AstCompressorTest extends FunSuite {
     val tree = ParseTestTree.parse(treeStr)
     val splitTree = compressor.splitTree(tree.get)
     val hufCodes = compressor.genHuffman(splitTree._1)
+    println("Huffman codes used for compression:")
     hufCodes.values foreach (c => println(c.map(v => v.toInt)))
+    println("Bit string for the compressed tree:")
+    compressor.encodeOccurrences(splitTree._2, hufCodes) foreach(print(_))
+    println()
     assert(splitTree._1.size == hufCodes.size, "Wrong size of Huffman codes !")
+    
   }
 
 }
