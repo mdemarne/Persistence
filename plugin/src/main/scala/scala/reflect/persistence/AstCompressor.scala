@@ -15,7 +15,7 @@ class AstCompressor(out: DataOutputStream) {
     val keyList = node.computeFreqs.toList
       .filter(entry => entry._1.size < Math.sqrt(node.flattenBFS.size))
       .map(entry => (entry._1, entry._1.size * entry._2))
-      .sortBy(entry => (entry._2, entry._1.size))
+      .sortBy(entry => (entry._2, entry._1.size)).reverse
       .map(entry => entry._1).toList
     /* origin dictionary, with empty frequencies */
     val originDict: NodeDict = keyList.map(k => (k, 0)) toMap
