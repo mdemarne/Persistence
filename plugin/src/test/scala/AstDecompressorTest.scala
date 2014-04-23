@@ -18,7 +18,7 @@ class AstDecompressorTest extends FunSuite {
 
   test("Decoding occurences using reversed HufDict") {
     val decompressor = new AstDecompressor(null)
-    val originOccsRec = decompressor.decodeOccs(hufOccs, dict)
+    val originOccsRec = decompressor.decodeOccs(hufOccs, dict.map(_.swap))
     assert(originOccs == originOccsRec, "The decompressed subtrees should be equivalent.")
   }
 }
