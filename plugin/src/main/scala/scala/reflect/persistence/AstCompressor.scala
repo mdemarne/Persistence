@@ -6,11 +6,9 @@ import scala.language.postfixOps
 
 class AstCompressor(out: DataOutputStream) {
   import Enrichments._
-  
-  type HufDict = Map[List[NodeBFS], List[Byte]]
 
   /* Reparse the tree using the new dictionary */
-  /* TODO: should be either nester or private. Is public here for tests */
+  /* TODO: should be either nested or private. Is public here for tests */
   def splitTree(node: Node): (NodeDict, List[List[NodeBFS]], List[(Int, Int)]) = {
     val keyList = node.computeFreqs.toList
       .filter(entry => entry._1.size < Math.sqrt(node.flattenBFS.size))
@@ -26,7 +24,7 @@ class AstCompressor(out: DataOutputStream) {
         keyList.find(entry => entry.matchBFS(bfs)) match {
           case None => sys.error("Cannot find matching entry in the dictionary")
           case Some(entry) =>
-            /* node, parsing index, index of the node in BFS in the tree corresponding to the index to which the subroot was linked */ 
+            /* node, parsing index, index of the node in BFS in the tree corresponding to the index to which the subroot was linked */
             val subRoots = bfs.intersectBFS(entry).subRoots map (s => (s._1, nds.size, s._2))
             loop(nds ++ subRoots,
               dict + (entry -> (dict(entry) + 1)),
@@ -34,39 +32,43 @@ class AstCompressor(out: DataOutputStream) {
               edges :+ (nd._2, nd._3))
         }
     }
-    val (dict, occ, edges) = loop((node, -1,-1) :: Nil, originDict, Nil, Nil)
+    val (dict, occ, edges) = loop((node, -1, -1) :: Nil, originDict, Nil, Nil)
     (dict.filter(entry => entry._2 > 0), occ, edges)
   }
 
-  /* TODO: should be either nester or private. Is public here for tests */
-  def genHuffman(dict: NodeDict) : HufDict = {
-    trait HufTree {val freq: Int }
+  /* TODO: should be either nested or private. Is public here for tests */
+  def genHuffman(dict: NodeDict): HufDict = {
+    trait HufTree { val freq: Int }
     case class HufLeaf(key: List[NodeBFS], freq: Int) extends HufTree
     case class HufNode(freq: Int, left: HufTree, right: HufTree) extends HufTree
     @tailrec def computeHufTree(que: List[HufTree]): HufTree = que match {
       case Nil => sys.error("Error in Huffman tree generation ")
       case x :: Nil => x
-      case x :: y :: xs => computeHufTree((xs :+ HufNode(x.freq + y.freq, x , y)).sortBy(_.freq))
+      case x :: y :: xs => computeHufTree((xs :+ HufNode(x.freq + y.freq, x, y)).sortBy(_.freq))
     }
-    def computeHufValues(hufTree: HufTree, cde: List[Byte] = Nil): List[(List[NodeBFS], List[Byte])] = hufTree match{
+    def computeHufValues(hufTree: HufTree, cde: List[Byte] = Nil): List[(List[NodeBFS], List[Byte])] = hufTree match {
       case HufLeaf(key, _) => (key, cde) :: Nil
       case HufNode(_, left, right) => computeHufValues(left, cde :+ 0x1.toByte) ++ computeHufValues(right, cde :+ 0x0.toByte)
     }
     val hufQueue: List[HufTree] = dict.toList.map(entry => HufLeaf(entry._1, entry._2))
     computeHufValues(computeHufTree(hufQueue)) toMap
   }
-  /* TODO: should be either nester or private. Is public here for tests */
+  /* TODO: should be either nested or private. Is public here for tests */
   /* Once the Huffman code generated based on the frequencies found while reparsing the tree, encode the list of occurences. */
-  def encodeOccurrences(occ: List[List[NodeBFS]], dict: HufDict): List[Byte] = {
+  def encodeOccs(occ: List[List[NodeBFS]], dict: HufDict): List[Byte] = {
     def loop(occ: List[List[NodeBFS]], set: List[Byte]): List[Byte] = occ match {
       case Nil => set
-      case x :: xs => loop(xs, set ++ dict(x))      
+      case x :: xs => loop(xs, set ++ dict(x))
     }
     loop(occ, Nil)
   }
-  
-  def encodeDict(dict: NodeDict) = ???
-  def encodeEdges(edges: List[(Int, Int)]) = ???
+
+  def outputOccs(occs: List[Byte]): Unit = ???
+  def outputDict(dict: HufDict): Unit = ???
+  def outputEdges(edges: List[(Int, Int)]): Unit = edges foreach { edge =>
+    out.writeInt(edge._1)
+    out.writeInt(edge._2)
+  }
 
   def apply(node: Node): Unit = ???
 }

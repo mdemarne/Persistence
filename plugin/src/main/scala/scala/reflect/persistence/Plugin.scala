@@ -41,7 +41,7 @@ class Plugin(val global: Global) extends NscPlugin {
         val hufCodes = astCompressor.genHuffman(splitTree._1)
         hufCodes.values foreach (c => println(c.map(v => v.toInt)))
         println("Bit string for the compressed tree:")
-        astCompressor.encodeOccurrences(splitTree._2, hufCodes) foreach (print(_))
+        astCompressor.encodeOccs(splitTree._2, hufCodes) foreach (print(_))
         println()
 
         /* TODO: implement this */

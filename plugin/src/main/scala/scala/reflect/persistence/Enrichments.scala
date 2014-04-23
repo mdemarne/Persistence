@@ -6,6 +6,8 @@ object Enrichments {
 
   type RevList[A] = List[A] /* leaves first */
 
+    
+  type HufDict = Map[List[NodeBFS], List[Byte]] /* Represent a dictionary to store with Huffman codes */
   type NodeDict = Map[List[NodeBFS], Int] /* Represent a compression dictionary for trees of nodes with frequencies */
 		  
   /* TODO: move that elsewhere? */
