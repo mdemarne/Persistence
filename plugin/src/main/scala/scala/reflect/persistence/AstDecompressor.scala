@@ -13,8 +13,7 @@ class AstDecompressor(in: DataInputStream) {
   
   /* TODO: should be either nested or private. Is public here for tests */
   /* Decode the occurrences from a list of bytes to a list of subtrees in BFS order */
-  def decodeOccs(occs: List[Byte], dict: HufDict): List[List[NodeBFS]] = {
-    val revDict = dict.map(_.swap)
+  def decodeOccs(occs: List[Byte], revDict: RevHufDict): List[List[NodeBFS]] = {
     def loop(occs: List[Byte]): List[List[NodeBFS]] = occs match {
       case Nil => Nil
       case _ => 
