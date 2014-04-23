@@ -68,7 +68,14 @@ class AstCompressor(out: DataOutputStream) {
   }
 
   def outputOccs(occs: List[Byte]): Unit = ???
-  def outputDict(dict: HufDict): Unit = ???
+  def outputDict(dict: HufDict): Unit = {
+   dict.foreach{ e =>
+    out.write(e._2.size);out.writeBytes(";")
+    out.write(compressByte(e._2)); out.writeBytes(";")
+    out.writeBytes(e._1.toString); out.writeBytes("#")   
+   }
+   out.flush
+  }
   def outputEdges(edges: List[(Int, Int)]): Unit = edges foreach { edge =>
     out.writeInt(edge._1)
     out.writeInt(edge._2)
