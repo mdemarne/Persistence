@@ -101,15 +101,6 @@ class AstCompressor(out: DataOutputStream) {
     }.toArray 
   }
 
-  //Decompresses the byte into a list of 8 bytes
-  def decompressByte(byte: Byte): List[Byte] = {
-    (0 to 7).map{ i => 
-      if((byte & (1 << i)) != 0)
-        1.toByte
-      else
-        0.toByte
-    }.toList.reverse
-  } 
 
   def apply(node: Node): Unit = ???
 }
