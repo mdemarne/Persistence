@@ -6,9 +6,10 @@ object Enrichments {
 
   type RevList[A] = List[A] /* leaves first */
 
-    
-  type HufDict = Map[List[NodeBFS], List[Byte]] /* Represent a dictionary to store with Huffman codes */
   type NodeDict = Map[List[NodeBFS], Int] /* Represent a compression dictionary for trees of nodes with frequencies */
+  
+  type HufDict = Map[List[NodeBFS], List[Byte]]
+  type RevHufDict = Map[List[Byte], List[NodeBFS]]
 		  
   /* TODO: move that elsewhere? */
   /* Meta entry for dictionary testing */
@@ -75,6 +76,16 @@ object Enrichments {
           List(span._1) ++ (if (span._2 != Nil) loop(span._2.tail) else Nil)
       }
       loop(lst)
+    }
+  }
+  
+  implicit class RichRevHufDict(dict: RevHufDict) {
+    def getMatch(in: List[Byte]): (List[NodeBFS], List[Byte]) = {
+      @tailrec def loop(x: List[Byte], xs: List[Byte]): (List[NodeBFS], List[Byte]) = dict.get(x) match {
+        case Some(entry) => (entry, xs)
+        case None => loop(x :+ xs.head, xs.tail)
+      } 
+      loop(in.head :: Nil, in.tail)
     }
   }
 }
