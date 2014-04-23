@@ -74,5 +74,28 @@ class AstCompressor(out: DataOutputStream) {
     out.writeInt(edge._2)
   }
 
+  //Compresses the List of 0 and 1's into bytes
+  def compressByte(bytes: List[Byte]): Array[Byte] = {
+    val groups: List[(Int,List[(Byte, Int)])] = bytes.reverse.zipWithIndex.groupBy(_._2 / 8).toList
+    println("The groups "+groups)
+    val octoBytes: List[List[Byte]] = groups.sortBy(i => i._1).map(l => l._2.map(_._1))
+    println("The octoBytes "+octoBytes)
+    val a = octoBytes.map{ o => 
+      o.zipWithIndex.map(b => (b._1 << b._2).toByte).sum.toByte
+    }.toArray 
+    println("The array ")
+    a.foreach(println(_))
+    a
+  }
+
+  def decompressByte(byte: Byte): List[Byte] = {
+    (0 to 7).map{ i => 
+      if((byte & (1 << i)) != 0)
+        1.toByte
+      else
+        0.toByte
+    }.toList.reverse
+  } 
+
   def apply(node: Node): Unit = ???
 }
