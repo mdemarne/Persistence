@@ -102,5 +102,12 @@ class AstCompressor(out: DataOutputStream) {
   }
 
 
-  def apply(node: Node): Unit = ???
+  def apply(node: Node): Unit = {
+    val (nodeDict, occs, edges) = splitTree(node)
+    val hufDict = genHuffman(nodeDict)
+    val encodedOccs = encodeOccs(occs, hufDict)
+    outputOccs(encodedOccs)
+    outputDict(hufDict)
+    outputEdges(edges)
+  }
 }
