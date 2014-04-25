@@ -33,35 +33,22 @@ class AstDecompressor(in: DataInputStream) {
   //TODO check that it is better than while hasNext
   def inputOccs: List[Byte] = {
    val size = in.readInt
-   assert(in.readByte == ';'.toByte)
    val res: List[Byte] = readBytes(size) 
-   assert(in.readByte == '$'.toByte)
    res
   }
 
   def inputDict: RevHufDict = {
-    def readOne: (List[Byte], List[NodeBFS]) = {
-      val size: Int = in.readInt
-      assert(in.readByte == ';'.toByte)
-      val res: List[Byte] = readBytes(size) 
-      assert(in.readByte == ';'.toByte) 
-      var treeBytes: List[Byte] = Nil
-      do{
-        treeBytes :+= in.readByte
-      }while(treeBytes.last != '#'.toByte)
-      treeBytes = treeBytes.init
-      (res, parserBFS(new String(treeBytes.map(_.toChar).toArray)))
+    var dict: RevHufDict = Map()
+    while(in.available != 0){
+      val sizeHuff: Int = in.readInt
+      val huffcode = readBytes(sizeHuff)
+      val nbNode: Int = in.readInt
+      val ndBfs: List[NodeBFS] = 
+        (for(i <- 1 to nbNode) 
+          yield (NodeTag.getVal(in.readByte.toInt), in.readShort.toInt, in.readShort.toInt)).toList.map(i => NodeBFS(Node(i._1, Nil), i._2, i._3))
+      dict += (huffcode -> ndBfs)
     }
-    var dict: List[(List[Byte], List[NodeBFS])] = Nil
-    var byte: Byte = 0
-    do {
-      dict :+= readOne
-      byte = in.readByte
-    }while(byte != '$'.toByte)
-    dict.toMap
-  }
-  def parserBFS(s: String): List[NodeBFS] = {
-    ???
+    dict
   }
 
   def readBytes(size: Int): List[Byte] = {
@@ -71,7 +58,11 @@ class AstDecompressor(in: DataInputStream) {
     }
     bytes.map(decompressByte(_)).reverse.flatten.drop((8 - (size % 8)) % 8)
   }
-  def inputEdges: List[(Int, Int)] = ???
+
+  def inputEdges: List[(Int, Int)] = {
+    val size: Short = in.readShort
+    (for(i <- 1 to size) yield (in.readInt, in.readInt)).toList
+  }
 
   //Decompresses the byte into a list of 8 bytes
   def decompressByte(byte: Byte): List[Byte] = {
