@@ -76,7 +76,10 @@ object Enrichments {
 
       ???
     }
-    def asPrintable: String = lst.map(e => s"${e.node.tpe}${e.bfsIdx},${e.parentBfsIdx}").mkString(".")
+    def asPrintable: List[(Byte, Short, Short)]= {
+      lst.map{ e =>
+        (NodeTag.getIndex(e.node.tpe).toByte, e.bfsIdx.toShort, e.parentBfsIdx.toShort)}.toList
+    }
   }
 
   implicit class RichList[T](lst: List[T]) {

@@ -69,26 +69,25 @@ class AstCompressor(out: DataOutputStream) {
 
   def outputOccs(occs: List[Byte]): Unit = {
     out.write(occs.size)
-    out.writeBytes(";")
     out.write(compressByte(occs))
-    out.writeBytes("$")
     out.flush
   }
   def outputDict(dict: HufDict): Unit = {
    dict.foreach{ e =>
-    out.write(e._2.size);out.writeBytes(";")
-    out.write(compressByte(e._2)); out.writeBytes(";")
-    out.writeBytes(e._1.asPrintable); out.writeBytes("#")   
+    out.writeInt(e._2.size)
+    out.write(compressByte(e._2))
+    val ndBfs = e._1.asPrintable
+    out.writeInt(ndBfs.size)
+    ndBfs.foreach{n => out.write(n._1); out.writeShort(n._2); out.writeShort(n._3)}
    }
-   out.writeBytes("$")
    out.flush
   }
   def outputEdges(edges: List[(Int, Int)]): Unit = {
+    out.writeShort(edges.size)
     edges.tail foreach { edge =>
       out.writeInt(edge._1)
       out.writeInt(edge._2)
     }
-    out.writeBytes("$")
     out.flush
   }
 
