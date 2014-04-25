@@ -7,16 +7,16 @@ object Enrichments {
   type RevList[A] = List[A] /* leaves first */
 
   type NodeDict = Map[List[NodeBFS], Int] /* Represent a compression dictionary for trees of nodes with frequencies */
-  
+
   type HufDict = Map[List[NodeBFS], List[Byte]]
   type RevHufDict = Map[List[Byte], List[NodeBFS]]
-		  
+
   /* TODO: move that elsewhere? */
   /* Meta entry for dictionary testing */
   case class MetaEntry(tpe: NodeTag.Value, idx: Int, parentIdx: Int) {
-      override def toString = s"(${tpe}, ${idx}, ${parentIdx})"
-    } 
-  
+    override def toString = s"(${tpe}, ${idx}, ${parentIdx})"
+  }
+
   implicit class RichNodeDict(dict: NodeDict) {
     /* TODO: this is just there for testing*/
     def testingDict = dict map (x => (x._1.map(y => MetaEntry(y.node.tpe, y.bfsIdx, y.parentBfsIdx)), x._2))
@@ -36,21 +36,20 @@ object Enrichments {
     /* Return a common subtree of this and n if exists, with the size of the subtree in BFS order */
     def intersectBFS(nds: RevList[NodeBFS]): RevList[NodeBFS] = {
       def loop(nds1: RevList[NodeBFS], nds2: RevList[NodeBFS]): RevList[NodeBFS] = (nds1, nds2) match {
-        case (x :: xs, y :: ys) if x.equalsStructure(y) => x :: loop(xs,ys) 
+        case (x :: xs, y :: ys) if x.equalsStructure(y) => x :: loop(xs, ys)
         case _ => Nil
       }
       loop(lst.reverse, nds.reverse).reverse
     }
     /* true if lst match perfecly nds */
-    def matchBFS(nds: RevList[NodeBFS]) = intersectBFS(nds).size == lst.size 
+    def matchBFS(nds: RevList[NodeBFS]) = intersectBFS(nds).size == lst.size
     /* Return all the subroots of a tree represented as a List[NodeBFS], as a List[Node], along with the node ID in BFS order from which it was linked */
     def subRoots: List[(Node, Int)] = {
       val bfsz = lst.map(x => (x, lst.count(z => z.parentBfsIdx == x.bfsIdx)))
       bfsz.flatMap(x => (x._1.node.children.drop(x._2).map(c => (c, x._1.bfsIdx))))
     }
-    def takeSubtree(i: Int) = lst.reverse.take(i).reverse
+    def takeSubtree(i: Int) = lst.takeRight(i)
 
-    /* TODO never called, might be useful later */
     /* From a list of NodeBFS, return a reconstructed tree. The NodeBFS must be well formated */
     def toTree: Option[Node] = {
       /* Recursively goes through the old list of NodeBFS to reconstruct a list of NodeBFS where each
@@ -65,6 +64,18 @@ object Enrichments {
       }
       Some(loop(lst, lst.map(n => n.copy(node = n.node.cleanCopy))).last.node)
     }
+    //TODO: complete
+    def append(that: RevList[NodeBFS], parentBFSIdx: Int): RevList[NodeBFS] = {
+      val tree = lst.toTree.get
+      val subtree = that.toTree.get
+      val parent = tree.flattenBFSIdx.reverse(parentBFSIdx).node
+      
+      def addChildren(origin: Node, subtree: Node): Node = 
+        if (parent == origin) parent.addChildren(subtree :: Nil)
+        else ???
+
+      ???
+    }
   }
 
   implicit class RichList[T](lst: List[T]) {
@@ -78,13 +89,13 @@ object Enrichments {
       loop(lst)
     }
   }
-  
+
   implicit class RichRevHufDict(dict: RevHufDict) {
     def getMatch(in: List[Byte]): (List[NodeBFS], List[Byte]) = {
       @tailrec def loop(x: List[Byte], xs: List[Byte]): (List[NodeBFS], List[Byte]) = dict.get(x) match {
         case Some(entry) => (entry, xs)
         case None => loop(x :+ xs.head, xs.tail)
-      } 
+      }
       loop(in.head :: Nil, in.tail)
     }
   }

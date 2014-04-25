@@ -5,10 +5,18 @@ import java.io.DataInputStream
 class AstDecompressor(in: DataInputStream) {
   import Enrichments._
 
+  /* TODO: should be either nested or private. Is public here for tests */
   def rebuiltTree(occs: List[List[NodeBFS]], edges: List[(Int, Int)]): Node = {
-    val revOccs = occs.reverse
-    val revEdges = edges.reverse
-    ???
+    def loop(revOccs: RevList[List[NodeBFS]], revEdges: RevList[(Int, Int)]): List[NodeBFS] = (revOccs, revEdges) match {
+      case (x :: Nil, Nil) => x /* We have recomposed all the tree */
+      case (x :: xs, (idx, parentBFS) :: ys) =>
+        val (bef, parent :: aft) = revOccs.splitAt(revOccs.size - idx)
+        loop(bef ++ (parent.append(x, parentBFS) :: aft), ys)
+        
+      case _ => sys.error("Mismatch bettwen the number of occurences and edges.")
+        
+    } 
+    loop(occs.reverse, edges.reverse).toTree.get
   }
   
   /* TODO: should be either nested or private. Is public here for tests */
