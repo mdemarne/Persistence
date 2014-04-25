@@ -76,6 +76,7 @@ object Enrichments {
 
       ???
     }
+    def asPrintable: String = lst.map(e => s"${e.node.tpe}${e.bfsIdx},${e.parentBfsIdx}").mkString(".")
   }
 
   implicit class RichList[T](lst: List[T]) {

@@ -78,7 +78,7 @@ class AstCompressor(out: DataOutputStream) {
    dict.foreach{ e =>
     out.write(e._2.size);out.writeBytes(";")
     out.write(compressByte(e._2)); out.writeBytes(";")
-    out.writeBytes(e._1.toString); out.writeBytes("#")   
+    out.writeBytes(e._1.asPrintable); out.writeBytes("#")   
    }
    out.writeBytes("$")
    out.flush

@@ -1,6 +1,9 @@
 import org.scalatest.FunSuite
 import scala.reflect.persistence._
 import scala.reflect.persistence.Enrichments._
+import java.io.DataOutputStream
+import java.io.FileOutputStream
+import java.io.File
 
 class AstCompressorTest extends FunSuite {
 
@@ -90,6 +93,18 @@ class AstCompressorTest extends FunSuite {
     println()
     assert(splitTree._1.size == hufCodes.size, "Wrong size of Huffman codes !")
     
+  }
+  
+  test("DictOuputTest1") {
+    val treeStr = "c (m (v v (c (m v v) c (m v v))) m(v v (c c)) c (m (v v (c (m v v) c (m v v))) m(v v (c c)) ))"
+    val tree = ParseTestTree.parse(treeStr).get
+    val outputFile = new File("test.ast")
+    val compressor = new AstCompressor(new DataOutputStream(new FileOutputStream(outputFile)))
+    compressor(tree)
+    println("size of compressed file: " + outputFile.length)
+    /* Dummy test */
+    assert(outputFile.length > 0, "Nothing was written?")
+    /* outputFile.delete() */
   }
 
 }

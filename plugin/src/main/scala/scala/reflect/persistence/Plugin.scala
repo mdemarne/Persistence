@@ -27,7 +27,7 @@ class Plugin(val global: Global) extends NscPlugin {
         /* TODO: remove those (there for test dependent of global) */
         val decomposedTree = new TreeDecomposer()(unit body)
         val recomposedTree = new TreeRecomposer()(decomposedTree)
-        val astCompressor = new AstCompressor(null)
+        val astCompressor = new AstCompressor(new DataOutputStream(new FileOutputStream("test.ast")))
         println("Original:")
         println(showRaw(unit body))
         println("Frequences dict:")
@@ -43,6 +43,10 @@ class Plugin(val global: Global) extends NscPlugin {
         println("Bit string for the compressed tree:")
         astCompressor.encodeOccs(splitTree._2, hufCodes) foreach (print(_))
         println()
+        
+        /* Let's try the whole compression */
+        
+        astCompressor(decomposedTree.tree)
 
         /* TODO: implement this */
       }
