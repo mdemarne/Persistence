@@ -83,9 +83,13 @@ class AstCompressor(out: DataOutputStream) {
    out.writeBytes("$")
    out.flush
   }
-  def outputEdges(edges: List[(Int, Int)]): Unit = edges foreach { edge =>
-    out.writeInt(edge._1)
-    out.writeInt(edge._2)
+  def outputEdges(edges: List[(Int, Int)]): Unit = {
+    edges.tail foreach { edge =>
+      out.writeInt(edge._1)
+      out.writeInt(edge._2)
+    }
+    out.writeBytes("$")
+    out.flush
   }
 
   //Compresses the List of 0 and 1's into bytes
@@ -97,15 +101,6 @@ class AstCompressor(out: DataOutputStream) {
     }.toArray 
   }
 
-  //Decompresses the byte into a list of 8 bytes
-  def decompressByte(byte: Byte): List[Byte] = {
-    (0 to 7).map{ i => 
-      if((byte & (1 << i)) != 0)
-        1.toByte
-      else
-        0.toByte
-    }.toList.reverse
-  } 
 
   def apply(node: Node): Unit = ???
 }
