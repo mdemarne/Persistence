@@ -8,13 +8,12 @@ class AstDecompressor(in: DataInputStream) {
   /* TODO: should be either nested or private. Is public here for tests */
   def rebuiltTree(occs: List[List[NodeBFS]], edges: List[(Int, Int)]): Node = {
     def loop(revOccs: RevList[List[NodeBFS]], revEdges: RevList[(Int, Int)]): List[NodeBFS] = (revOccs, revEdges) match {
-      case (x :: Nil, Nil) => x /* We have recomposed all the tree */
+      case (x :: Nil, Nil) => x /* We have recomposed all the tree. NB: (-1, -1) for the root should not be there. */
       case (x :: xs, (idx, parentBFS) :: ys) =>
-        val (bef, parent :: aft) = revOccs.splitAt(revOccs.size - idx)
+        val (bef :+ parent, aft) = xs.splitAt(xs.size - idx)
         loop(bef ++ (parent.append(x, parentBFS) :: aft), ys)
         
       case _ => sys.error("Mismatch bettwen the number of occurences and edges.")
-        
     } 
     loop(occs.reverse, edges.reverse).toTree.get
   }

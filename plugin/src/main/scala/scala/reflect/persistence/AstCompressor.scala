@@ -29,7 +29,7 @@ class AstCompressor(out: DataOutputStream) {
           case None => sys.error("Cannot find matching entry in the dictionary")
           case Some(entry) =>
             /* node, parsing index, index of the node in BFS in the tree corresponding to the index to which the subroot was linked */
-            val subRoots = bfs.intersectBFS(entry).subRoots map (s => (s._1, nd._4, s._2, ids.next))
+            val subRoots = bfs.intersectBFS(entry).subRoots.map(s => (s._1, nd._4, s._2, ids.next))
             loop(nds ++ subRoots,
               dict + (entry -> (dict(entry) + 1)),
               occ :+ entry,
@@ -55,7 +55,10 @@ class AstCompressor(out: DataOutputStream) {
       case HufNode(_, left, right) => computeHufValues(left, cde :+ 0x1.toByte) ++ computeHufValues(right, cde :+ 0x0.toByte)
     }
     val hufQueue: List[HufTree] = dict.toList.map(entry => HufLeaf(entry._1, entry._2))
-    computeHufValues(computeHufTree(hufQueue)) toMap
+    computeHufTree(hufQueue) match {
+      case HufLeaf(key, _) => ((key, 0x1.toByte :: Nil) :: Nil) toMap /* Corner case: if only one entry in dict */  
+      case _ => computeHufValues(computeHufTree(hufQueue)) toMap
+    }
   }
   /* TODO: should be either nested or private. Is public here for tests */
   /* Once the Huffman code generated based on the frequencies found while reparsing the tree, encode the list of occurences. */

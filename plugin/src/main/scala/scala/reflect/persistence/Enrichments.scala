@@ -43,8 +43,8 @@ object Enrichments {
     }
     /* true if lst match perfecly nds */
     def matchBFS(nds: RevList[NodeBFS]) = intersectBFS(nds).size == lst.size
-    /* Return all the subroots of a tree represented as a List[NodeBFS], as a List[Node], along with the node ID in BFS order from which it was linked */
-    def subRoots: List[(Node, Int)] = {
+    /* Return all the subroots of a tree represented as a List[NodeBFS], as a RevList[Node], along with the node ID in BFS order from which it was linked */
+    def subRoots: RevList[(Node, Int)] = {
       val bfsz = lst.map(x => (x, lst.count(z => z.parentBfsIdx == x.bfsIdx)))
       bfsz.flatMap(x => (x._1.node.children.drop(x._2).map(c => (c, x._1.bfsIdx))))
     }
@@ -64,17 +64,19 @@ object Enrichments {
       }
       Some(loop(lst, lst.map(n => n.copy(node = n.node.cleanCopy))).last.node)
     }
-    //TODO: complete
     def append(that: RevList[NodeBFS], parentBFSIdx: Int): RevList[NodeBFS] = {
       val tree = lst.toTree.get
-      val subtree = that.toTree.get
-      val parent = tree.flattenBFSIdx.reverse(parentBFSIdx).node
-      
-      def addChildren(origin: Node, subtree: Node): Node = 
-        if (parent == origin) parent.addChildren(subtree :: Nil)
-        else ???
+      val subtreeToAdd = that.toTree.get
+      val oldParent = tree.flattenBFSIdx.reverse(parentBFSIdx).node
+      /* add the subtree to its parent */
+      val newParent = oldParent.copy(children = oldParent.children :+ subtreeToAdd)
+      /* Recursively copy it back in the tree */
+      def addChildren(subtree: Node): Node = 
+        if (oldParent == subtree) newParent 
+        else if (subtree.children.isEmpty) subtree
+        else subtree.copy(children = subtree.children.map(c => addChildren(c)))
 
-      ???
+      addChildren(tree).flattenBFSIdx
     }
     def asPrintable: String = lst.map(e => s"${e.node.tpe}${e.bfsIdx},${e.parentBfsIdx}").mkString(".")
   }

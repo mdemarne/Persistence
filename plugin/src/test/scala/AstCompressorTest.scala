@@ -76,12 +76,11 @@ class AstCompressorTest extends FunSuite {
     val nbOcc = splitTree._1.values.sum
     assert(splitTree._2.size == nbOcc, "the number of occurences should be the same as the sum of the frequencies of the dicitonary.")
   }
-  
 
   test("HuffmanGenerationTest1") {
-    
+
     val treeStr = "c (m (v v (c (m v v) c (m v v))) m(v v (c c)) c (m (v v (c (m v v) c (m v v))) m(v v (c c)) ))"
-      val compressor = new AstCompressor(null) 
+    val compressor = new AstCompressor(null)
 
     val tree = ParseTestTree.parse(treeStr)
     val splitTree = compressor.splitTree(tree.get)
@@ -89,12 +88,30 @@ class AstCompressorTest extends FunSuite {
     println("Huffman codes used for compression:")
     hufCodes.values foreach (c => println(c.map(v => v.toInt)))
     println("Bit string for the compressed tree:")
-    compressor.encodeOccs(splitTree._2, hufCodes) foreach(print(_))
+    compressor.encodeOccs(splitTree._2, hufCodes) foreach (print(_))
     println()
     assert(splitTree._1.size == hufCodes.size, "Wrong size of Huffman codes !")
-    
+
   }
-  
+
+  test("HuffmanGenerationTest2") {
+
+    val treeStr = "n ( n ( n n ) n )"
+    val compressor = new AstCompressor(null)
+
+    val tree = ParseTestTree.parse(treeStr)
+    val splitTree = compressor.splitTree(tree.get)
+    println("Original dict:")
+    println(splitTree._1)
+    val hufCodes = compressor.genHuffman(splitTree._1)
+    println("Huffman codes used for compression:")
+    hufCodes.values foreach (c => println(c.map(v => v.toInt)))
+    println("Bit string for the compressed tree:")
+    compressor.encodeOccs(splitTree._2, hufCodes) foreach (print(_))
+    println()
+    assert(splitTree._1.size == hufCodes.size, "Wrong size of Huffman codes !")
+  }
+
   test("DictOuputTest1") {
     val treeStr = "c (m (v v (c (m v v) c (m v v))) m(v v (c c)) c (m (v v (c (m v v) c (m v v))) m(v v (c c)) ))"
     val tree = ParseTestTree.parse(treeStr).get
