@@ -15,7 +15,7 @@ class AstDecompressor(in: DataInputStream) {
         
       case _ => sys.error("Mismatch bettwen the number of occurences and edges.")
     } 
-    loop(occs.reverse, edges.reverse).toTree.get
+    loop(occs.reverse, edges.reverse).toTree
   }
   
   /* TODO: should be either nested or private. Is public here for tests */

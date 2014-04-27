@@ -6,7 +6,7 @@ class AstDecompressorTest extends FunSuite {
 
   /* NB: assumes that the splitTree, genHuffman, encodeOccs are working */
   val (tree,hufOccs, originOccs, dict, edges) = {
-    val treeStr = "c (n (m m v) )"
+    val treeStr = "c (m (v v (c (m v v) c (m v v))) m(v v (c c)) c (m (v v (c (m v v) c (m v v))) m(v v (c c)) ))"
     val compressor = new AstCompressor(null)
 
     val tree = ParseTestTree.parse(treeStr)

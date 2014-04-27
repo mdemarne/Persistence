@@ -46,12 +46,12 @@ object Enrichments {
     /* Return all the subroots of a tree represented as a List[NodeBFS], as a RevList[Node], along with the node ID in BFS order from which it was linked */
     def subRoots: RevList[(Node, Int)] = {
       val bfsz = lst.map(x => (x, lst.count(z => z.parentBfsIdx == x.bfsIdx)))
-      bfsz.flatMap(x => (x._1.node.children.drop(x._2).map(c => (c, x._1.bfsIdx))))
+      bfsz.flatMap(x => (x._1.node.children.drop(x._2).map(c => (c, x._1.bfsIdx)).reverse))
     }
     def takeSubtree(i: Int) = lst.takeRight(i)
 
     /* From a list of NodeBFS, return a reconstructed tree. The NodeBFS must be well formated */
-    def toTree: Option[Node] = {
+    def toTree: Node = {
       /* Recursively goes through the old list of NodeBFS to reconstruct a list of NodeBFS where each
        * Node contains only the children present in the subtree represented by the nodes of the old list. */
       @tailrec def loop(old: RevList[NodeBFS], nw: RevList[NodeBFS]): List[NodeBFS] = old match {
@@ -62,11 +62,11 @@ object Enrichments {
             else p))
         case Nil => nw /* at the end, each node in nw has been updated */
       }
-      Some(loop(lst, lst.map(n => n.copy(node = n.node.cleanCopy))).last.node)
+      loop(lst, lst.map(n => n.copy(node = n.node.cleanCopy))).last.node
     }
     def append(that: RevList[NodeBFS], parentBFSIdx: Int): RevList[NodeBFS] = {
-      val tree = lst.toTree.get
-      val subtreeToAdd = that.toTree.get
+      val tree = lst.toTree
+      val subtreeToAdd = that.toTree
       val oldParent = tree.flattenBFSIdx.reverse(parentBFSIdx).node
       /* add the subtree to its parent */
       val newParent = oldParent.copy(children = oldParent.children :+ subtreeToAdd)
