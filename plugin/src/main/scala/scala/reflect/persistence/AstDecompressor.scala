@@ -32,17 +32,17 @@ class AstDecompressor(in: DataInputStream) {
  
   //TODO check that it is better than while hasNext
   def inputOccs: List[Byte] = {
-   val size = in.readInt
+   val size = in.readShort
    val res: List[Byte] = readBytes(size) 
    res
   }
 
   def inputDict: RevHufDict = {
     var dict: RevHufDict = Map()
-    while(in.available != 0){
-      val sizeHuff: Int = in.readInt
+    while(in.available > 0){
+      val sizeHuff: Int = in.readShort.toInt
       val huffcode = readBytes(sizeHuff)
-      val nbNode: Int = in.readInt
+      val nbNode: Int = in.readShort
       val ndBfs: List[NodeBFS] = 
         (for(i <- 1 to nbNode) 
           yield (NodeTag.getVal(in.readByte.toInt), in.readShort.toInt, in.readShort.toInt)).toList.map(i => NodeBFS(Node(i._1, Nil), i._2, i._3))
@@ -61,7 +61,7 @@ class AstDecompressor(in: DataInputStream) {
 
   def inputEdges: List[(Int, Int)] = {
     val size: Short = in.readShort
-    (for(i <- 1 to size) yield (in.readInt, in.readInt)).toList
+    (for(i <- 1 to size) yield (in.readShort.toInt, in.readShort.toInt)).toList
   }
 
   //Decompresses the byte into a list of 8 bytes

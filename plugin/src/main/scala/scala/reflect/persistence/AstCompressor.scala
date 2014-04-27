@@ -71,25 +71,25 @@ class AstCompressor(out: DataOutputStream) {
   }
 
   def outputOccs(occs: List[Byte]): Unit = {
-    out.write(occs.size)
+    out.writeShort(occs.size)
     out.write(compressByte(occs))
     out.flush
   }
   def outputDict(dict: HufDict): Unit = {
    dict.foreach{ e =>
-    out.writeInt(e._2.size)
+    out.writeShort(e._2.size)
     out.write(compressByte(e._2))
     val ndBfs = e._1.asPrintable
-    out.writeInt(ndBfs.size)
+    out.writeShort(ndBfs.size)
     ndBfs.foreach{n => out.write(n._1); out.writeShort(n._2); out.writeShort(n._3)}
    }
    out.flush
   }
   def outputEdges(edges: List[(Int, Int)]): Unit = {
-    out.writeShort(edges.size)
+    out.writeShort(edges.size - 1)
     edges.tail foreach { edge =>
-      out.writeInt(edge._1)
-      out.writeInt(edge._2)
+      out.writeShort(edge._1)
+      out.writeShort(edge._2)
     }
     out.flush
   }
@@ -109,7 +109,7 @@ class AstCompressor(out: DataOutputStream) {
     val hufDict = genHuffman(nodeDict)
     val encodedOccs = encodeOccs(occs, hufDict)
     outputOccs(encodedOccs)
-    outputDict(hufDict)
     outputEdges(edges)
+    outputDict(hufDict)
   }
 }
