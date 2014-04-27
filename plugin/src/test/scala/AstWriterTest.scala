@@ -25,7 +25,9 @@ class AstWriterTest extends FunSuite {
     compressor.outputEdges(splitTree._3)
     compressor.outputDict(hufCodes)
     
-    val (dOccs, dEdges, dDict) = (decompressor.inputOccs, decompressor.inputEdges, decompressor.inputDict)
+    val dOccs = decompressor.inputOccs
+    val dEdges = decompressor.inputEdges
+    val dDict = decompressor.inputDict
     
     assert(encOccs == dOccs, "Occurences do not match")
     assert(splitTree._3.tail == dEdges, "Edges do not match")

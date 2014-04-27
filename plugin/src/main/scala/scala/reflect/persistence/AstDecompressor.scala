@@ -31,11 +31,7 @@ class AstDecompressor(in: DataInputStream) {
   }
  
   //TODO check that it is better than while hasNext
-  def inputOccs: List[Byte] = {
-   val size = in.readShort
-   val res: List[Byte] = readBytes(size) 
-   res
-  }
+  def inputOccs: List[Byte] = readBytes(in.readShort)
 
   def inputDict: RevHufDict = {
     var dict: RevHufDict = Map()
@@ -53,10 +49,10 @@ class AstDecompressor(in: DataInputStream) {
 
   def readBytes(size: Int): List[Byte] = {
     var bytes: List[Byte] = Nil
-    for(i <- (0 until Math.ceil(size.toDouble / 8).toInt * 8)){
+    for(i <- (0 until Math.ceil(size.toDouble / 8).toInt)){
       bytes  :+= in.readByte
     }
-    bytes.map(decompressByte(_)).reverse.flatten.drop((8 - (size % 8)) % 8)
+    bytes.map(decompressBytes(_)).reverse.flatten.drop((8 - (size % 8)) % 8)
   }
 
   def inputEdges: List[(Int, Int)] = {
@@ -65,12 +61,10 @@ class AstDecompressor(in: DataInputStream) {
   }
 
   //Decompresses the byte into a list of 8 bytes
-  def decompressByte(byte: Byte): List[Byte] = {
+  def decompressBytes(byte: Byte): List[Byte] = {
     (0 to 7).map{ i => 
-      if((byte & (1 << i)) != 0)
-        1.toByte
-      else
-        0.toByte
+      if((byte & (1 << i)) != 0) 1.toByte
+      else 0.toByte
     }.toList.reverse
   } 
   def apply(): Node = ???

@@ -72,13 +72,13 @@ class AstCompressor(out: DataOutputStream) {
 
   def outputOccs(occs: List[Byte]): Unit = {
     out.writeShort(occs.size)
-    out.write(compressByte(occs))
+    out.write(compressBytes(occs))
     out.flush
   }
   def outputDict(dict: HufDict): Unit = {
    dict.foreach{ e =>
     out.writeShort(e._2.size)
-    out.write(compressByte(e._2))
+    out.write(compressBytes(e._2))
     val ndBfs = e._1.asPrintable
     out.writeShort(ndBfs.size)
     ndBfs.foreach{n => out.write(n._1); out.writeShort(n._2); out.writeShort(n._3)}
@@ -95,10 +95,10 @@ class AstCompressor(out: DataOutputStream) {
   }
 
   //Compresses the List of 0 and 1's into bytes
-  def compressByte(bytes: List[Byte]): Array[Byte] = {
+  def compressBytes(bytes: List[Byte]): Array[Byte] = {
     val groups: List[(Int,List[(Byte, Int)])] = bytes.reverse.zipWithIndex.groupBy(_._2 / 8).toList
     val octoBytes: List[List[Byte]] = groups.sortBy(i => i._1).map(l => l._2.map(_._1))
-    octoBytes.map{ o => 
+    octoBytes.map{ o =>
       o.zipWithIndex.map(b => (b._1 << b._2).toByte).sum.toByte
     }.toArray 
   }
