@@ -72,7 +72,7 @@ object Enrichments {
       val newParent = oldParent.copy(children = oldParent.children :+ subtreeToAdd)
       /* Recursively copy it back in the tree */
       def addChildren(subtree: Node): Node = 
-        if (oldParent == subtree) newParent 
+        if (oldParent eq subtree) newParent /* Use of eq to compare by reference */
         else if (subtree.children.isEmpty) subtree
         else subtree.copy(children = subtree.children.map(c => addChildren(c)))
 
