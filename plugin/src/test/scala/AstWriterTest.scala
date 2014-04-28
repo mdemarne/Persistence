@@ -1,3 +1,5 @@
+package scala.reflect.persistence.test
+
 import org.scalatest.FunSuite
 import scala.reflect.persistence._
 import scala.reflect.persistence.Enrichments._

@@ -1,3 +1,5 @@
+package scala.reflect.persistence.test
+
 import org.scalatest.FunSuite
 import scala.reflect.persistence._
 import scala.reflect.persistence.Enrichments._
@@ -9,38 +11,25 @@ class AstCompressorTest extends FunSuite {
 
   /* Tests concerning computeFreqs */
 
+  val compressor = new AstCompressor(null)
+
   test("parseTreeTest1") {
-
-    val treeStr = "n ( n ( n n ) n )"
-
-    val tree = ParseTestTree.parse(treeStr)
-    val exploitableDict = tree.get.computeFreqs.testingDict
-    println("Dictionary:")
-    println(exploitableDict)
-
+    val tree = ParseTestTree.parse("n ( n ( n n ) n )").get
+    val exploitableDict = tree.computeFreqs.testingDict
     assert(exploitableDict.size == 2)
     assert(exploitableDict.head._2 == 5)
     assert(exploitableDict.tail.head._2 == 1)
   }
 
   test("parseTreeTest2") {
-
-    val treeStr = "c (n (m m v) m ( v v v v v ) m ( v v ) m (c v))"
-
-    val tree = ParseTestTree.parse(treeStr)
-    val exploitableDict = tree.get.computeFreqs.testingDict
-    println("Dictionary:")
-    println(exploitableDict)
+    val tree = ParseTestTree.parse("c (n (m m v) m ( v v v v v ) m ( v v ) m (c v))").get
+    val exploitableDict = tree.computeFreqs.testingDict
     assert(exploitableDict.size == 8)
   }
 
   test("parseTreeTest3") {
-    val treeStr = "c (v v c (v v) c(v v) c(v v))"
-
-    val tree = ParseTestTree.parse(treeStr)
-    val exploitableDict = tree.get.computeFreqs.testingDict
-    println("Dictionary:")
-    println(exploitableDict)
+    val tree = ParseTestTree.parse("c (v v c (v v) c(v v) c(v v))").get
+    val exploitableDict = tree.computeFreqs.testingDict
     assert(exploitableDict.size == 4)
     val entry = MetaEntry(NodeTag.ValDef, 0, -1)
     assert(exploitableDict.contains(List(entry)))
@@ -50,24 +39,19 @@ class AstCompressorTest extends FunSuite {
   }
 
   test("DoublePattern") {
-    val treeStr = "c (m (v v (c (m v v) c (m (v v)))) m(v v (c c)))"
-
-    val tree = ParseTestTree.parse(treeStr)
-    val dict = tree.get.computeFreqs.testingDict
-    println("Dictionary:")
+    val tree = ParseTestTree.parse("c (m (v v (c (m v v) c (m (v v)))) m(v v (c c)))").get
+    val dict = tree.computeFreqs.testingDict
     println(dict)
-    assert(dict.values.toList.count(_ == 2) == 2)
-    assert(dict.values.toList.count(_ == 1) == 3)
+    assert(dict.values.toList.count(_ == 2) == 1)
+    assert(dict.values.toList.count(_ == 1) == 4)
   }
 
   /* Tests concerning the dictionary actually used for compression */
 
+  /* Visual test */
   test("DictTreeTest1") {
-
-    val treeStr = "c (m (v v (c (m v v) c (m v v))) m(v v (c c)) c (m (v v (c (m v v) c (m v v))) m(v v (c c)) ))"
-
-    val tree = ParseTestTree.parse(treeStr)
-    val splitTree = new AstCompressor(null).splitTree(tree.get)
+    val tree = ParseTestTree.parse("c (m (v v (c (m v v) c (m v v))) m(v v (c c)) c (m (v v (c (m v v) c (m v v))) m(v v (c c)) ))").get
+    val splitTree = compressor.splitTree(tree)
     println("Used Dictionary:")
     splitTree._1.testingDict foreach (println(_))
     println("Edges:")
@@ -77,13 +61,10 @@ class AstCompressorTest extends FunSuite {
     assert(splitTree._2.size == nbOcc, "the number of occurences should be the same as the sum of the frequencies of the dicitonary.")
   }
 
+  /* Visual test */
   test("HuffmanGenerationTest1") {
-
-    val treeStr = "c (m (v v (c (m v v) c (m v v))) m(v v (c c)) c (m (v v (c (m v v) c (m v v))) m(v v (c c)) ))"
-    val compressor = new AstCompressor(null)
-
-    val tree = ParseTestTree.parse(treeStr)
-    val splitTree = compressor.splitTree(tree.get)
+    val tree = ParseTestTree.parse("c (m (v v (c (m v v) c (m v v))) m(v v (c c)) c (m (v v (c (m v v) c (m v v))) m(v v (c c)) ))").get
+    val splitTree = compressor.splitTree(tree)
     val hufCodes = compressor.genHuffman(splitTree._1)
     println("Huffman codes used for compression:")
     hufCodes.values foreach (c => println(c.map(v => v.toInt)))
@@ -94,13 +75,10 @@ class AstCompressorTest extends FunSuite {
 
   }
 
+  /* Visual test */
   test("HuffmanGenerationTest2") {
-
-    val treeStr = "n ( n ( n n ) n )"
-    val compressor = new AstCompressor(null)
-
-    val tree = ParseTestTree.parse(treeStr)
-    val splitTree = compressor.splitTree(tree.get)
+    val tree = ParseTestTree.parse("n ( n ( n n ) n )").get
+    val splitTree = compressor.splitTree(tree)
     println("Original dict:")
     println(splitTree._1)
     val hufCodes = compressor.genHuffman(splitTree._1)
@@ -111,17 +89,4 @@ class AstCompressorTest extends FunSuite {
     println()
     assert(splitTree._1.size == hufCodes.size, "Wrong size of Huffman codes !")
   }
-
-  test("DictOuputTest1") {
-    val treeStr = "c (m (v v (c (m v v) c (m v v))) m(v v (c c)) c (m (v v (c (m v v) c (m v v))) m(v v (c c)) ))"
-    val tree = ParseTestTree.parse(treeStr).get
-    val outputFile = new File("test.ast")
-    val compressor = new AstCompressor(new DataOutputStream(new FileOutputStream(outputFile)))
-    compressor(tree)
-    println("size of compressed file: " + outputFile.length)
-    /* Dummy test */
-    assert(outputFile.length > 0, "Nothing was written?")
-    /* outputFile.delete() */
-  }
-
 }
