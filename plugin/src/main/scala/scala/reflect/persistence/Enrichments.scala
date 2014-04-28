@@ -66,10 +66,9 @@ object Enrichments {
     }
     def append(that: RevList[NodeBFS], parentBFSIdx: Int): RevList[NodeBFS] = {
       val tree = lst.toTree
-      val subtreeToAdd = that.toTree
       val oldParent = tree.flattenBFSIdx.reverse(parentBFSIdx).node
       /* add the subtree to its parent */
-      val newParent = oldParent.copy(children = oldParent.children :+ subtreeToAdd)
+      val newParent = oldParent.copy(children = oldParent.children :+ that.toTree)
       /* Recursively copy it back in the tree */
       def addChildren(subtree: Node): Node = 
         if (oldParent eq subtree) newParent /* Use of eq to compare by reference */
