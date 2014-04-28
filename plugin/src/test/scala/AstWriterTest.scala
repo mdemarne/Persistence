@@ -3,6 +3,7 @@ package scala.reflect.persistence.test
 import org.scalatest.FunSuite
 import scala.reflect.persistence._
 import scala.reflect.persistence.Enrichments._
+import scala.reflect.persistence.Node._
 import java.io.File
 import java.io.DataOutputStream
 import java.io.FileOutputStream
@@ -30,10 +31,11 @@ class AstWriterTest extends FunSuite {
     val dOccs = decompressor.inputOccs
     val dEdges = decompressor.inputEdges
     val dDict = decompressor.inputDict
-    
+    val transCodes = hufCodes.map{e => 
+      (e._1.map(n => NodeBFS(Node(n.node.tpe, Nil), n.bfsIdx, n.parentBfsIdx)).toList, e._2)}.toMap
     assert(encOccs == dOccs, "Occurences do not match")
     assert(splitTree._3.tail == dEdges, "Edges do not match")
-    assert(hufCodes.map(_.swap) == dDict, "Dict do not match")
+    assert(transCodes.map(_.swap) == dDict, "Dict do not match")
     
     file.delete()    
   }

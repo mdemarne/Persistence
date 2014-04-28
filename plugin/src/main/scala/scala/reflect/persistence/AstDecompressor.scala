@@ -35,8 +35,9 @@ class AstDecompressor(in: DataInputStream) {
 
   def inputDict: RevHufDict = {
     var dict: RevHufDict = Map()
-    while(in.available > 0){
-      val sizeHuff: Int = in.readShort.toInt
+    val nbEntries = in.readInt
+    (0 until nbEntries).foreach{ i => 
+      val sizeHuff: Int = in.readInt
       val huffcode = readBytes(sizeHuff)
       val nbNode: Int = in.readShort
       val ndBfs: List[NodeBFS] = 

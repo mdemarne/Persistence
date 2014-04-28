@@ -76,8 +76,9 @@ class AstCompressor(out: DataOutputStream) {
     out.flush
   }
   def outputDict(dict: HufDict): Unit = {
+   out.writeInt(dict.size)
    dict.foreach{ e =>
-    out.writeShort(e._2.size)
+    out.writeInt(e._2.size)
     out.write(compressBytes(e._2))
     val ndBfs = e._1.asPrintable
     out.writeShort(ndBfs.size)
