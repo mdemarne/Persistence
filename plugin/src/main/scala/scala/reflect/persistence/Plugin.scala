@@ -26,15 +26,13 @@ class Plugin(val global: Global) extends NscPlugin {
     def newPhase(prev: Phase) = new StdPhase(prev) {
       def apply(unit: CompilationUnit) {
         val decomposedTree = TreeDecomposer(unit body)
-        /* TODO: do hierarchy as package */
         
         val folder = new File("asts")
         if(!folder.exists()) folder.mkdir()
-        
+
+        /* TODO: do hierarchy as package */
         val astCompressor = new AstCompressor(new DataOutputStream(new FileOutputStream(s"asts/${unit.source.toString}.ast")))
         astCompressor(decomposedTree.tree)
-        
-        /*println(showRaw(unit body))*/
       }
     }
 
