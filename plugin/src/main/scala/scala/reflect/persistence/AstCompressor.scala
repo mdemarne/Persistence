@@ -88,7 +88,7 @@ class AstCompressor(out: DataOutputStream) {
    out.flush
   }
   def outputEdges(edges: List[(Int, Int)]): Unit = {
-    out.writeShort(edges.size - 1)
+    out.writeInt(edges.size - 1)
     edges.tail foreach { edge =>
       out.writeShort(edge._1)
       out.writeShort(edge._2)
