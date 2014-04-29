@@ -68,6 +68,12 @@ class AstDecompressor(in: DataInputStream) {
       else 0.toByte
     }.toList.reverse
   } 
-  def apply(): Node = ???
+  def apply(): Node = {
+    val dOccs = inputOccs
+    val dEdges = inputEdges
+    val dDict = inputDict
+    val decodedOccs = decodeOccs(dOccs, dDict)
+    rebuiltTree(decodedOccs, inputEdges)
+  }
 
 }
