@@ -6,6 +6,7 @@ import scala.language.postfixOps
 import scala.annotation.tailrec
 import java.io.DataOutputStream
 import java.io.FileOutputStream
+import java.io.File
 
 class Plugin(val global: Global) extends NscPlugin {
   import global._
@@ -26,10 +27,14 @@ class Plugin(val global: Global) extends NscPlugin {
       def apply(unit: CompilationUnit) {
         val decomposedTree = TreeDecomposer(unit body)
         /* TODO: do hierarchy as package */
-        val astCompressor = new AstCompressor(new DataOutputStream(new FileOutputStream(s"asts/${unit.source.file.path}.ast")))
+        
+        val folder = new File("asts")
+        if(!folder.exists()) folder.mkdir()
+        
+        val astCompressor = new AstCompressor(new DataOutputStream(new FileOutputStream(s"asts/${unit.source.toString}.ast")))
         astCompressor(decomposedTree.tree)
         
-        println(showRaw(unit body))
+        /*println(showRaw(unit body))*/
       }
     }
 
