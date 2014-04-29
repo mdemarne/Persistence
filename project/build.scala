@@ -137,7 +137,9 @@ object build extends Build {
   ) settings (
     sharedSettings ++ usePluginSettings: _*
   ) settings (
-    scalacOptions ++= Seq()
+    libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
+    libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
+     scalacOptions ++= Seq()
   )
 
   lazy val tests = Project(

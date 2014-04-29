@@ -4,6 +4,8 @@ import java.io.DataOutputStream
 import scala.annotation.tailrec
 import scala.language.postfixOps
 
+/* TODO: optimize. The splitTree method is very slow on big files, (ex. Typers.scala, 5'500 lines of code) */
+/* TODO: make some functions private. Here public for tests */
 class AstCompressor(out: DataOutputStream) {
   import Enrichments._
 
@@ -40,7 +42,6 @@ class AstCompressor(out: DataOutputStream) {
     (dict.filter(entry => entry._2 > 0), occ, edges)
   }
 
-  /* TODO: should be either nested or private. Is public here for tests */
   def genHuffman(dict: NodeDict): HufDict = {
     trait HufTree { val freq: Int }
     case class HufLeaf(key: List[NodeBFS], freq: Int) extends HufTree
@@ -60,7 +61,7 @@ class AstCompressor(out: DataOutputStream) {
       case _ => computeHufValues(computeHufTree(hufQueue)) toMap
     }
   }
-  /* TODO: should be either nested or private. Is public here for tests */
+
   /* Once the Huffman code generated based on the frequencies found while reparsing the tree, encode the list of occurences. */
   def encodeOccs(occ: List[List[NodeBFS]], dict: HufDict): List[Byte] = {
     def loop(occ: List[List[NodeBFS]], set: List[Byte]): List[Byte] = occ match {
@@ -103,7 +104,6 @@ class AstCompressor(out: DataOutputStream) {
       o.zipWithIndex.map(b => (b._1 << b._2).toByte).sum.toByte
     }.toArray 
   }
-
 
   def apply(node: Node): Unit = {
     val (nodeDict, occs, edges) = splitTree(node)
