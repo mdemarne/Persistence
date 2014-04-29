@@ -57,7 +57,7 @@ class AstDecompressor(in: DataInputStream) {
   }
 
   def inputEdges: List[(Int, Int)] = {
-    val size: Short = in.readShort
+    val size: Int = in.readInt
     (for(i <- 1 to size) yield (in.readShort.toInt, in.readShort.toInt)).toList
   }
 
@@ -73,7 +73,7 @@ class AstDecompressor(in: DataInputStream) {
     val dEdges = inputEdges
     val dDict = inputDict
     val decodedOccs = decodeOccs(dOccs, dDict)
-    rebuiltTree(decodedOccs, inputEdges)
+    rebuiltTree(decodedOccs, dEdges)
   }
 
 }
