@@ -67,6 +67,7 @@ class AstDecompressor(in: DataInputStream) {
       else 0.toByte
     }.toList.reverse
   } 
+  
   def apply(): Node = {
     val dOccs = inputOccs
     val dEdges = inputEdges

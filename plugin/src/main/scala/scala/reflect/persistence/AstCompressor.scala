@@ -95,7 +95,6 @@ class AstCompressor(out: DataOutputStream) {
     }
     out.flush
   }
-
   //Compresses the List of 0 and 1's into bytes
   def compressBytes(bytes: List[Byte]): Array[Byte] = {
     val groups: List[(Int,List[(Byte, Int)])] = bytes.reverse.zipWithIndex.groupBy(_._2 / 8).toList
@@ -104,7 +103,6 @@ class AstCompressor(out: DataOutputStream) {
       o.zipWithIndex.map(b => (b._1 << b._2).toByte).sum.toByte
     }.toArray 
   }
-
   def apply(node: Node): Unit = {
     val (nodeDict, occs, edges) = splitTree(node)
     val hufDict = genHuffman(nodeDict)
