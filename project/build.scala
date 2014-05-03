@@ -119,7 +119,7 @@ object build extends Build {
   )
 
   lazy val plugin = Project(
-    id   = "persistence",
+    id   = "plugin",
     base = file("plugin")
   ) settings (
     publishableSettings: _*
@@ -130,6 +130,19 @@ object build extends Build {
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test",
     scalacOptions ++= Seq()
   )
+  
+  lazy val library = Project(
+    id   = "library",
+    base = file("library")
+  ) settings (
+    publishableSettings: _*
+  ) settings (
+    libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
+    libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
+    libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test",
+    libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test",
+    scalacOptions ++= Seq()
+  ) dependsOn(plugin)
 
   lazy val sandbox = Project(
     id   = "sandbox",
