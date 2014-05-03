@@ -70,10 +70,16 @@ class AstDecompressor(in: DataInputStream) {
   
   def apply(): Node = {
     val dOccs = inputOccs
-    val dEdges = inputEdges
+    val dEdges = inputCompEdges
     val dDict = inputDict
     val decodedOccs = decodeOccs(dOccs, dDict)
     rebuiltTree(decodedOccs, dEdges)
+  }
+
+  def inputCompEdges: List[(Int, Int)] = {
+    val size: Int = in.readInt
+    val comp = (for (i <- 1 to size) yield ((in.readShort.toInt, in.readShort.toInt), in.readShort.toInt)).toList
+    comp.map(e => (for(i <- (1 to e._2)) yield e._1).toList).flatten
   }
 
 }
