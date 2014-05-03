@@ -82,4 +82,16 @@ class AstDecompressor(in: DataInputStream) {
     comp.map(e => (for(i <- (1 to e._2)) yield e._1).toList).flatten
   }
 
+  def inputComp2Edges: List[(Int, Int)] = {
+    val size1: Int = in.readInt
+    val size2: Int = in.readInt
+
+    val lp11 = (for (i <- (1 to size1)) yield (in.readShort.toInt, in.readShort.toInt))
+    val lp22 = (for (i <- (1 to size2)) yield (in.readShort.toInt, in.readShort.toInt))
+
+    val lp1 = lp11.map(e => (for (i <- 1 to e._2) yield e._1).toList)
+    val lp2 = lp22.map(e => (for (i <- 1 to e._2) yield e._1).toList)
+    lp1.zip(lp2)
+  }
+
 }
