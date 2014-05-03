@@ -111,4 +111,21 @@ class AstCompressor(out: DataOutputStream) {
     outputEdges(edges)
     outputDict(hufDict)
   }
+
+ 
+  def outputCompEdges(edges: List[(Int, Int)]): Unit = {
+    def loop(edg: List[(Int, Int)]): List[((Int,Int), Int)] = edg match {
+      case x::xs =>
+        val numb = xs.takeWhile(_ == x).size
+        (x, numb)::loop(edg.dropWhile(_ == x))
+      case Nil => Nil
+    }
+    val compr = loop(edges.tail)
+    out.writeInt(compr.size)
+    compr.foreach{  e =>
+      out.writeShort(e._1._1); out.writeShort(e._1._2)
+      out.writeShort(e._2); out.writeChar('\n')
+    }
+    out.flush
+  }
 }

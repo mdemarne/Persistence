@@ -76,4 +76,10 @@ class AstDecompressor(in: DataInputStream) {
     rebuiltTree(decodedOccs, dEdges)
   }
 
+  def inputCompEdges: List[(Int, Int)] = {
+    val size: Int = in.readInt
+    val comp = (for (i <- 1 to size) yield ((in.readShort.toInt, in.readShort.toInt), in.readShort.toInt, in.readChar)).toList
+    comp.map(e => (for(i <- (1 to e._2)) yield e._1).toList).flatten
+  }
+
 }
