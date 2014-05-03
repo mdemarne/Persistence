@@ -22,6 +22,8 @@ class ASTpersistenceTest extends FunSuite {
     val recupTree = decompressor()
 
     assert(tree == recupTree)
+
+    file.delete()
   } 
 
   test("First Tree"){
