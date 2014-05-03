@@ -142,7 +142,7 @@ object build extends Build {
     libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test",
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test",
     scalacOptions ++= Seq()
-  ) dependsOn(plugin)
+  ) dependsOn(plugin % "test->test;compile->compile")
 
   lazy val sandbox = Project(
     id   = "sandbox",
