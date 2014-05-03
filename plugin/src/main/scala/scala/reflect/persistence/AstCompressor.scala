@@ -16,9 +16,11 @@ class AstCompressor(out: DataOutputStream) {
       def idsc(v: Int): Stream[Int] = v #:: idsc(v + 1)
       idsc(0).iterator
     }
-    val keyList = node.computeFreqs.toList
+    val freqList = node.computeFreqs.toList
+    val exponent = freqList.map(_._1.size).sum.toDouble / freqList.size - 1
+    val keyList = freqList
       .filter(entry => entry._1.size < Math.sqrt(node.flattenBFS.size))
-      .map(entry => (entry._1, entry._1.size * entry._2))
+      .map(entry => (entry._1, Math.pow(entry._1.size, exponent) * entry._2))
       .sortBy(entry => (entry._2, entry._1.size)).reverse
       .map(entry => entry._1).toList
     /* origin dictionary, with empty frequencies */
@@ -57,7 +59,7 @@ class AstCompressor(out: DataOutputStream) {
     }
     val hufQueue: List[HufTree] = dict.toList.map(entry => HufLeaf(entry._1, entry._2))
     computeHufTree(hufQueue) match {
-      case HufLeaf(key, _) => ((key, 0x1.toByte :: Nil) :: Nil) toMap /* Corner case: if only one entry in dict */  
+      case HufLeaf(key, _) => ((key, 0x1.toByte :: Nil) :: Nil) toMap /* Corner case: if only one entry in dict */
       case _ => computeHufValues(computeHufTree(hufQueue)) toMap
     }
   }
@@ -77,15 +79,15 @@ class AstCompressor(out: DataOutputStream) {
     out.flush
   }
   def outputDict(dict: HufDict): Unit = {
-   out.writeInt(dict.size)
-   dict.foreach{ e =>
-    out.writeInt(e._2.size)
-    out.write(compressBytes(e._2))
-    val ndBfs = e._1.asPrintable
-    out.writeShort(ndBfs.size)
-    ndBfs.foreach{n => out.write(n._1); out.writeShort(n._2); out.writeShort(n._3)}
-   }
-   out.flush
+    out.writeInt(dict.size)
+    dict.foreach { e =>
+      out.writeInt(e._2.size)
+      out.write(compressBytes(e._2))
+      val ndBfs = e._1.asPrintable
+      out.writeShort(ndBfs.size)
+      ndBfs.foreach { n => out.write(n._1); out.writeShort(n._2); out.writeShort(n._3) }
+    }
+    out.flush
   }
   def outputEdges(edges: List[(Int, Int)]): Unit = {
     out.writeInt(edges.size - 1)
@@ -97,11 +99,11 @@ class AstCompressor(out: DataOutputStream) {
   }
   //Compresses the List of 0 and 1's into bytes
   def compressBytes(bytes: List[Byte]): Array[Byte] = {
-    val groups: List[(Int,List[(Byte, Int)])] = bytes.reverse.zipWithIndex.groupBy(_._2 / 8).toList
+    val groups: List[(Int, List[(Byte, Int)])] = bytes.reverse.zipWithIndex.groupBy(_._2 / 8).toList
     val octoBytes: List[List[Byte]] = groups.sortBy(i => i._1).map(l => l._2.map(_._1))
-    octoBytes.map{ o =>
+    octoBytes.map { o =>
       o.zipWithIndex.map(b => (b._1 << b._2).toByte).sum.toByte
-    }.toArray 
+    }.toArray
   }
   def apply(node: Node): Unit = {
     val (nodeDict, occs, edges) = splitTree(node)
