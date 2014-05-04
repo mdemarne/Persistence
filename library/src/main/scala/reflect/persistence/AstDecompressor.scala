@@ -84,8 +84,11 @@ class AstDecompressor(in: DataInputStream) {
 
   def inputComp2Edges: List[(Int, Int)] = {
     val size1: Int = in.readInt
+    println("The size1 "+ size1)
     val size2: Int = in.readInt
+    println("The size 2 "+size2)
     val (p1, occ1) = (in.readShort.toInt, in.readShort.toInt)
+    println("The p1 "+p1 +" The occ1 "+occ1)
     val inter = (for (i <- (1 to size1)) yield (in.readByte.toInt, in.readShort.toInt))
     val lp22 = (for (i <- (1 to size2)) yield (in.readShort.toInt, in.readShort.toInt))
     

@@ -133,7 +133,6 @@ class AstCompressor(out: DataOutputStream) {
 
   def outputComp2Edges(edges: List[(Int, Int)]): Unit = {
     val (lp1, lp2) = edges.tail.unzip
-    out.writeInt(lp1.size)
     def loop (l: List[Int]): List[(Int, Int)] = l match{
       case x::xs => 
         val numb = xs.takeWhile(_ == x).size
@@ -143,8 +142,11 @@ class AstCompressor(out: DataOutputStream) {
     val inter = loop(lp1)
     val lp11 = inter.tail.zip(inter).map(e => ((e._1._1 - e._2._1), e._1._2))
     val lp22 = loop(lp2)
-    out.writeInt(lp11.size -1)
+    out.writeInt(lp11.size)
+    println("Size 1 "+ lp11.size)
     out.writeInt(lp22.size)
+    println("Size 2 "+ lp22.size)
+    println("Head "+inter.head)
     out.writeShort(inter.head._1); out.writeShort(inter.head._2)
     lp11.foreach{e => out.writeByte(e._1.toByte); out.writeShort(e._2)}
     lp22.foreach{e => out.writeShort(e._1); out.writeShort(e._2)}
