@@ -114,9 +114,24 @@ class AstCompressor(out: DataOutputStream) {
     outputDict(hufDict)
   }
 
- 
   def outputCompEdges(edges: List[(Int, Int)]): Unit = {
-    def loop(edg: List[(Int, Int)]): List[((Int,Int), Int)] = edg match {
+    @tailrec def loop(old: (Int, Int), count: Int, edgs: List[(Int, Int)]): Unit = edgs match {
+      case Nil =>
+        out.writeShort(count)
+      case x :: xs if old == x =>
+        loop(old, count + 1, xs)
+      case x :: xs =>
+        out.writeShort(count)
+        out.writeShort(x._1)
+        out.writeShort(x._2)
+        loop(x, 1, xs)
+    }
+    out.writeInt(edges.tail.size)
+    out.writeShort(edges.tail.head._1)
+    out.writeShort(edges.tail.head._2)
+    loop(edges.tail.head, 1, edges.tail.tail)
+
+    /*def loop(edg: List[(Int, Int)]): List[((Int,Int), Int)] = edg match {
       case x::xs =>
         val numb = xs.takeWhile(_ == x).size
         (x, numb + 1)::loop(edg.dropWhile(_ == x))
@@ -127,7 +142,7 @@ class AstCompressor(out: DataOutputStream) {
     compr.foreach{  e =>
       out.writeShort(e._1._1); out.writeShort(e._1._2)
       out.writeShort(e._2)
-    }
+    }*/
     out.flush
   }
 
