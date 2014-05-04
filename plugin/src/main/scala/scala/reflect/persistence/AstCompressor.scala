@@ -147,22 +147,22 @@ class AstCompressor(out: DataOutputStream) {
   }
 
   def outputComp2Edges(edges: List[(Int, Int)]): Unit = {
-    val (lp1, lp2) = edges.unzip
+    val (lp1, lp2) = edges.tail.unzip
     out.writeInt(lp1.size)
-    def loop(l: List[Int]): List[(Int, Int)] = l match {
-      case x :: xs =>
+    def loop (l: List[Int]): List[(Int, Int)] = l match{
+      case x::xs => 
         val numb = xs.takeWhile(_ == x).size
-        (x, numb + 1) :: loop(l.dropWhile(_ == x))
+        (x, numb + 1)::loop(l.dropWhile(_ == x))
       case Nil => Nil
     }
-    //Maybe need to write diff between 
-    // 2 numbers
-    val lp11 = loop(lp1)
+    val inter = loop(lp1)
+    val lp11 = inter.tail.zip(inter).map(e => ((e._1._1 - e._2._1), e._1._2))
     val lp22 = loop(lp2)
-    out.write(lp11.size)
-    out.write(lp22.size)
-    lp11.foreach { e => out.writeShort(e._1); out.write(e._2) }
-    lp22.foreach { e => out.writeShort(e._1); out.write(e._2) }
+    out.writeInt(lp11.size -1)
+    out.writeInt(lp22.size)
+    out.writeShort(inter.head._1); out.writeShort(inter.head._2)
+    lp11.foreach{e => out.writeByte(e._1.toByte); out.writeShort(e._2)}
+    lp22.foreach{e => out.writeShort(e._1); out.writeShort(e._2)}
     out.flush
   }
 }
