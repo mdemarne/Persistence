@@ -114,9 +114,24 @@ class AstCompressor(out: DataOutputStream) {
     outputDict(hufDict)
   }
 
- 
   def outputCompEdges(edges: List[(Int, Int)]): Unit = {
-    def loop(edg: List[(Int, Int)]): List[((Int,Int), Int)] = edg match {
+    @tailrec def loop(old: (Int, Int), count: Int, edgs: List[(Int, Int)]): Unit = edgs match {
+      case Nil =>
+        out.writeShort(count)
+      case x :: xs if old == x =>
+        loop(old, count + 1, xs)
+      case x :: xs =>
+        out.writeShort(count)
+        out.writeShort(x._1)
+        out.writeShort(x._2)
+        loop(x, 1, xs)
+    }
+    out.writeInt(edges.tail.size)
+    out.writeShort(edges.tail.head._1)
+    out.writeShort(edges.tail.head._2)
+    loop(edges.tail.head, 1, edges.tail.tail)
+
+    /*def loop(edg: List[(Int, Int)]): List[((Int,Int), Int)] = edg match {
       case x::xs =>
         val numb = xs.takeWhile(_ == x).size
         (x, numb + 1)::loop(edg.dropWhile(_ == x))
@@ -127,27 +142,27 @@ class AstCompressor(out: DataOutputStream) {
     compr.foreach{  e =>
       out.writeShort(e._1._1); out.writeShort(e._1._2)
       out.writeShort(e._2)
-    }
+    }*/
     out.flush
   }
 
- def outputComp2Edges(edges: List[(Int, Int)]): Unit = {
-  val (lp1, lp2) = edges.unzip
-  out.writeInt(lp1.size)
-  def loop (l: List[Int]): List[(Int, Int)] = l match{
-    case x::xs => 
-      val numb = xs.takeWhile(_ == x).size
-      (x, numb + 1)::loop(l.dropWhile(_ == x))
-    case Nil => Nil
+  def outputComp2Edges(edges: List[(Int, Int)]): Unit = {
+    val (lp1, lp2) = edges.unzip
+    out.writeInt(lp1.size)
+    def loop(l: List[Int]): List[(Int, Int)] = l match {
+      case x :: xs =>
+        val numb = xs.takeWhile(_ == x).size
+        (x, numb + 1) :: loop(l.dropWhile(_ == x))
+      case Nil => Nil
+    }
+    //Maybe need to write diff between 
+    // 2 numbers
+    val lp11 = loop(lp1)
+    val lp22 = loop(lp2)
+    out.write(lp11.size)
+    out.write(lp22.size)
+    lp11.foreach { e => out.writeShort(e._1); out.write(e._2) }
+    lp22.foreach { e => out.writeShort(e._1); out.write(e._2) }
+    out.flush
   }
-  //Maybe need to write diff between 
-  // 2 numbers
-  val lp11 = loop(lp1)
-  val lp22 = loop(lp2)
-  out.write(lp11.size)
-  out.write(lp22.size)
-  lp11.foreach{e => out.writeShort(e._1); out.write(e._2)}
-  lp22.foreach{e => out.writeShort(e._1); out.write(e._2)}
-  out.flush
- }
 }
