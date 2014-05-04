@@ -8,7 +8,7 @@ import java.io.DataInputStream
 import java.io.FileOutputStream
 import java.io.FileInputStream
 
-class ASTpersistenceTest extends FunSuite {
+class AstPersistenceTest extends FunSuite {
   var count = 0
   def compWriteReadDecomp(treeStr: String) {
     val tree = ParseTestTree.parse(treeStr).get
