@@ -78,26 +78,37 @@ class AstDecompressor(in: DataInputStream) {
 
   def inputCompEdges: List[(Int, Int)] = {
     val size: Int = in.readInt
-    val comp = (for (i <- 1 to size) yield ((in.readShort.toInt, in.readByte.toInt), in.readShort.toInt)).toList
+    //val comp = (for (i <- 1 to size) yield ((in.readShort.toInt, in.readShort.toInt), in.readShort.toInt)).toList
+    var sum: Int = 0
+    var comp: List[((Int, Int), Int)] = Nil
+    do {
+      comp :+= ((in.readShort.toInt, in.readShort.toInt), in.readShort.toInt)
+      sum += comp.last._2
+    } while (sum < size)
+
     comp.map(e => (for(i <- (1 to e._2)) yield e._1).toList).flatten
   }
 
+  //TODO attention there's a bug here
   def inputComp2Edges: List[(Int, Int)] = {
     val size1: Int = in.readInt
-    println("The size1 "+ size1)
     val size2: Int = in.readInt
-    println("The size 2 "+size2)
     val (p1, occ1) = (in.readShort.toInt, in.readShort.toInt)
-    println("The p1 "+p1 +" The occ1 "+occ1)
+    
     val inter = (for (i <- (1 to size1)) yield (in.readByte.toInt, in.readShort.toInt))
     val lp22 = (for (i <- (1 to size2)) yield (in.readShort.toInt, in.readShort.toInt))
     
     val lp11: List[(Int, Int)] = 
-      (p1, occ1)::(inter.head._1 + p1, inter.head._2)::inter.tail.zip(inter).map(e => ((e._1._1 + p1 + e._2._1), e._1._2)).toList
+      (p1, occ1)::(inter.head._1 + p1, inter.head._2)::inter.tail.zipWithIndex.map{
+        e => (e._1._1 + p1 + inter.zipWithIndex.filter(_._2 < e._2).map(_._1._1).sum, e._1._2)
+       }.toList
     
     val lp1 = lp11.map(e => (for (i <- 1 to e._2) yield e._1).toList).flatten
+    
     val lp2 = lp22.map(e => (for (i <- 1 to e._2) yield e._1).toList).flatten
-    lp1.zip(lp2)
+    val res = lp1.zip(lp2)
+    println("The obtained edges "+res)
+    res
   }
 
 }
