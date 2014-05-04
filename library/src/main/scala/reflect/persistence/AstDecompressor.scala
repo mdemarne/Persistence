@@ -70,7 +70,7 @@ class AstDecompressor(in: DataInputStream) {
   
   def apply(): Node = {
     val dOccs = inputOccs
-    val dEdges = inputCompEdges
+    val dEdges = inputComp2Edges
     val dDict = inputDict
     val decodedOccs = decodeOccs(dOccs, dDict)
     rebuiltTree(decodedOccs, dEdges)
@@ -91,24 +91,32 @@ class AstDecompressor(in: DataInputStream) {
 
   //TODO attention there's a bug here
   def inputComp2Edges: List[(Int, Int)] = {
-    val size1: Int = in.readInt
-    val size2: Int = in.readInt
-    val (p1, occ1) = (in.readShort.toInt, in.readShort.toInt)
-    
-    val inter = (for (i <- (1 to size1)) yield (in.readByte.toInt, in.readShort.toInt))
-    val lp22 = (for (i <- (1 to size2)) yield (in.readShort.toInt, in.readShort.toInt))
-    
-    val lp11: List[(Int, Int)] = 
-      (p1, occ1)::(inter.head._1 + p1, inter.head._2)::inter.tail.zipWithIndex.map{
-        e => (e._1._1 + p1 + inter.zipWithIndex.filter(_._2 < e._2).map(_._1._1).sum, e._1._2)
-       }.toList
-    
-    val lp1 = lp11.map(e => (for (i <- 1 to e._2) yield e._1).toList).flatten
-    
-    val lp2 = lp22.map(e => (for (i <- 1 to e._2) yield e._1).toList).flatten
-    val res = lp1.zip(lp2)
-    println("The obtained edges "+res)
-    res
+   val size: Int = in.readInt
+   //Read the first list
+   var l1: List[(Int, Int)] = (in.readShort.toInt, in.readShort.toInt)::Nil
+   var sum: Int = l1.head._2
+   while(sum < size) {
+    l1 :+= (in.readByte.toInt, in.readShort.toInt)
+    sum += l1.last._2
+   } 
+  //Decompress the first list
+   val l1f: List[Int] = l1.zipWithIndex.map{ e => 
+    val value = l1.zipWithIndex.filter(x => x._2 <= e._2).map(_._1._1).sum
+    (for(i <- 1 to e._1._2) yield (value)).toList
+   }.flatten
+   //Read the second list
+   var l2: List[(Int, Int)] = (in.readShort.toInt, in.readShort.toInt)::Nil
+   sum = l2.head._2
+   while(sum < size ) {
+    l2 :+= (in.readShort.toInt, in.readShort.toInt)
+    sum += l2.last._2
+   } 
+  
+  //Decompress the second list
+   val l2f: List[Int] = l2.map{e => (for(i <- 1 to e._2) yield e._1).toList}.flatten
+   assert(l1f.size == l2f.size, s"l1f has ${l1f.size} l2f has ${l2f.size}")
+   l1f.zip(l2f)
+
   }
 
 }

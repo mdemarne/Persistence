@@ -110,7 +110,7 @@ class AstCompressor(out: DataOutputStream) {
     val hufDict = genHuffman(nodeDict)
     val encodedOccs = encodeOccs(occs, hufDict)
     outputOccs(encodedOccs)
-    outputCompEdges(edges)
+    outputComp2Edges(edges)
     outputDict(hufDict)
   }
 
@@ -149,22 +149,27 @@ class AstCompressor(out: DataOutputStream) {
 
   //TODO Attention there's a bug here
   def outputComp2Edges(edges: List[(Int, Int)]): Unit = {
+    require(edges.size > 0)
     val (lp1, lp2) = edges.tail.unzip
-    println("Original edges "+edges.tail)
-    def loop (l: List[Int]): List[(Int, Int)] = l match{
-      case x::xs => 
-        val numb = xs.takeWhile(_ == x).size
-        (x, numb + 1)::loop(l.dropWhile(_ == x))
-      case Nil => Nil
+    @tailrec def loop(curr: Int, count: Int, entries: List[Int], bool: Boolean): Unit = entries match {
+      case Nil => 
+        out.writeShort(count)
+      case x::xs if x == curr =>
+        loop(curr, count + 1, xs, bool)
+      case x::xs =>
+        out.writeShort(count)
+        if(bool) 
+          out.writeByte(x - curr)
+        else 
+          out.writeShort(x)
+        loop(x, 1, xs, bool)
     }
-    val inter = loop(lp1)
-    val lp11 = inter.tail.zip(inter).map(e => ((e._1._1 - e._2._1), e._1._2))
-    val lp22 = loop(lp2)
-    out.writeInt(lp11.size)
-    out.writeInt(lp22.size)
-    out.writeShort(inter.head._1); out.writeShort(inter.head._2)
-    lp11.foreach{e => out.writeByte(e._1.toByte); out.writeShort(e._2)}
-    lp22.foreach{e => out.writeShort(e._1); out.writeShort(e._2)}
+    out.writeInt(lp1.size)
+    out.writeShort(lp1.head)
+    loop(lp1.head, 1, lp1.tail, true)
+    out.writeShort(lp2.head)
+    loop(lp2.head, 1, lp2.tail, false)
     out.flush
+    
   }
 }

@@ -21,8 +21,7 @@ class AstPersistenceTest extends FunSuite {
     compressor(tree)
     val recupTree = decompressor()
 
-    assert(tree == recupTree)
-
+    assert(tree == recupTree, s"${tree} \nDid not match\n${recupTree}")
     file.delete()
   } 
 
