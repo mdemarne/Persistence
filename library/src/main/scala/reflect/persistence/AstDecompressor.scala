@@ -99,12 +99,12 @@ class AstDecompressor(in: DataInputStream) {
     l1 :+= (in.readByte.toInt, in.readShort.toInt)
     sum += l1.last._2
    } while (sum < size)
+   println(s"The l1 ${l1}")
   //Decompress the first list
    val l1f: List[Int] = l1.zipWithIndex.map{ e => 
-    val value = l1.zipWithIndex.filter(x => x._1._1 <= e._2).map(_._1._1).sum
+    val value = l1.zipWithIndex.filter(x => x._2 <= e._2).map(_._1._1).sum
     (for(i <- 1 to e._1._2) yield (value)).toList
    }.flatten
-   
    //Read the second list
    var l2: List[(Int, Int)] = (in.readShort.toInt, in.readShort.toInt)::Nil
    sum = l2.head._2
@@ -115,9 +115,9 @@ class AstDecompressor(in: DataInputStream) {
 
   //Decompress the second list
    val l2f: List[Int] = l2.map{e => (for(i <- 1 to e._2) yield e._1).toList}.flatten
-   assert(l1f.size == l2f.size, s"l1f has ${l1f.size} l2f has ${l2f.size}")
    val doom = l1f.zip(l2f)
    println(s"The res ${doom}")
+   assert(l1f.size == l2f.size, s"l1f has ${l1f.size} l2f has ${l2f.size}")
    doom
   }
 

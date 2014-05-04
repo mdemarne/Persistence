@@ -31,7 +31,7 @@ class ASTpersistenceTest extends FunSuite {
 
   }
 
-  /*test("Second Tree"){
+  test("Second Tree"){
    val treeStr = "c (m (v v (c (m v v) c (m (v v)))) m(v v (c c)))"
    compWriteReadDecomp(treeStr)
 
@@ -62,5 +62,5 @@ class ASTpersistenceTest extends FunSuite {
   test("Seventh Tree"){
     val treeStr = "c (m (v v (c (m v v) c (m v v))) m(v v (c c)) c (m (v v (c (m v v) c (m v v))) m(v v (c c)) ))"
     compWriteReadDecomp(treeStr)
-  }*/
+  }
 }

@@ -152,6 +152,7 @@ class AstCompressor(out: DataOutputStream) {
     require(edges.size > 0)
     println(s"The original edges: ${edges.tail}")
     val (lp1, lp2) = edges.tail.unzip
+    println(s"lp1 ${lp1} and lp2 ${lp2}")
     @tailrec def loop(curr: Int, count: Int, entries: List[Int], bool: Boolean): Unit = entries match {
       case Nil => 
         out.writeShort(count)
@@ -159,10 +160,13 @@ class AstCompressor(out: DataOutputStream) {
         loop(curr, count + 1, xs, bool)
       case x::xs =>
         out.writeShort(count)
-        if(bool)
+        if(bool) {
+          println(s"The count ${count} for curr ${curr} and ${x - curr}")
           out.writeByte(x - curr)
-        else 
+        } else {
+          println(s"l2 count ${count} for ${curr}")
           out.writeShort(x)
+        }
         loop(x, 1, xs, bool)
     }
     out.writeInt(lp1.size)
@@ -170,6 +174,7 @@ class AstCompressor(out: DataOutputStream) {
     loop(lp1.head, 1, lp1.tail, true)
     out.writeShort(lp2.head)
     loop(lp2.head, 1, lp2.tail, false)
+    out.flush
     
   }
 }
