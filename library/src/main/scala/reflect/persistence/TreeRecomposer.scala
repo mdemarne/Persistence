@@ -3,7 +3,7 @@ package scala.reflect.persistence
 import scala.annotation.tailrec
 import scala.language.postfixOps
 
-class TreeRecomposer(val u: scala.reflect.api.Universe) {
+class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
   import u._
   import Enrichments._
   /* TODO: test and adapt */
@@ -11,7 +11,7 @@ class TreeRecomposer(val u: scala.reflect.api.Universe) {
   /* Wrapper for treeDecomposer's function */
   case class DecomposedTree(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]], constBFS: Map[Constant, List[Int]])
 
-  def apply(decomp: DecomposedTree): Tree = {
+  def apply[D <: DecomposedTree](decomp: D): Tree = {
     var nameList: RevList[Name] = decomp.namesBFS.unzipWithIdxs
     var symbolList: RevList[Symbol] = decomp.symbBFS.unzipWithIdxs
     var typeList: RevList[Type] = decomp.typesBFS.unzipWithIdxs

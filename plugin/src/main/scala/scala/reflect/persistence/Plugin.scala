@@ -164,6 +164,7 @@ class Plugin(val global: Global) extends NscPlugin {
         DecomposedTree(newTree, nameList.zipWithIdxs, symbolList.zipWithIdxs, typeList.zipWithIdxs, constList.zipWithIdxs)
       }
     }
+    
     class SymbolDecomposer { /* TODO */ }
 
     /* TODO: buggy version, bugs to fix */

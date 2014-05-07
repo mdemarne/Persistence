@@ -10,7 +10,6 @@ class AstCompressor(out: DataOutputStream) {
   import Enrichments._
 
   /* Reparse the tree using the new dictionary */
-  /* TODO: should be either nested or private. Is public here for tests */
   def splitTree(node: Node): (NodeDict, List[List[NodeBFS]], List[(Int, Int)]) = {
     val ids = {
       def idsc(v: Int): Stream[Int] = v #:: idsc(v + 1)
@@ -43,7 +42,6 @@ class AstCompressor(out: DataOutputStream) {
     val (dict, occ, edges) = loop((node, -1, -1, ids.next) :: Nil, originDict, Nil, Nil)
     (dict.filter(entry => entry._2 > 0), occ, edges)
   }
-
   def genHuffman(dict: NodeDict): HufDict = {
     trait HufTree { val freq: Int }
     case class HufLeaf(key: List[NodeBFS], freq: Int) extends HufTree
@@ -63,7 +61,6 @@ class AstCompressor(out: DataOutputStream) {
       case _ => computeHufValues(computeHufTree(hufQueue)) toMap
     }
   }
-
   /* Once the Huffman code generated based on the frequencies found while reparsing the tree, encode the list of occurences. */
   def encodeOccs(occ: List[List[NodeBFS]], dict: HufDict): List[Byte] = {
     def loop(occ: List[List[NodeBFS]], set: List[Byte]): List[Byte] = occ match {
@@ -72,7 +69,6 @@ class AstCompressor(out: DataOutputStream) {
     }
     loop(occ, Nil)
   }
-
   def outputOccs(occs: List[Byte]): Unit = {
     out.writeShort(occs.size)
     out.write(compressBytes(occs))
@@ -97,7 +93,7 @@ class AstCompressor(out: DataOutputStream) {
     }
     out.flush
   }
-  //Compresses the List of 0 and 1's into bytes
+  /* Compresses the List of 0 and 1's into bytes */
   def compressBytes(bytes: List[Byte]): Array[Byte] = {
     val groups: List[(Int, List[(Byte, Int)])] = bytes.reverse.zipWithIndex.groupBy(_._2 / 8).toList
     val octoBytes: List[List[Byte]] = groups.sortBy(i => i._1).map(l => l._2.map(_._1))
@@ -113,7 +109,6 @@ class AstCompressor(out: DataOutputStream) {
     outputComp2Edges(edges)
     outputDict(hufDict)
   }
-
   def outputCompEdges(edges: List[(Int, Int)]): Unit = {
     @tailrec def loop(old: (Int, Int), count: Int, edgs: List[(Int, Int)]): Unit = edgs match {
       case Nil =>
@@ -130,24 +125,8 @@ class AstCompressor(out: DataOutputStream) {
     out.writeShort(edges.tail.head._1)
     out.writeShort(edges.tail.head._2)
     loop(edges.tail.head, 1, edges.tail.tail)
-
-    /*def loop(edg: List[(Int, Int)]): List[((Int,Int), Int)] = edg match {
-      case x::xs =>
-        val numb = xs.takeWhile(_ == x).size
-        (x, numb + 1)::loop(edg.dropWhile(_ == x))
-      case Nil => Nil
-    }
-    val compr = loop(edges.tail)
-    out.writeInt(compr.size)
-    compr.foreach{  e =>
-      out.writeShort(e._1._1); out.writeShort(e._1._2)
-      out.writeShort(e._2)
-    }*/
     out.flush
   }
-
-
-  //TODO Attention there's a bug here
   def outputComp2Edges(edges: List[(Int, Int)]): Unit = {
     require(edges.size > 0)
     val (lp1, lp2) = edges.tail.unzip
@@ -170,6 +149,5 @@ class AstCompressor(out: DataOutputStream) {
     out.writeShort(lp2.head)
     loop(lp2.head, 1, lp2.tail, false)
     out.flush
-    
   }
 }
