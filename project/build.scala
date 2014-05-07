@@ -161,20 +161,10 @@ object build extends Build {
     id   = "tests",
     base = file("tests")
   ) settings (
-    sharedSettings ++ usePluginSettings: _*
+    sharedSettings: _*
   ) settings (
     libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test",
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test",
-    scalacOptions ++= Seq()
-  )
-  
-  lazy val sbtPPlugin = Project(
-    id = "sbt-plugin",
-    base = file("sbt")
-  ) settings (
-    publishableSettings: _*
-  ) settings (
-    sbtPlugin := true,
     scalacOptions ++= Seq()
   )
 }
