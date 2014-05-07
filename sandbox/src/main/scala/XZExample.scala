@@ -3,7 +3,7 @@ import java.io.{File,FileInputStream,FileOutputStream}
 import org.tukaani.xz.{XZOutputStream, LZMA2Options}
 import java.io.OutputStream
 
-object XZ_comp {
+object XZExample {
   
   def main(args: Array[String]) {
     println("Here I am, a young man, come and get me if you can")

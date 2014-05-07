@@ -150,10 +150,11 @@ object build extends Build {
     id   = "sandbox",
     base = file("sandbox")
   ) settings (
-    sharedSettings ++ usePluginSettings: _*
+    sharedSettings: _*
   ) settings (
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
+    libraryDependencies += "org.tukaani" % "xz" % "1.5",
      scalacOptions ++= Seq()
   )
 
@@ -161,10 +162,10 @@ object build extends Build {
     id   = "tests",
     base = file("tests")
   ) settings (
-    sharedSettings: _*
+    sharedSettings ++ usePluginSettings: _*
   ) settings (
-    libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test",
-    libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test",
+    libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
+    libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
     scalacOptions ++= Seq()
   )
 }

@@ -8,7 +8,7 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import scala.language.postfixOps
 
-object Lzw {
+object LzwExample {
 
   /* Dictionaries for compression and decrompression */
 
