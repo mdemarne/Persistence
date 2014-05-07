@@ -167,4 +167,14 @@ object build extends Build {
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test",
     scalacOptions ++= Seq()
   )
+  
+  lazy val sbtPPlugin = Project(
+    id = "sbt-plugin",
+    base = file("sbt")
+  ) settings (
+    publishableSettings: _*
+  ) settings (
+    sbtPlugin := true,
+    scalacOptions ++= Seq()
+  )
 }
