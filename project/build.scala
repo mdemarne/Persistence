@@ -128,6 +128,7 @@ object build extends Build {
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
     libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test",
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test",
+    libraryDependencies += "org.tukaani" % "xz" % "1.5",
     scalacOptions ++= Seq()
   )
   
@@ -141,6 +142,7 @@ object build extends Build {
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
     libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test",
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test",
+    libraryDependencies += "org.tukaani" % "xz" % "1.5",
     scalacOptions ++= Seq()
   ) dependsOn(plugin % "test->test;compile->compile")
 
