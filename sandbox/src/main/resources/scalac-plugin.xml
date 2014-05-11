@@ -1,4 +1,4 @@
 <plugin>
-  <name>showRawPlugin</name>
-  <classname>showRawPlugin</classname>
+  <name>ShowRawPlugin</name>
+  <classname>ShowRawPlugin</classname>
 </plugin>
