@@ -118,6 +118,17 @@ object build extends Build {
     }
   )
 
+  lazy val useShowRawPluginSettings = Seq(
+    scalacOptions in Compile <++= (Keys.`package` in (sandbox, Compile)) map { (jar: File) =>
+      val addPlugin = "-Xplugin:" + jar.getAbsolutePath
+      // Thanks Jason for this cool idea (taken from https://github.com/retronym/boxer)
+      // add plugin timestamp to compiler options to trigger recompile of
+      // main after editing the plugin. (Otherwise a 'clean' is needed.)
+      val dummy = "-Jdummy=" + jar.lastModified
+      Seq(addPlugin, dummy)
+    }
+  )
+
   lazy val plugin = Project(
     id   = "plugin",
     base = file("plugin")
@@ -162,7 +173,7 @@ object build extends Build {
     id   = "tests",
     base = file("tests")
   ) settings (
-    sharedSettings ++ usePluginSettings: _*
+    sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings: _*
   ) settings (
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),

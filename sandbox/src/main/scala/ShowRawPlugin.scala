@@ -9,6 +9,7 @@ import scala.tools.nsc.plugins.{Plugin => NscPlugin}
 import scala.tools.nsc.plugins.{PluginComponent => NscPluginComponent}
 import scala.tools.nsc.plugins.{Plugin => NscPlugin}
 import scala.tools.nsc.plugins.{PluginComponent => NscPluginComponent}
+import java.io.PrintWriter
 
 class ShowRawPlugin(val global: Global) extends NscPlugin {
   import global._
@@ -30,8 +31,9 @@ class ShowRawPlugin(val global: Global) extends NscPlugin {
         if (!folder.exists()) folder.mkdir()
 
         /* TODO: take proper path into account (packages, etc.) */
-        val output = new DataOutputStream(new FileOutputStream(s"showraw/${unit.source.toString}.raw"))
-        output.writeChars(showRaw(unit.body))
+        val output = new PrintWriter(s"showraw/${unit.source.toString}.txt")
+        output.write(showRaw(unit.body))
+        output.flush()
       }
     }
 
