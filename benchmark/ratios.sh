@@ -8,7 +8,7 @@ rawfolder="showraw/*"
 sbt "tests/clean"
 sbt "tests/compile"
 
-# Remove the names in the output
+# Do benchmark for all files compiled
 for f in $rawfolder
 do
 	sed -i 's/"[^"]*"/x/g' $f
