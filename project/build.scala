@@ -1,5 +1,7 @@
 import sbt._
 import Keys._
+import sbtassembly.Plugin._
+import AssemblyKeys._
 
 object build extends Build {
   lazy val sharedSettings = Defaults.defaultSettings ++ Seq(
@@ -108,7 +110,7 @@ object build extends Build {
   }
 
   lazy val usePluginSettings = Seq(
-    scalacOptions in Compile <++= (Keys.`package` in (plugin, Compile)) map { (jar: File) =>
+    scalacOptions in Compile <++= (AssemblyKeys.`assembly` in (plugin, Compile)) map { (jar: File) =>
       val addPlugin = "-Xplugin:" + jar.getAbsolutePath
       // Thanks Jason for this cool idea (taken from https://github.com/retronym/boxer)
       // add plugin timestamp to compiler options to trigger recompile of
@@ -133,7 +135,7 @@ object build extends Build {
     id   = "plugin",
     base = file("plugin")
   ) settings (
-    publishableSettings: _*
+    publishableSettings ++ assemblySettings: _*
   ) settings (
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
@@ -141,13 +143,15 @@ object build extends Build {
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test",
     libraryDependencies += "org.tukaani" % "xz" % "1.5",
     scalacOptions ++= Seq()
+  ) settings (
+    test in assembly := {}
   )
   
   lazy val library = Project(
     id   = "library",
     base = file("library")
   ) settings (
-    publishableSettings: _*
+    publishableSettings ++ assemblySettings: _*
   ) settings (
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
@@ -155,6 +159,8 @@ object build extends Build {
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test",
     libraryDependencies += "org.tukaani" % "xz" % "1.5",
     scalacOptions ++= Seq()
+  ) settings (
+    test in assembly := {}
   ) dependsOn(plugin % "test->test;compile->compile")
 
   lazy val sandbox = Project(
@@ -177,6 +183,7 @@ object build extends Build {
   ) settings (
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
+    libraryDependencies += "org.tukaani" % "xz" % "1.5",
     scalacOptions ++= Seq()
   )
 }

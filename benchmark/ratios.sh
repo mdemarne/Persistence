@@ -1,14 +1,17 @@
 #!/bin/sh
-# TODO
+
 # NB: should be launched from the project's root
+
 scalaversion='2.11'
 rawfolder="showraw/*"
+ourfolder="asts/*"
 
 # Launch the tests (will output the raw and the asts).
 sbt "tests/clean"
 sbt "tests/compile"
 
 # Do benchmark for all files compiled
+echo "All sizes are in bytes"
 for f in $rawfolder
 do
 	sed -i 's/"[^"]*"/x/g' $f
@@ -26,10 +29,12 @@ do
 
 	lzma_ratio=$(echo "scale=5; $comp_size / $raw_size" | bc)
 	our_ratio=$(echo "scale=5; $our_size/ $raw_size" | bc)
+	lzma_our_ratio=$(echo "scale=5; $our_size/ $comp_size" | bc)
 
-	echo "For file $f, showRaw: $raw_size, lzma: $comp_size ($lzma_ratio), ours: $our_size ($our_ratio)."
+	echo "For file $our_path2,\t showRaw: $raw_size,\t lzma: $comp_size ($lzma_ratio),\t ours: $our_size ($our_ratio),\t ratio of ratios (ours/lzma): $lzma_our_ratio"
 	if [ $comp_size -lt $our_size ]; then echo "FAILED: Lzma better than ours."; fi
 done
 
-# Cleanup the test folder
+# Cleanup the test folders
 rm $rawfolder -r
+rm $ourfolder -r
