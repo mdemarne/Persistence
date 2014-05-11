@@ -122,7 +122,6 @@ class AstCompressor(out: DataOutputStream) {
     outputComp2Edges(edges)
     outputDict(hufDict)
     out.writeLong(toWrite.size)
-    println(s"The size ${toWrite.size} and ${toWrite}")
     applyXZ
   }
   def outputCompEdges(edges: List[(Int, Int)]): Unit = {

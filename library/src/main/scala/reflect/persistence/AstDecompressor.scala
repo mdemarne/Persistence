@@ -32,7 +32,7 @@ class AstDecompressor(in: DataInputStream) {
   def inputOccs: List[Byte] = readBytes(readShort)
   def inputDict: RevHufDict = {
     var dict: RevHufDict = Map()
-    val nbEntries = in.readInt
+    val nbEntries = readInt
     (0 until nbEntries).foreach{ i => 
       val sizeHuff: Int = readInt
       val huffcode = readBytes(sizeHuff)
@@ -116,8 +116,8 @@ class AstDecompressor(in: DataInputStream) {
     case w::x::y::z::xs => 
       toRead = xs
       ((w) + (x << 8) + (y << 16) + (z << 24)).toInt
-    case _ => 
-      throw new Exception("Error: Decompressor cannot read an Int")
+    case x => 
+      throw new Exception("Error: Decompressor cannot read an Int from ${x}")
   }
 
   def readShort: Short = toRead match {
@@ -132,17 +132,15 @@ class AstDecompressor(in: DataInputStream) {
     case x::xs => 
       toRead = xs
       x
-    case _ => 
-      throw new Exception("Error: Decompressor cannot read Byte")
+    case x => 
+      throw new Exception("Error: Decompressor cannot read Byte ${x}")
   }
 
   def unapplyXZ {
     val total: Long = in.readLong
-    println(s"The read size ${total}")
     val decomp: SingleXZInputStream = new SingleXZInputStream(in)
     for(i <- (1.toLong to total)){
       toRead :+= (decomp.read()).toByte
     }
-    println(s"toRead size ${toRead.size} and ${toRead}")
   }
 }
