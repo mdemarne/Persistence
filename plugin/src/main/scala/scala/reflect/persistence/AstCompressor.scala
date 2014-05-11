@@ -114,12 +114,15 @@ class AstCompressor(out: DataOutputStream) {
     }.toArray
   }
   def apply(node: Node): Unit = {
+    toWrite = Nil
     val (nodeDict, occs, edges) = splitTree(node)
     val hufDict = genHuffman(nodeDict)
     val encodedOccs = encodeOccs(occs, hufDict)
     outputOccs(encodedOccs)
     outputComp2Edges(edges)
     outputDict(hufDict)
+    out.writeLong(toWrite.size)
+    println(s"The size ${toWrite.size} and ${toWrite}")
     applyXZ
   }
   def outputCompEdges(edges: List[(Int, Int)]): Unit = {
@@ -180,7 +183,9 @@ class AstCompressor(out: DataOutputStream) {
     List((i & 0xff).toByte, ((i >> 8)& 0xff).toByte, ((i >> 16)& 0xff).toByte, ((i >> 24)& 0xff).toByte)
   }
 
-  def ShortToBytes(s: Short): List[Byte] = List((s & 0xff).toByte, ((s >> 8)& 0xff).toByte)
+  def ShortToBytes(s: Short): List[Byte] = {
+    List((s & 0xff).toByte, ((s >> 8)& 0xff).toByte)
+  }
 
   def applyXZ {
     val comp: XZOutputStream = new XZOutputStream(out, new LZMA2Options())

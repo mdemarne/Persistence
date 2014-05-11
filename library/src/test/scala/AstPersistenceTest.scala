@@ -14,7 +14,7 @@ class AstPersistenceTest extends FunSuite {
     val tree = ParseTestTree.parse(treeStr).get
 
     count += 1
-    val file = new File("WriteTest"+count)
+    val file = new File("WriteTest"+count+".xz")
     val compressor = new AstCompressor(new DataOutputStream(new FileOutputStream(file)))
     val decompressor = new AstDecompressor(new DataInputStream(new FileInputStream(file)))
 
