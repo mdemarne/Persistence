@@ -3,12 +3,18 @@ package scala.reflect.persistence
 import java.io.DataOutputStream
 import scala.annotation.tailrec
 import scala.language.postfixOps
+import org.tukaani.xz.LZMA2InputStream
+import java.io.{File,FileInputStream,FileOutputStream}
+import org.tukaani.xz.{XZOutputStream, LZMA2Options}
+import java.io.OutputStream
+
 
 /* TODO: optimize. The splitTree method is very slow on big files, (ex. Typers.scala, 5'500 lines of code) */
 /* TODO: make some functions private. Here public for tests */
 class AstCompressor(out: DataOutputStream) {
   import Enrichments._
-
+  
+  var toWrite: List[Byte] = Nil
   /* Reparse the tree using the new dictionary */
   def splitTree(node: Node): (NodeDict, List[List[NodeBFS]], List[(Int, Int)]) = {
     val ids = {
@@ -70,20 +76,26 @@ class AstCompressor(out: DataOutputStream) {
     loop(occ, Nil)
   }
   def outputOccs(occs: List[Byte]): Unit = {
-    out.writeShort(occs.size)
+    /*out.writeShort(occs.size)
     out.write(compressBytes(occs))
-    out.flush
+    out.flush*/
+    toWrite ++= ShortToBytes(occs.size.toShort)
+    toWrite ++= compressBytes(occs)
   }
   def outputDict(dict: HufDict): Unit = {
-    out.writeInt(dict.size)
+    //out.writeInt(dict.size)
+    toWrite ++= IntToBytes(dict.size)
     dict.foreach { e =>
-      out.writeInt(e._2.size)
-      out.write(compressBytes(e._2))
+      /*out.writeInt(e._2.size)
+      out.write(compressBytes(e._2))*/
+      toWrite ++= IntToBytes(e._2.size)
+      toWrite ++= compressBytes(e._2)
       val ndBfs = e._1.asPrintable
-      out.writeShort(ndBfs.size)
-      ndBfs.foreach { n => out.write(n._1); out.writeShort(n._2); out.writeShort(n._3) }
+      //out.writeShort(ndBfs.size)
+      toWrite ++= ShortToBytes(ndBfs.size.toShort)
+      ndBfs.foreach { n => toWrite :+= (n._1); toWrite ++= ShortToBytes(n._2.toShort); toWrite ++= ShortToBytes(n._3.toShort)}
     }
-    out.flush
+    //out.flush
   }
   def outputEdges(edges: List[(Int, Int)]): Unit = {
     out.writeInt(edges.size - 1)
@@ -102,23 +114,31 @@ class AstCompressor(out: DataOutputStream) {
     }.toArray
   }
   def apply(node: Node): Unit = {
+    toWrite = Nil
     val (nodeDict, occs, edges) = splitTree(node)
     val hufDict = genHuffman(nodeDict)
     val encodedOccs = encodeOccs(occs, hufDict)
     outputOccs(encodedOccs)
     outputComp2Edges(edges)
     outputDict(hufDict)
+    out.writeLong(toWrite.size)
+    applyXZ
   }
   def outputCompEdges(edges: List[(Int, Int)]): Unit = {
     @tailrec def loop(old: (Int, Int), count: Int, edgs: List[(Int, Int)]): Unit = edgs match {
       case Nil =>
         out.writeShort(count)
+        //toWrite ++= List((count & 0xff).toByte, ((count >> 8)& 0xff).toByte)
       case x :: xs if old == x =>
         loop(old, count + 1, xs)
       case x :: xs =>
         out.writeShort(count)
         out.writeShort(x._1)
         out.writeShort(x._2)
+        //TODO big and little endian ? 
+        /*toWrite ++= List((count & 0xff).toByte, ((count >> 8)& 0xff).toByte)
+        toWrite ++= List((x._1 & 0xff).toByte, ((x._1 >> 8)& 0xff).toByte)
+        toWrite ++= List((x._2 & 0xff).toByte, ((x._2 >> 8)& 0xff).toByte)*/
         loop(x, 1, xs)
     }
     out.writeInt(edges.tail.size)
@@ -132,22 +152,43 @@ class AstCompressor(out: DataOutputStream) {
     val (lp1, lp2) = edges.tail.unzip
     @tailrec def loop(curr: Int, count: Int, entries: List[Int], bool: Boolean): Unit = entries match {
       case Nil => 
-        out.writeShort(count)
+        //out.writeShort(count)
+        toWrite ++= ShortToBytes(count.toShort)
       case x::xs if x == curr =>
         loop(curr, count + 1, xs, bool)
       case x::xs =>
-        out.writeShort(count)
+        //out.writeShort(count)
+        toWrite ++= ShortToBytes(count.toShort)
         if(bool) 
-          out.writeByte(x - curr)
+          //out.writeByte(x - curr)
+          toWrite :+= (x-curr).toByte
         else 
-          out.writeShort(x)
+          //out.writeShort(x)
+          toWrite ++= ShortToBytes(x.toShort)
         loop(x, 1, xs, bool)
     }
-    out.writeInt(lp1.size)
-    out.writeShort(lp1.head)
+    /*out.writeInt(lp1.size)
+    out.writeShort(lp1.head)*/
+    toWrite ++= IntToBytes(lp1.size)
+    toWrite ++= ShortToBytes(lp1.head.toShort)
     loop(lp1.head, 1, lp1.tail, true)
-    out.writeShort(lp2.head)
+    //out.writeShort(lp2.head)
+    toWrite ++= ShortToBytes(lp2.head.toShort)
     loop(lp2.head, 1, lp2.tail, false)
-    out.flush
+    //out.flush
   }
+
+  def IntToBytes(i: Int): List[Byte] = {
+    List((i & 0xff).toByte, ((i >> 8)& 0xff).toByte, ((i >> 16)& 0xff).toByte, ((i >> 24)& 0xff).toByte)
+  }
+
+  def ShortToBytes(s: Short): List[Byte] = {
+    List((s & 0xff).toByte, ((s >> 8)& 0xff).toByte)
+  }
+
+  def applyXZ {
+    val comp: XZOutputStream = new XZOutputStream(out, new LZMA2Options())
+    toWrite.foreach{comp.write(_)}
+    comp.close()
+  } 
 }

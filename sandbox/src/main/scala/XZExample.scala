@@ -7,14 +7,13 @@ object XZExample {
   
   def main(args: Array[String]) {
     println("Here I am, a young man, come and get me if you can")
-    val fout= new FileOutputStream("bitch.xz") 
+    val fout= new FileOutputStream("example.xz") 
     val comp: XZOutputStream = new XZOutputStream(fout, new LZMA2Options())
     val fin = new FileInputStream("Typers.in")
     while(fin.available() > 0){
       comp.write(fin.read());
     }
     comp.close()
-    
   }
 
 }

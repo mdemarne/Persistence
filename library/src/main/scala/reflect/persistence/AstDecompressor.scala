@@ -1,10 +1,12 @@
 package scala.reflect.persistence
 
 import java.io.DataInputStream
-
+import org.tukaani.xz.SingleXZInputStream
 /* TODO: make some functions private. Here public for tests */
 class AstDecompressor(in: DataInputStream) {
   import Enrichments._
+  
+  var toRead: List[Byte] = Nil
 
   def rebuiltTree(occs: List[List[NodeBFS]], edges: List[(Int, Int)]): Node = {
     def loop(revOccs: RevList[List[NodeBFS]], revEdges: RevList[(Int, Int)]): List[NodeBFS] = (revOccs, revEdges) match {
@@ -27,17 +29,17 @@ class AstDecompressor(in: DataInputStream) {
     }
     loop(occs)
   }
-  def inputOccs: List[Byte] = readBytes(in.readShort)
+  def inputOccs: List[Byte] = readBytes(readShort)
   def inputDict: RevHufDict = {
     var dict: RevHufDict = Map()
-    val nbEntries = in.readInt
+    val nbEntries = readInt
     (0 until nbEntries).foreach{ i => 
-      val sizeHuff: Int = in.readInt
+      val sizeHuff: Int = readInt
       val huffcode = readBytes(sizeHuff)
-      val nbNode: Int = in.readShort
+      val nbNode: Int = readShort
       val ndBfs: List[NodeBFS] = 
         (for(i <- 1 to nbNode) 
-          yield (NodeTag.getVal(in.readByte.toInt), in.readShort.toInt, in.readShort.toInt)).toList.map(i => NodeBFS(Node(i._1, Nil), i._2, i._3))
+          yield (NodeTag.getVal(readByte.toInt), readShort.toInt, readShort.toInt)).toList.map(i => NodeBFS(Node(i._1, Nil), i._2, i._3))
       dict += (huffcode -> ndBfs)
     }
     dict
@@ -45,7 +47,8 @@ class AstDecompressor(in: DataInputStream) {
   def readBytes(size: Int): List[Byte] = {
     var bytes: List[Byte] = Nil
     for(i <- (0 until Math.ceil(size.toDouble / 8).toInt)){
-      bytes  :+= in.readByte
+      //bytes  :+= in.readByte
+      bytes :+= readByte
     }
     bytes.map(decompressBytes(_)).reverse.flatten.drop((8 - (size % 8)) % 8)
   }
@@ -61,6 +64,8 @@ class AstDecompressor(in: DataInputStream) {
     }.toList.reverse
   } 
   def apply(): Node = {
+    toRead = Nil
+    unapplyXZ
     val dOccs = inputOccs
     val dEdges = inputComp2Edges
     val dDict = inputDict
@@ -79,12 +84,12 @@ class AstDecompressor(in: DataInputStream) {
     comp.map(e => (for(i <- (1 to e._2)) yield e._1).toList).flatten
   }
   def inputComp2Edges: List[(Int, Int)] = {
-   val size: Int = in.readInt
+   val size: Int = readInt
    //Read the first list
-   var l1: List[(Int, Int)] = (in.readShort.toInt, in.readShort.toInt)::Nil
+   var l1: List[(Int, Int)] = (readShort.toInt, readShort.toInt)::Nil
    var sum: Int = l1.head._2
    while(sum < size) {
-    l1 :+= (in.readByte.toInt, in.readShort.toInt)
+    l1 :+= (readByte.toInt, readShort.toInt)
     sum += l1.last._2
    } 
   /* Decompress the first list */
@@ -93,10 +98,10 @@ class AstDecompressor(in: DataInputStream) {
     (for(i <- 1 to e._1._2) yield (value)).toList
    }.flatten
    //Read the second list
-   var l2: List[(Int, Int)] = (in.readShort.toInt, in.readShort.toInt)::Nil
+   var l2: List[(Int, Int)] = (readShort.toInt, readShort.toInt)::Nil
    sum = l2.head._2
    while(sum < size ) {
-    l2 :+= (in.readShort.toInt, in.readShort.toInt)
+    l2 :+= (readShort.toInt, readShort.toInt)
     sum += l2.last._2
    } 
   
@@ -104,5 +109,38 @@ class AstDecompressor(in: DataInputStream) {
    val l2f: List[Int] = l2.map{e => (for(i <- 1 to e._2) yield e._1).toList}.flatten
    assert(l1f.size == l2f.size, s"l1f has ${l1f.size} l2f has ${l2f.size}")
    l1f.zip(l2f)
+  }
+
+
+  def readInt: Int = toRead match {
+    case w::x::y::z::xs => 
+      toRead = xs
+      ((w) + (x << 8) + (y << 16) + (z << 24)).toInt
+    case x => 
+      throw new Exception("Error: Decompressor cannot read an Int from ${x}")
+  }
+
+  def readShort: Short = toRead match {
+    case x::y::xs => 
+      toRead = xs
+      ((x) + (y << 8)).toShort
+    case x =>
+      throw new Exception(s"Error: Decompressor cannot read Short from ${x}")
+  }
+
+  def readByte: Byte = toRead match {
+    case x::xs => 
+      toRead = xs
+      x
+    case x => 
+      throw new Exception("Error: Decompressor cannot read Byte ${x}")
+  }
+
+  def unapplyXZ {
+    val total: Long = in.readLong
+    val decomp: SingleXZInputStream = new SingleXZInputStream(in)
+    for(i <- (1.toLong to total)){
+      toRead :+= (decomp.read()).toByte
+    }
   }
 }
