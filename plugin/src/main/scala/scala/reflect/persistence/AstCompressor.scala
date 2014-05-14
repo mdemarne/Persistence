@@ -21,11 +21,9 @@ class AstCompressor(out: DataOutputStream) {
       def idsc(v: Int): Stream[Int] = v #:: idsc(v + 1)
       idsc(0).iterator
     }
-    val freqList = node.computeFreqs.toList
-    val exponent = freqList.map(_._1.size).sum.toDouble / freqList.size - 1
-    val keyList = freqList
+    val keyList = node.computeFreqs.toList
       .filter(entry => entry._1.size < Math.sqrt(node.flattenBFS.size))
-      .map(entry => (entry._1, Math.pow(entry._1.size, exponent) * entry._2))
+      .map(entry => (entry._1, Math.pow(entry._1.size, 1) * entry._2))
       .sortBy(entry => (entry._2, entry._1.size)).reverse
       .map(entry => entry._1).toList
     /* origin dictionary, with empty frequencies */
