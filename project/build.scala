@@ -181,9 +181,13 @@ object build extends Build {
   ) settings (
     sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings: _*
   ) settings (
+    //sources in Compile <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")),
+    sources in Compile <<= (sources in Compile).map(_ filter(_.getAbsolutePath.contains("scalalibrary/"))),
+    //sources in Compile <<= (sources in Compile).map(_ filter(_.name == "Typers.scala")),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
     libraryDependencies += "org.tukaani" % "xz" % "1.5",
     scalacOptions ++= Seq()
   )
+
 }
