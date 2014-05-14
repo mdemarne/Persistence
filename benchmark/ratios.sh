@@ -123,8 +123,8 @@ done
 echo "Global statistics"
 echo "Raw: $total_raw_size, xz: $total_xz_size, astc: $total_astc_size"
 total_xz_astc_ratio=$(echo "scale=5; $total_astc_size / $total_xz_size" | bc)
-echo "In general, our compression is smaller/bigger than a classic xz of $total_xz_astc_ratio"
-echo "tests where xz was better: $nb_failed over $nb_tests tests"
+echo "In general, our compression is smaller than a classic xz of $total_xz_astc_ratio"
+echo "Tests where xz was better: $nb_failed over $nb_tests tests"
 
 # Cleanup the test folders
 rm $rawfolder -r

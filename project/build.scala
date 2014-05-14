@@ -3,6 +3,10 @@ import Keys._
 import sbtassembly.Plugin._
 import AssemblyKeys._
 
+// imports standard command parsing functionality
+// see http://www.scala-sbt.org/release/docs/Extending/Commands.html
+import complete.DefaultParsers._
+
 object build extends Build {
   lazy val sharedSettings = Defaults.defaultSettings ++ Seq(
     scalaVersion := "2.11.0",
@@ -178,6 +182,8 @@ object build extends Build {
   lazy val tests = Project(
     id   = "tests",
     base = file("tests")
+  ) settings(
+    commands += testScalalib
   ) settings (
     sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings: _*
   ) settings (
@@ -189,5 +195,18 @@ object build extends Build {
     libraryDependencies += "org.tukaani" % "xz" % "1.5",
     scalacOptions ++= Seq()
   )
+
+  lazy val testScalalib: Command = Command.command("testScalalib") { state =>
+      val extracted = Project extract state
+      import extracted._
+
+      val newState = append(Seq(
+          (sources in Compile) <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala"))),
+          state)
+
+      runTask(compile in Compile, newState)
+        
+      state
+  }
 
 }
