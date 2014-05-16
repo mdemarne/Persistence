@@ -3,19 +3,16 @@ package scala.reflect.persistence
 import scala.annotation.tailrec
 import scala.language.postfixOps
 
+/* TODO: test and adapt */
 class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
   import u._
   import Enrichments._
-  /* TODO: test and adapt */
-
-  /* Wrapper for treeDecomposer's function */
-  case class DecomposedTree(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]], constBFS: Map[Constant, List[Int]])
-
-  def apply[D <: DecomposedTree](decomp: D): Tree = {
-    var nameList: RevList[Name] = decomp.namesBFS.unzipWithIdxs
-    var symbolList: RevList[Symbol] = decomp.symbBFS.unzipWithIdxs
-    var typeList: RevList[Type] = decomp.typesBFS.unzipWithIdxs
-    var constList: RevList[Constant] = decomp.constBFS.unzipWithIdxs
+  
+  def apply(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]], constBFS: Map[Constant, List[Int]]): Tree = {
+    var nameList: RevList[Name] = namesBFS.unzipWithIdxs
+    var symbolList: RevList[Symbol] = symbBFS.unzipWithIdxs
+    var typeList: RevList[Type] = typesBFS.unzipWithIdxs
+    var constList: RevList[Constant] = constBFS.unzipWithIdxs
     @tailrec def loop(trees: List[Node], dict: Map[Node, Tree]): Map[Node, Tree] = trees match {
       case Nil => dict
       case x :: xs =>
@@ -133,6 +130,6 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
       nameList = nameList.tail
       ret
     }
-    loop(decomp.tree.flattenBFS.filter(x => x.tpe != NodeTag.Separator), Map((Node.empty -> EmptyTree)))(decomp.tree)
+    loop(tree.flattenBFS.filter(x => x.tpe != NodeTag.Separator), Map((Node.empty -> EmptyTree)))(tree)
   }
 }

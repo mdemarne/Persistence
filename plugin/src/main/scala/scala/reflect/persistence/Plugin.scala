@@ -25,24 +25,24 @@ class Plugin(val global: Global) extends NscPlugin {
     val phaseName = "persist"
     def newPhase(prev: Phase) = new StdPhase(prev) {
       def apply(unit: CompilationUnit) {
-        val decomposedTree = TreeDecomposer(unit body)
+        val DecTree = TreeDecomposer(unit body)
         
         val folder = new File("asts")
         if(!folder.exists()) folder.mkdir()
 
         /* TODO: take proper path into account (packages, etc.) */
         val astCompressor = new AstCompressor(new DataOutputStream(new FileOutputStream(s"asts/${unit.source.toString}.ast")))
-        astCompressor(decomposedTree.tree)
+        astCompressor(DecTree.tree)
       }
     }
 
     /* Wrapper for treeDecomposer's function */
-    case class DecomposedTree(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]], constBFS: Map[Constant, List[Int]])
+    case class DecTree(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]], constBFS: Map[Constant, List[Int]])
 
     /* Return a simplified tree along with maps of Names / Symbols / Types zipped with occurrences in BFS order */
     /* TODO: adapt, depending if we need to store names */
     object TreeDecomposer {
-      def apply(tree: Tree): DecomposedTree = {
+      def apply(tree: Tree): DecTree = {
         var nameList: RevList[Name] = List()
         var symbolList: RevList[Symbol] = List()
         var typeList: RevList[Type] = List()
@@ -161,7 +161,7 @@ class Plugin(val global: Global) extends NscPlugin {
         }
 
         val newTree = loop(tree flattenBFS, Map((EmptyTree -> Node.empty)))(tree)
-        DecomposedTree(newTree, nameList.zipWithIdxs, symbolList.zipWithIdxs, typeList.zipWithIdxs, constList.zipWithIdxs)
+        DecTree(newTree, nameList.zipWithIdxs, symbolList.zipWithIdxs, typeList.zipWithIdxs, constList.zipWithIdxs)
       }
     }
     

@@ -1,5 +1,5 @@
 import sbt._
-object PluginDef extends Build {
+object build extends Build {
     lazy val root = project.in(file(".")).dependsOn( sbtPPlugin )
-    lazy val sbtPPlugin = file("../sbt")
+    lazy val sbtPPlugin = file("../../plugin")
 }

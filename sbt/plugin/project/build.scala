@@ -6,7 +6,10 @@ object build extends Build {
     id = "sbt-persistence",
     base = file(".")
   ) settings (
-    sbtPlugin := true,
-    scalacOptions ++= Seq()
-  )
- }
+  	sbtPlugin := true,
+  	scalacOptions ++= Seq()
+  ) dependsOn( assemblyPlugin )
+
+  lazy val assemblyPlugin = uri("git://github.com/sbt/sbt-assembly")
+
+}
