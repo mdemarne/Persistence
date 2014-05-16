@@ -1,15 +1,17 @@
 import sbt._
 import Keys._
 
+// imports standard command parsing functionality
+// see http://www.scala-sbt.org/release/docs/Extending/Commands.html
+import complete.DefaultParsers._
+
 object build extends Build {
   lazy val sbtPPlugin = Project(
     id = "sbt-persistence",
     base = file(".")
   ) settings (
-  	sbtPlugin := true,
-  	scalacOptions ++= Seq()
-  ) dependsOn( assemblyPlugin )
-
-  lazy val assemblyPlugin = uri("git://github.com/sbt/sbt-assembly")
-
+  	scalaVersion := "2.11.0",
+    scalacOptions ++= Seq("-deprecation", "-feature", "-optimise"),
+  	sbtPlugin := true
+  )
 }
