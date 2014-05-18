@@ -182,10 +182,11 @@ object build extends Build {
   lazy val tests = Project(
     id   = "tests",
     base = file("tests")
-  ) settings(
-    commands += testScalalib
+  ) configs (
+    testScalalib
   ) settings (
-    sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings: _*
+    sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings ++ 
+    testBasicConf ++ testScalalibConf: _*
   ) settings (
     //sources in Compile <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")),
     sources in Compile <<= (sources in Compile).map(_ filter(_.getAbsolutePath.contains("scalalibrary/"))),
@@ -196,17 +197,27 @@ object build extends Build {
     scalacOptions ++= Seq()
   )
 
-  lazy val testScalalib: Command = Command.command("testScalalib") { state =>
-      val extracted = Project extract state
-      import extracted._
+  /* Custom configurations for compilation tests */
 
-      val newState = append(Seq(
-          (sources in Compile) <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala"))),
-          state)
+  lazy val testScalalib = config("testScalalib") 
+  lazy val testBasic = config("testBasic")
 
-      runTask(compile in Compile, newState)
-        
-      state
-  }
+  lazy val testScalalibConf: Seq[Setting[_]] = inConfig(testScalalib)(Defaults.configSettings ++ Seq(
+    unmanagedSourceDirectories := (unmanagedSourceDirectories in Compile).value,
+    classDirectory := (classDirectory in Compile).value,
+    dependencyClasspath := (dependencyClasspath in Compile).value,
+    unmanagedSources := {
+      unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))
+    }
+  ))
+
+  lazy val testBasicConf: Seq[Setting[_]] = inConfig(testBasic)(Defaults.configSettings ++ Seq(
+    unmanagedSourceDirectories := (unmanagedSourceDirectories in Compile).value,
+    classDirectory := (classDirectory in Compile).value,
+    dependencyClasspath := (dependencyClasspath in Compile).value,
+    unmanagedSources := {
+      unmanagedSources.value.filter(f =>  !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")
+    }
+  ))
 
 }
