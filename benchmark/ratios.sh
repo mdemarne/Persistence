@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # NB: should be launched from the project's root
 
@@ -6,9 +6,19 @@ scalaversion='2.11'
 rawfolder="showraw/*"
 astcfolder="asts/*"
 
-# Launch the tests (will output the raw and the asts).
-sbt "tests/clean"
-sbt "tests/compile"
+# Let's first clean the folder (if required)
+rm $rawfolder -r > /dev/null 2>&1
+rm $astcfolder -r > /dev/null 2>&1
+
+# Now let's clean SBT
+sbt "tests/clean" > /dev/null 2>&1
+# Let first mesure the time ~~~~ #
+
+# TODO: extends; now test only with Scalalib. 
+# Perhaps a way using input task to have iteration on file to test them separately.
+
+normal_time="$(time (sbt testScalalibNoPlug:compile) 2>&1 1>/dev/null)" # Compute the normal time of compilation
+astc_time="$(time (sbt testScalalib:compile) 2>&1 1>/dev/null)" # Time with our plugin
 
 # Do benchmark for all files compiled
 echo "All sizes are in bytes"
@@ -111,7 +121,7 @@ do
 
 	# Let's print the results for a single file ~~~~ #
 
-	echo "showRaw: $raw_size,\t xz: $astc_size ($xz_ratio),\t astc: $astc_size ($astc_ratio),\t ratio of ratios (astc/xz): $xz_astc_ratio \t for file $astc_path2"
+	echo "showRaw: $raw_size, xz: $xz_size ($xz_ratio), astc: $astc_size ($astc_ratio), ratio of ratios (astc/xz): $xz_astc_ratio  for file $astc_path2"
 	if [ $xz_size -lt $astc_size ]; then 
 		nb_failed=$(echo "scale=0; $nb_failed + 1" | bc)
 		echo "FAILED: xz better than astc."
@@ -126,6 +136,7 @@ total_xz_astc_ratio=$(echo "scale=5; $total_astc_size / $total_xz_size" | bc)
 echo "In general, our compression is smaller than a classic xz of $total_xz_astc_ratio"
 echo "Tests where xz was better: $nb_failed over $nb_tests tests"
 
-# Cleanup the test folders
-rm $rawfolder -r
-rm $astcfolder -r
+echo "The normal compilation time was of:"
+echo $normal_time
+echo "The time of compilation using the plugin was of:"
+echo $astc_time
