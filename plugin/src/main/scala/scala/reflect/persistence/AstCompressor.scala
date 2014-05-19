@@ -22,16 +22,10 @@ class AstCompressor(out: DataOutputStream) {
       idsc(0).iterator
     }
     val keyList = { 
-    println("Before the freqs")
     val freqs = node.computeFreqs.toList
-    println("After the freq, before filter")
-    println("Before flatten")
     val metric = Math.sqrt(node.flattenBFS.size)
-    println("After flatten")
     val filtered = freqs.filter(entry => entry._1.size < metric)
-    println("After filtered, before mapped")
     val mapped =  filtered.map(entry => (entry._1, Math.pow(entry._1.size, 1) * entry._2))
-    println("After the mapped")
     //TODO a bit long
     mapped.sortBy(entry => (entry._2, entry._1.size)).reverse
       .map(entry => entry._1).toList}
