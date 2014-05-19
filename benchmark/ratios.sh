@@ -6,6 +6,20 @@ scalaversion='2.11'
 rawfolder="showraw/*"
 astcfolder="asts/*"
 
+# Allow to select which test we would like to run easily.
+case $1 in
+	1) conf="testBasic" ;;
+	2) conf="testScalalib" ;;
+	3) conf="testTypers" ;;
+	*) echo "Arguments: 1 for testBasic, 2 for testScalalib, 3 for testTypers."; exit ;;
+esac
+
+# Generate good SBT commands
+compile=":compile"
+noplug="NoPlug"
+confCompile=$conf$compile
+confNoPlugCompile=$conf$noplug$compile
+
 # Let's first clean the folder (if required)
 rm $rawfolder -r > /dev/null 2>&1
 rm $astcfolder -r > /dev/null 2>&1
@@ -14,11 +28,10 @@ rm $astcfolder -r > /dev/null 2>&1
 sbt "tests/clean" > /dev/null 2>&1
 # Let first mesure the time ~~~~ #
 
-# TODO: extends; now test only with Scalalib. 
 # Perhaps a way using input task to have iteration on file to test them separately.
 
-normal_time="$(time (sbt testScalalibNoPlug:compile) 2>&1 1>/dev/null)" # Compute the normal time of compilation
-astc_time="$(time (sbt testScalalib:compile) 2>&1 1>/dev/null)" # Time with our plugin
+normal_time="$(time (sbt $confNoPlugCompile) 2>&1 1>/dev/null)" # Compute the normal time of compilation
+astc_time="$(time (sbt $confCompile) 2>&1 1>/dev/null)" # Time with our plugin
 
 # Do benchmark for all files compiled
 echo "All sizes are in bytes"

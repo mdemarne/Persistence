@@ -182,17 +182,18 @@ object build extends Build {
   lazy val tests = Project(
     id   = "tests",
     base = file("tests")
-  ) configs (
-    testScalalib
-  ) configs (
-    testScalalibNoPlug
+  ) configs ( testScalalib
+  ) configs ( testScalalibNoPlug
+  ) configs ( testTypers
+  ) configs ( testTypersNoPlug
+  ) configs ( testBasic
+  ) configs ( testBasicNoPlug
   ) settings (
     sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings ++ 
-    testScalalibConf ++ testScalalibConfNoPlug: _*
+    testScalalibConf ++ testScalalibConfNoPlug ++
+    testTypersConf ++ testTypersConfNoPlug ++
+    testBasicConf ++ testBasicConfNoPlug : _*
   ) settings (
-    //sources in Compile <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")),
-    //sources in Compile <<= (sources in Compile).map(_ filter(_.getAbsolutePath.contains("scalalibrary/"))),
-    //sources in Compile <<= (sources in Compile).map(_ filter(_.name == "Typers.scala")),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
     libraryDependencies += "org.tukaani" % "xz" % "1.5",
@@ -201,16 +202,10 @@ object build extends Build {
 
   /* Custom configurations for compilation tests */
 
-  lazy val testScalalib = config("testScalalib") 
-  lazy val testScalalibNoPlug = config("testScalalibNoPlug") 
-
-  lazy val testScalalibConf: Seq[Setting[_]] = inConfig(testScalalib)(Defaults.configSettings ++ Seq(
+  lazy val testPluginConf = Seq(
     unmanagedSourceDirectories := (unmanagedSourceDirectories in Compile).value,
     classDirectory := (classDirectory in Compile).value,
     dependencyClasspath := (dependencyClasspath in Compile).value,
-    unmanagedSources := {
-      unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))
-    },
     /* Addition of both plugins. Since the configuration isn't compile, we cannot use the settings defined above */
     scalacOptions <++= (AssemblyKeys.`assembly` in (plugin, Compile)) map { (jar: File) =>
       val addPlugin = "-Xplugin:" + jar.getAbsolutePath
@@ -221,22 +216,42 @@ object build extends Build {
       val addPlugin = "-Xplugin:" + jar.getAbsolutePath
       val dummy = "-Jdummy=" + jar.lastModified
       Seq(addPlugin, dummy)
-    }
-  ))
-
-  lazy val testScalalibConfNoPlug: Seq[Setting[_]] = inConfig(testScalalibNoPlug)(Defaults.configSettings ++ Seq(
+    })
+  lazy val testNoPlugConf = Seq(
     unmanagedSourceDirectories := (unmanagedSourceDirectories in Compile).value,
     classDirectory := (classDirectory in Compile).value,
     dependencyClasspath := (dependencyClasspath in Compile).value,
-    unmanagedSources := {
-      unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))
-    },
     /* Addition of the showRaw plugin for consitency in time compilation */
     scalacOptions <++= (Keys.`package` in (sandbox, Compile)) map { (jar: File) =>
       val addPlugin = "-Xplugin:" + jar.getAbsolutePath
       val dummy = "-Jdummy=" + jar.lastModified
       Seq(addPlugin, dummy)
-    }
+    })
+
+  lazy val testScalalib = config("testScalalib") 
+  lazy val testScalalibNoPlug = config("testScalalibNoPlug") 
+  lazy val testTypers = config("testTypers")
+  lazy val testTypersNoPlug = config("testTypersNoPlug")
+  lazy val testBasic = config("testBasic")
+  lazy val testBasicNoPlug = config("testBasicNoPlug")
+
+  lazy val testScalalibConf: Seq[Setting[_]] = inConfig(testScalalib)(Defaults.configSettings ++ testPluginConf ++ Seq(
+    unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))}
+  ))
+  lazy val testScalalibConfNoPlug: Seq[Setting[_]] = inConfig(testScalalibNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
+    unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))}
+  ))
+  lazy val testTypersConf: Seq[Setting[_]] = inConfig(testTypers)(Defaults.configSettings ++ testPluginConf ++ Seq(
+    unmanagedSources := {unmanagedSources.value.filter(_.name == "Typers.scala")}
+  ))
+  lazy val testTypersConfNoPlug: Seq[Setting[_]] = inConfig(testTypersNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
+    unmanagedSources := {unmanagedSources.value.filter(_.name == "Typers.scala")}
+  ))
+  lazy val testBasicConf: Seq[Setting[_]] = inConfig(testBasic)(Defaults.configSettings ++ testPluginConf ++ Seq(
+    unmanagedSources := {unmanagedSources.value.filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")}
+  ))
+  lazy val testBasicConfNoPlug: Seq[Setting[_]] = inConfig(testBasicNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
+    unmanagedSources := {unmanagedSources.value.filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")}
   ))
 
 }
