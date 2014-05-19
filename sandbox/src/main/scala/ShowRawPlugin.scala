@@ -26,12 +26,15 @@ class ShowRawPlugin(val global: Global) extends NscPlugin {
     val phaseName = "showRaw"
     def newPhase(prev: Phase) = new StdPhase(prev) {
       def apply(unit: CompilationUnit) {
+        val outputDir = "benchmark/showraw/" +( unit.body match {
+          case p: PackageDef if p.name.toString != "<empty>" => p.name.toString.replaceAll("\\.", "/") + "/"
+          case _ => ""
+        })
+        val path = outputDir + unit.source.toString + ".raw"
+        val folder = new File(outputDir)
+        if(!folder.exists()) folder.mkdir()
 
-        val folder = new File("showraw")
-        if (!folder.exists()) folder.mkdir()
-
-        /* TODO: take proper path into account (packages, etc.) */
-        val output = new PrintWriter(s"showraw/${unit.source.toString}.txt")
+        val output = new PrintWriter(path)
         output.write(showRaw(unit.body))
         output.flush()
       }

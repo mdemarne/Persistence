@@ -26,12 +26,19 @@ class Plugin(val global: Global) extends NscPlugin {
     def newPhase(prev: Phase) = new StdPhase(prev) {
       def apply(unit: CompilationUnit) {
         val DecTree = TreeDecomposer(unit body)
-        
-        val folder = new File("asts")
-        if(!folder.exists()) folder.mkdir()
 
-        /* TODO: take proper path into account (packages, etc.) */
-        val astCompressor = new AstCompressor(new DataOutputStream(new FileOutputStream(s"asts/${unit.source.toString}.ast")))
+        val outputDir = (settings.outputDirs.getSingleOutput match {
+          case None => sys.error("No output directory?") /* TODO */
+          case Some(compilationDest) => compilationDest.container.toString
+        }) + "/asts/" +( unit.body match {
+          case p: PackageDef if p.name.toString != "<empty>" => p.name.toString.replaceAll("\\.", "/") + "/"
+          case _ => ""
+        })
+        val path = outputDir + unit.source.toString + ".ast"
+        val folder = new File(outputDir)
+        if(!folder.exists()) folder.mkdir()
+        val astCompressor = new AstCompressor(new DataOutputStream(new FileOutputStream(path)))
+
         astCompressor(DecTree.tree)
       }
     }

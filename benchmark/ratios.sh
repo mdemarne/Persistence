@@ -3,8 +3,7 @@
 # NB: should be launched from the project's root
 
 scalaversion='2.11'
-rawfolder="showraw/*"
-astcfolder="asts/*"
+rawfolder="benchmark/showraw/*"
 
 # Allow to select which test we would like to run easily.
 case $1 in
@@ -22,7 +21,6 @@ confNoPlugCompile=$conf$noplug$compile
 
 # Let's first clean the folder (if required)
 rm $rawfolder -r > /dev/null 2>&1
-rm $astcfolder -r > /dev/null 2>&1
 
 # Now let's clean SBT
 sbt "tests/clean" > /dev/null 2>&1
@@ -42,7 +40,7 @@ total_astc_size=0
 nb_tests=0
 nb_failed=0
 
-for f in $rawfolder
+for f in $(find benchmark/showraw/ *.raw -type f)
 do
 	nb_tests=$(echo "scale=0; $nb_tests + 1" | bc)
 
@@ -120,9 +118,10 @@ do
 	raw_size=$(stat -c %s $f)
 	xz_size=$(stat -c %s "$f.xz")
 
-	astc_path1=${f%.txt}
-	astc_path2=${astc_path1##*/}
-	astc_size=$(stat -c %s "asts/$astc_path2.ast")
+	astc_path1=${f%.raw}
+	astc_path2=${astc_path1#*/}
+	echo $astc_path2
+	astc_size=$(stat -c %s "tests/target/scala-$scalaversion/$astc_path2.ast")
 
 	xz_ratio=$(echo "scale=5; $xz_size / $raw_size" | bc)
 	astc_ratio=$(echo "scale=5; $astc_size / $raw_size" | bc)
