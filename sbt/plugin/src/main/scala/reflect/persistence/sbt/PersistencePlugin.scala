@@ -5,7 +5,7 @@ import Keys._
 
 
 object PersistencePlugin extends Plugin {
-  override lazy val projectSettings = Seq(commands += packageAst) ++ usePluginSettings
+  override lazy val projectSettings = /*Seq(commands += packageAst) ++*/ usePluginSettings
 
   lazy val packageAst =
     Command.command("PackageAst") { (state: State) =>
