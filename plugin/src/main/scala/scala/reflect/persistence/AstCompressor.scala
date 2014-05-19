@@ -21,11 +21,14 @@ class AstCompressor(out: DataOutputStream) {
       def idsc(v: Int): Stream[Int] = v #:: idsc(v + 1)
       idsc(0).iterator
     }
-    val keyList = node.computeFreqs.toList
-      .filter(entry => entry._1.size < Math.sqrt(node.flattenBFS.size))
-      .map(entry => (entry._1, Math.pow(entry._1.size, 1) * entry._2))
-      .sortBy(entry => (entry._2, entry._1.size)).reverse
-      .map(entry => entry._1).toList
+    val keyList = { 
+    val freqs = node.computeFreqs.toList
+    val metric = Math.sqrt(node.flattenBFS.size)
+    val filtered = freqs.filter(entry => entry._1.size < metric)
+    val mapped =  filtered.map(entry => (entry._1, Math.pow(entry._1.size, 1) * entry._2))
+    //TODO a bit long
+    mapped.sortBy(entry => (entry._2, entry._1.size)).reverse
+      .map(entry => entry._1).toList}
     /* origin dictionary, with empty frequencies */
     val originDict: NodeDict = keyList.map(k => (k, 0)) toMap
     @tailrec def loop(que: List[(Node, Int, Int, Int)], dict: NodeDict, occ: List[List[NodeBFS]], edges: List[(Int, Int)]): (NodeDict, List[List[NodeBFS]], List[(Int, Int)]) = que match {
