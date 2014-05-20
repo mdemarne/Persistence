@@ -36,7 +36,7 @@ class Plugin(val global: Global) extends NscPlugin {
         })
         val path = outputDir + unit.source.toString + ".ast"
         val folder = new File(outputDir)
-        if(!folder.exists()) folder.mkdir()
+        if(!folder.exists()) folder.mkdirs()
         val astCompressor = new AstCompressor(new DataOutputStream(new FileOutputStream(path)))
 
         astCompressor(DecTree.tree)

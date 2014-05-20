@@ -40,7 +40,7 @@ total_astc_size=0
 nb_tests=0
 nb_failed=0
 
-for f in $(find benchmark/showraw/ *.raw -type f)
+for f in $(find $rawfolder -type f)
 do
 	nb_tests=$(echo "scale=0; $nb_tests + 1" | bc)
 
@@ -119,9 +119,8 @@ do
 	xz_size=$(stat -c %s "$f.xz")
 
 	astc_path1=${f%.raw}
-	astc_path2=${astc_path1#*/}
-	echo $astc_path2
-	astc_size=$(stat -c %s "tests/target/scala-$scalaversion/$astc_path2.ast")
+	astc_path2=${astc_path1#*/*/}
+	astc_size=$(stat -c %s "tests/target/scala-$scalaversion/asts/$astc_path2.ast")
 
 	xz_ratio=$(echo "scale=5; $xz_size / $raw_size" | bc)
 	astc_ratio=$(echo "scale=5; $astc_size / $raw_size" | bc)
