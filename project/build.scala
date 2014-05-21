@@ -189,10 +189,12 @@ object build extends Build {
   ) configs ( testBasic
   ) configs ( testBasicNoPlug
   ) settings (
-    sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings ++ 
+    sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings ++ Seq(packageAstTask) ++
     testScalalibConf ++ testScalalibConfNoPlug ++
     testTypersConf ++ testTypersConfNoPlug ++
     testBasicConf ++ testBasicConfNoPlug : _*
+  /*) settings (
+    sources in Compile <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala"))*/
   ) settings (
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
@@ -254,4 +256,15 @@ object build extends Build {
     unmanagedSources := {unmanagedSources.value.filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")}
   ))
 
+  /* TODO: once working, abstract behind a plugin */
+  /* TODO: check what we need as a Manifest(is recompilelevant) */
+  val packageAst = TaskKey[File]("package-ast", "Produce an artifact containing compressed Scala ASTs.")
+  val packageAstTask = packageAst := {
+    /* First, let's force it to compile */
+    (compile in Compile).value /* TODO: figure out if we can get the current Config to call compile on it */
+    val file = new File("dd.jar")
+    file.createNewFile
+    /* TODO: find a way to create a proper jar here */   
+    file
+  }
 }
