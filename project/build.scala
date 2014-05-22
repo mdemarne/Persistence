@@ -193,8 +193,8 @@ object build extends Build {
     testScalalibConf ++ testScalalibConfNoPlug ++
     testTypersConf ++ testTypersConfNoPlug ++
     testBasicConf ++ testBasicConfNoPlug : _*
-  /*) settings (
-    sources in Compile <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala"))*/
+  ) settings (
+    sources in Compile <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala"))
   ) settings (
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
@@ -257,14 +257,24 @@ object build extends Build {
   ))
 
   /* TODO: once working, abstract behind a plugin */
-  /* TODO: check what we need as a Manifest(is recompilelevant) */
+  /* TODO: check what we need as a Manifest(if relevant) */
+  /* TODO: find out how to set a proper name for the jar */
   val packageAst = TaskKey[File]("package-ast", "Produce an artifact containing compressed Scala ASTs.")
   val packageAstTask = packageAst := {
     /* First, let's force it to compile */
     (compile in Compile).value /* TODO: figure out if we can get the current Config to call compile on it */
-    val file = new File("dd.jar")
-    file.createNewFile
-    /* TODO: find a way to create a proper jar here */   
-    file
+    /* Let's get all the files in a directory */
+    def findFiles(root: File): List[File] = root match {
+      case _ if root.isDirectory => root.listFiles.toList.flatMap(f => findFiles(f))
+      case _ => root :: Nil
+    }
+    val generalPath = new File((fullClasspath in Compile).value.files.head.getParent).getAbsolutePath
+    val astsPath = generalPath + "/asts/"
+    val outputJar = new File(generalPath + "/ast.jar")
+    val astsSources = findFiles(new File(astsPath))
+    val log = streams.value.log
+    val manifest = new java.util.jar.Manifest()
+    Package.makeJar(astsSources.map(f => (f, f.getAbsolutePath.replace(astsPath, ""))), outputJar, manifest, log)
+    outputJar
   }
 }
