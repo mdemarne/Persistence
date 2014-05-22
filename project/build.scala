@@ -237,19 +237,19 @@ object build extends Build {
   lazy val testBasic = config("testBasic")
   lazy val testBasicNoPlug = config("testBasicNoPlug")
 
-  lazy val testScalalibConf: Seq[Setting[_]] = inConfig(testScalalib)(Defaults.configSettings ++ testPluginConf ++ Seq(
+  lazy val testScalalibConf: Seq[Setting[_]] = inConfig(testScalalib)(Defaults.configSettings ++ packageAstTask ++ testPluginConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))}
   ))
   lazy val testScalalibConfNoPlug: Seq[Setting[_]] = inConfig(testScalalibNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))}
   ))
-  lazy val testTypersConf: Seq[Setting[_]] = inConfig(testTypers)(Defaults.configSettings ++ testPluginConf ++ Seq(
+  lazy val testTypersConf: Seq[Setting[_]] = inConfig(testTypers)(Defaults.configSettings ++ packageAstTask ++ testPluginConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(_.name == "Typers.scala")}
   ))
   lazy val testTypersConfNoPlug: Seq[Setting[_]] = inConfig(testTypersNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(_.name == "Typers.scala")}
   ))
-  lazy val testBasicConf: Seq[Setting[_]] = inConfig(testBasic)(Defaults.configSettings ++ testPluginConf ++ Seq(
+  lazy val testBasicConf: Seq[Setting[_]] = inConfig(testBasic)(Defaults.configSettings ++ packageAstTask ++ testPluginConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")}
   ))
   lazy val testBasicConfNoPlug: Seq[Setting[_]] = inConfig(testBasicNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
@@ -258,19 +258,16 @@ object build extends Build {
 
   /* TODO: once working, abstract behind a plugin */
   /* TODO: check what we need as a Manifest(if relevant) */
-  /* TODO: find out how to set a proper name for the jar */
   val packageAst = TaskKey[File]("package-ast", "Produce an artifact containing compressed Scala ASTs.")
   val packageAstTask = packageAst := {
-    /* First, let's force it to compile */
-    (compile in Compile).value /* TODO: figure out if we can get the current Config to call compile on it */
-    /* Let's get all the files in a directory */
     def findFiles(root: File): List[File] = root match {
       case _ if root.isDirectory => root.listFiles.toList.flatMap(f => findFiles(f))
       case _ => root :: Nil
     }
+     /* TODO: figure out if we can get the current Config to call compile on it */
     val generalPath = new File((fullClasspath in Compile).value.files.head.getParent).getAbsolutePath
     val astsPath = generalPath + "/asts/"
-    val outputJar = new File(generalPath + "/ast.jar")
+    val outputJar = new File(generalPath + "/" + name.value +"_" + version.value + "-asts.jar")
     val astsSources = findFiles(new File(astsPath))
     val log = streams.value.log
     val manifest = new java.util.jar.Manifest()
