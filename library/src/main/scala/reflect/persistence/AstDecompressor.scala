@@ -66,6 +66,10 @@ class AstDecompressor(in: DataInputStream) {
   def apply(): Node = {
     toRead = Nil
     unapplyXZ
+    val hasNames = readByte
+    //TODO modify this
+    if(hasNames == 1)
+      inputNames
     val dOccs = inputOccs
     val dEdges = inputComp2Edges
     val dDict = inputDict
@@ -142,5 +146,20 @@ class AstDecompressor(in: DataInputStream) {
     for(i <- (1.toLong to total)){
       toRead :+= (decomp.read()).toByte
     }
+  }
+
+  def inputNames: Map[String, (List[Int], Boolean)] = {
+    val size = readInt
+    var res: Map[String, (List[Int], Boolean)] = Map()
+    (0 until size).foreach{ y => 
+      val isTInt = readByte
+      val isTermName: Boolean = if (isTInt == 0) false else true
+      val name: String = toRead.takeWhile(_ != '\n'.toByte).mkString
+      toRead = toRead.dropWhile(_ != '\n').tail
+      val entriesSize = readShort
+      var entries: List[Int] = (0 until entriesSize).map( x => readShort.toInt).toList
+      res += (name -> (entries, isTermName))
+    }
+    res
   }
 }

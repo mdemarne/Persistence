@@ -15,6 +15,7 @@ class AstCompressor(out: DataOutputStream) {
   import Enrichments._
   
   var toWrite: List[Byte] = Nil
+  var names: Map[String, (List[Int], Boolean)] = Map()
   /* Reparse the tree using the new dictionary */
   def splitTree(node: Node): (NodeDict, List[List[NodeBFS]], List[(Int, Int)]) = {
     val ids = {
@@ -77,26 +78,18 @@ class AstCompressor(out: DataOutputStream) {
     loop(occ, Nil)
   }
   def outputOccs(occs: List[Byte]): Unit = {
-    /*out.writeShort(occs.size)
-    out.write(compressBytes(occs))
-    out.flush*/
     toWrite ++= ShortToBytes(occs.size.toShort)
     toWrite ++= compressBytes(occs)
   }
   def outputDict(dict: HufDict): Unit = {
-    //out.writeInt(dict.size)
     toWrite ++= IntToBytes(dict.size)
     dict.foreach { e =>
-      /*out.writeInt(e._2.size)
-      out.write(compressBytes(e._2))*/
       toWrite ++= IntToBytes(e._2.size)
       toWrite ++= compressBytes(e._2)
       val ndBfs = e._1.asPrintable
-      //out.writeShort(ndBfs.size)
       toWrite ++= ShortToBytes(ndBfs.size.toShort)
       ndBfs.foreach { n => toWrite :+= (n._1); toWrite ++= ShortToBytes(n._2.toShort); toWrite ++= ShortToBytes(n._3.toShort)}
     }
-    //out.flush
   }
   def outputEdges(edges: List[(Int, Int)]): Unit = {
     out.writeInt(edges.size - 1)
@@ -116,12 +109,18 @@ class AstCompressor(out: DataOutputStream) {
   }
   def apply(node: Node): Unit = {
     toWrite = Nil
+    if (names.isEmpty) 
+      toWrite :+= 0.toByte 
+    else 
+      toWrite :+= 1.toByte
     val (nodeDict, occs, edges) = splitTree(node)
     val hufDict = genHuffman(nodeDict)
     val encodedOccs = encodeOccs(occs, hufDict)
     outputOccs(encodedOccs)
     outputComp2Edges(edges)
     outputDict(hufDict)
+    if(!names.isEmpty)
+      outputNames(names) 
     out.writeLong(toWrite.size)
     applyXZ
   }
@@ -129,17 +128,12 @@ class AstCompressor(out: DataOutputStream) {
     @tailrec def loop(old: (Int, Int), count: Int, edgs: List[(Int, Int)]): Unit = edgs match {
       case Nil =>
         out.writeShort(count)
-        //toWrite ++= List((count & 0xff).toByte, ((count >> 8)& 0xff).toByte)
       case x :: xs if old == x =>
         loop(old, count + 1, xs)
       case x :: xs =>
         out.writeShort(count)
         out.writeShort(x._1)
         out.writeShort(x._2)
-        //TODO big and little endian ? 
-        /*toWrite ++= List((count & 0xff).toByte, ((count >> 8)& 0xff).toByte)
-        toWrite ++= List((x._1 & 0xff).toByte, ((x._1 >> 8)& 0xff).toByte)
-        toWrite ++= List((x._2 & 0xff).toByte, ((x._2 >> 8)& 0xff).toByte)*/
         loop(x, 1, xs)
     }
     out.writeInt(edges.tail.size)
@@ -153,30 +147,22 @@ class AstCompressor(out: DataOutputStream) {
     val (lp1, lp2) = edges.tail.unzip
     @tailrec def loop(curr: Int, count: Int, entries: List[Int], bool: Boolean): Unit = entries match {
       case Nil => 
-        //out.writeShort(count)
         toWrite ++= ShortToBytes(count.toShort)
       case x::xs if x == curr =>
         loop(curr, count + 1, xs, bool)
       case x::xs =>
-        //out.writeShort(count)
         toWrite ++= ShortToBytes(count.toShort)
         if(bool) 
-          //out.writeByte(x - curr)
           toWrite :+= (x-curr).toByte
         else 
-          //out.writeShort(x)
           toWrite ++= ShortToBytes(x.toShort)
         loop(x, 1, xs, bool)
     }
-    /*out.writeInt(lp1.size)
-    out.writeShort(lp1.head)*/
     toWrite ++= IntToBytes(lp1.size)
     toWrite ++= ShortToBytes(lp1.head.toShort)
     loop(lp1.head, 1, lp1.tail, true)
-    //out.writeShort(lp2.head)
     toWrite ++= ShortToBytes(lp2.head.toShort)
     loop(lp2.head, 1, lp2.tail, false)
-    //out.flush
   }
 
   def IntToBytes(i: Int): List[Byte] = {
@@ -191,5 +177,25 @@ class AstCompressor(out: DataOutputStream) {
     val comp: XZOutputStream = new XZOutputStream(out, new LZMA2Options())
     toWrite.foreach{comp.write(_)}
     comp.close()
-  } 
+  }
+
+  /*Encode the names
+  TODO this is a very simple version*/
+  def outputNames(nameBFS: Map[String, (List[Int], Boolean)]): Unit = {
+    toWrite ++= IntToBytes(nameBFS.size)
+    nameBFS.foreach{ n =>
+      if(n._2._2)
+        toWrite :+= 1.toByte
+      else 
+        toWrite :+= 0.toByte
+      toWrite ++= n._1.getBytes.toList
+      toWrite :+= '\n'.toByte
+      toWrite ++= ShortToBytes(n._2._1.size.toShort)
+      toWrite ++= n._2._1.map(e => ShortToBytes(e.toShort)).flatten 
+    }  
+  }
+
+  def setNames(names: Map[String, (List[Int], Boolean)]) {
+    this.names = names
+  }
 }

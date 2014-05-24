@@ -29,7 +29,7 @@ object build extends Build {
         Some(file(scalaHome))
       } else None
     }
-    // TODO: how to I make this recursion work?
+    // TODO: how do I make this recursion work?
     // run <<= run in Compile in sandbox,
     // test <<= test in Test in tests
   )
