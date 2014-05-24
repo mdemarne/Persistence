@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# NB: should be launched from the project's root
+
 scalaversion='2.11'
 
 sourcepath="tests/src/*"
@@ -48,13 +50,17 @@ do
 	if [[ $time_norm =~ "error" ]]; then
 		echo "Bad compilation for: $f"
 	else
-		time_incr=$(echo "scale=10; $time_astc / $time_norm" | bc)
-		time_incr=$(echo "scale=10; $time_incr - 1" | bc)
-		time_diff=$(echo "scale=10; $time_astc - $time_norm" | bc)
-		total_time_norm=$(echo "scale=10; $total_time_norm + $time_norm" | bc)
-		total_time_astc=$(echo "scale=10; $total_time_astc + $time_astc" | bc)
+		if [[ $time_norm =~ "warning" ]]; then
+			echo "Got warnings, unfortunately this would break our stats for file $f" # TODO
+		else
+			time_incr=$(echo "scale=10; $time_astc / $time_norm" | bc)
+			time_incr=$(echo "scale=10; $time_incr - 1" | bc)
+			time_diff=$(echo "scale=10; $time_astc - $time_norm" | bc)
+			total_time_norm=$(echo "scale=10; $total_time_norm + $time_norm" | bc)
+			total_time_astc=$(echo "scale=10; $total_time_astc + $time_astc" | bc)
 
-		echo "normal time: $time_norm, with astc: $time_astc (+ $time_diff), increased of (ratio): $time_incr for file $f"
+			echo "normal time: $time_norm, with astc: $time_astc (+ $time_diff), increased of (ratio): $time_incr for file $f"
+		fi
 	fi
 done
 
