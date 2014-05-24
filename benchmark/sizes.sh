@@ -3,7 +3,8 @@
 # NB: should be launched from the project's root
 
 scalaversion='2.11'
-rawfolder="benchmark/showraw/*"
+rawfolder="tests/target/scala-$scalaversion/raw/*"
+astfolder="tests/target/scala-$scalaversion/asts"
 
 # Allow to select which test we would like to run easily.
 case $1 in
@@ -119,8 +120,8 @@ do
 	xz_size=$(stat -c %s "$f.xz")
 
 	astc_path1=${f%.raw}
-	astc_path2=${astc_path1#*/*/}
-	astc_size=$(stat -c %s "tests/target/scala-$scalaversion/asts/$astc_path2.ast")
+	astc_path2=${astc_path1#*/*/*/*/} # Cleanup the path from raw to get asts
+	astc_size=$(stat -c %s "$astfolder/$astc_path2.ast")
 
 	xz_ratio=$(echo "scale=5; $xz_size / $raw_size" | bc)
 	astc_ratio=$(echo "scale=5; $astc_size / $raw_size" | bc)
