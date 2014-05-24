@@ -152,8 +152,8 @@ class AstDecompressor(in: DataInputStream) {
     val size = readInt
     var res: Map[String, (List[Int], Boolean)] = Map()
     (0 until size).foreach{ y => 
-      val isTInt = readByte
-      val isTermName: Boolean = if (isTInt == 0) false else true
+      val isTerm = readByte
+      val isTermName: Boolean = if (isTerm == 0) false else true
       val name: String = toRead.takeWhile(_ != '\n'.toByte).mkString
       toRead = toRead.dropWhile(_ != '\n').tail
       val entriesSize = readShort
