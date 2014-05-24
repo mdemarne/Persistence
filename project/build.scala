@@ -182,17 +182,13 @@ object build extends Build {
   lazy val tests = Project(
     id   = "tests",
     base = file("tests")
-  ) configs ( testScalalib
-  ) configs ( testScalalibNoPlug
-  ) configs ( testTypers
-  ) configs ( testTypersNoPlug
-  ) configs ( testBasic
-  ) configs ( testBasicNoPlug
+  ) configs ( testScalalib, testScalalibNoPlug, testTypers, testTypersNoPlug, testBasic, testBasicNoPlug
+  ) configs ( testSpecificList:_*
   ) settings (
     sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings ++ Seq(packageAstTask) ++
     testScalalibConf ++ testScalalibConfNoPlug ++
     testTypersConf ++ testTypersConfNoPlug ++
-    testBasicConf ++ testBasicConfNoPlug : _*
+    testBasicConf ++ testBasicConfNoPlug ++ testSpecificConfList: _*
   ) settings (
     sources in Compile <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala"))
   ) settings (
@@ -236,6 +232,7 @@ object build extends Build {
   lazy val testTypersNoPlug = config("testTypersNoPlug")
   lazy val testBasic = config("testBasic")
   lazy val testBasicNoPlug = config("testBasicNoPlug")
+  lazy val testSpecificList = for(i <- 0 until 100) yield(config(s"testSpecific${i}"))
 
   lazy val testScalalibConf: Seq[Setting[_]] = inConfig(testScalalib)(Defaults.configSettings ++ packageAstTask ++ testPluginConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))}
@@ -256,7 +253,13 @@ object build extends Build {
     unmanagedSources := {unmanagedSources.value.filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")}
   ))
 
-  /* TODO: once working, abstract behind a plugin */
+  lazy val testSpecificConfList = testSpecificList.flatMap(conf => {
+      inConfig(conf)(Defaults.configSettings ++ packageAstTask ++ testPluginConf ++ Seq(
+        unmanagedSources := {unmanagedSources.value.filter(f => false)}
+    ))
+  })
+
+  /* TODO: abstract behind a plugin */
   /* TODO: check what we need as a Manifest(if relevant) */
   val packageAst = TaskKey[File]("package-ast", "Produce an artifact containing compressed Scala ASTs.")
   val packageAstTask = packageAst := {
@@ -264,7 +267,6 @@ object build extends Build {
       case _ if root.isDirectory => root.listFiles.toList.flatMap(f => findFiles(f))
       case _ => root :: Nil
     }
-     /* TODO: figure out if we can get the current Config to call compile on it */
     val generalPath = new File((fullClasspath in Compile).value.files.head.getParent).getAbsolutePath
     val astsPath = generalPath + "/asts/"
     val outputJar = new File(generalPath + "/" + name.value +"_" + version.value + "-asts.jar")
