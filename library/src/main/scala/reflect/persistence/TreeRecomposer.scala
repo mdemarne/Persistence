@@ -7,7 +7,14 @@ import scala.language.postfixOps
 class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
   import u._
   import Enrichments._
+  var trans: Map[Name, List[Int]] = Map() 
   
+  def transformNames(ln: Map[String, (List[Int], Boolean)]){
+    trans = ln.map{e => 
+      val n = if(e._2._2) TermName(e._1) else TypeName(e._1)
+      (n, e._2._1)
+    }
+  }
   def apply(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]], constBFS: Map[Constant, List[Int]]): Tree = {
     var nameList: RevList[Name] = namesBFS.unzipWithIdxs
     var symbolList: RevList[Symbol] = symbBFS.unzipWithIdxs

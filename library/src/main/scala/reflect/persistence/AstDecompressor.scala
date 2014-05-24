@@ -7,7 +7,7 @@ class AstDecompressor(in: DataInputStream) {
   import Enrichments._
   
   var toRead: List[Byte] = Nil
-
+  var namesStr: Map[String, (List[Int], Boolean)] = Map()
   def rebuiltTree(occs: List[List[NodeBFS]], edges: List[(Int, Int)]): Node = {
     def loop(revOccs: RevList[List[NodeBFS]], revEdges: RevList[(Int, Int)]): List[NodeBFS] = (revOccs, revEdges) match {
       case (x :: Nil, Nil) => x /* We have recomposed all the tree. NB: (-1, -1) for the root should not be there. */
@@ -69,7 +69,7 @@ class AstDecompressor(in: DataInputStream) {
     val hasNames = readByte
     //TODO modify this
     if(hasNames == 1)
-      inputNames
+      namesStr = inputNames
     val dOccs = inputOccs
     val dEdges = inputComp2Edges
     val dDict = inputDict
