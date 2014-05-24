@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 import sbtassembly.Plugin._
 import AssemblyKeys._
+import scala.collection.mutable.ArrayBuffer
 
 // imports standard command parsing functionality
 // see http://www.scala-sbt.org/release/docs/Extending/Commands.html
@@ -183,12 +184,12 @@ object build extends Build {
     id   = "tests",
     base = file("tests")
   ) configs ( testScalalib, testScalalibNoPlug, testTypers, testTypersNoPlug, testBasic, testBasicNoPlug
-  ) configs ( testSpecificList:_*
+  /*) configs ( testSpecificList ++ testSpecificNoPlugList:_**/
   ) settings (
     sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings ++ Seq(packageAstTask) ++
     testScalalibConf ++ testScalalibConfNoPlug ++
     testTypersConf ++ testTypersConfNoPlug ++
-    testBasicConf ++ testBasicConfNoPlug ++ testSpecificConfList: _*
+    testBasicConf ++ testBasicConfNoPlug /*++ testSpecificConfList ++ testSpecificConfNoPlugList*/: _*
   ) settings (
     sources in Compile <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala"))
   ) settings (
@@ -232,7 +233,11 @@ object build extends Build {
   lazy val testTypersNoPlug = config("testTypersNoPlug")
   lazy val testBasic = config("testBasic")
   lazy val testBasicNoPlug = config("testBasicNoPlug")
-  lazy val testSpecificList = for(i <- 0 until 100) yield(config(s"testSpecific${i}"))
+
+  /* Generating specific configs for compiling file by file */
+  /*val nbSources: Int = findFiles(new File("tests/src/")).size
+  lazy val testSpecificList = for(i <- 0 until nbSources) yield(config(s"testSpecific${i}"))
+  lazy val testSpecificNoPlugList = for(i <- 0 until nbSources) yield(config(s"testSpecificNoPlug${i}"))*/
 
   lazy val testScalalibConf: Seq[Setting[_]] = inConfig(testScalalib)(Defaults.configSettings ++ packageAstTask ++ testPluginConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))}
@@ -253,20 +258,26 @@ object build extends Build {
     unmanagedSources := {unmanagedSources.value.filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")}
   ))
 
+  /* Generating specific settings for compiling file by file */
+  /*var sourcePlug: Int = -1
   lazy val testSpecificConfList = testSpecificList.flatMap(conf => {
+      val src = sourcePlug; sourcePlug+=1
       inConfig(conf)(Defaults.configSettings ++ packageAstTask ++ testPluginConf ++ Seq(
-        unmanagedSources := {unmanagedSources.value.filter(f => false)}
+        unmanagedSources := {new ArrayBuffer += unmanagedSources.value(src)}
     ))
   })
+  var sourceNoPlug: Int = -1
+  lazy val testSpecificConfNoPlugList = testSpecificNoPlugList.flatMap(conf => {
+      val src = sourcePlug; sourcePlug+=1
+      inConfig(conf)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
+        unmanagedSources := {new ArrayBuffer += unmanagedSources.value(src)}
+    ))
+  })*/
 
   /* TODO: abstract behind a plugin */
   /* TODO: check what we need as a Manifest(if relevant) */
   val packageAst = TaskKey[File]("package-ast", "Produce an artifact containing compressed Scala ASTs.")
   val packageAstTask = packageAst := {
-    def findFiles(root: File): List[File] = root match {
-      case _ if root.isDirectory => root.listFiles.toList.flatMap(f => findFiles(f))
-      case _ => root :: Nil
-    }
     val generalPath = new File((fullClasspath in Compile).value.files.head.getParent).getAbsolutePath
     val astsPath = generalPath + "/asts/"
     val outputJar = new File(generalPath + "/" + name.value +"_" + version.value + "-asts.jar")
@@ -275,5 +286,10 @@ object build extends Build {
     val manifest = new java.util.jar.Manifest()
     Package.makeJar(astsSources.map(f => (f, f.getAbsolutePath.replace(astsPath, ""))), outputJar, manifest, log)
     outputJar
+  }
+
+  def findFiles(root: File): List[File] = root match {
+      case _ if root.isDirectory => root.listFiles.toList.flatMap(f => findFiles(f))
+      case _ => root :: Nil
   }
 }
