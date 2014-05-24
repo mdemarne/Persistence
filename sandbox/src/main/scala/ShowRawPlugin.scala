@@ -26,7 +26,10 @@ class ShowRawPlugin(val global: Global) extends NscPlugin {
     val phaseName = "showRaw"
     def newPhase(prev: Phase) = new StdPhase(prev) {
       def apply(unit: CompilationUnit) {
-        val outputDir = "benchmark/showraw/" +( unit.body match {
+        val outputDir = (settings.outputDirs.getSingleOutput match {
+          case None => sys.error("No output directory?") /* TODO */
+          case Some(compilationDest) => compilationDest.container.toString
+        }) + "/raw/" +( unit.body match {
           case p: PackageDef if p.name.toString != "<empty>" => p.name.toString.replaceAll("\\.", "/") + "/"
           case _ => ""
         })
