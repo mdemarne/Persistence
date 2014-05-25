@@ -26,7 +26,7 @@ class ShowRawPlugin(val global: Global) extends NscPlugin {
     val phaseName = "showRaw"
     def newPhase(prev: Phase) = new StdPhase(prev) {
       def apply(unit: CompilationUnit) {
-        val outputDir = (settings.outputDirs.getSingleOutput match {
+      val outputDir = (settings.outputDirs.getSingleOutput match {
           case None => sys.error("No output directory?") /* TODO */
           case Some(compilationDest) => compilationDest.container.toString
         }) + "/raw/" +( unit.body match {
@@ -35,7 +35,7 @@ class ShowRawPlugin(val global: Global) extends NscPlugin {
         })
         val path = outputDir + unit.source.toString + ".raw"
         val folder = new File(outputDir)
-        if(!folder.exists()) folder.mkdir()
+        if(!folder.exists()) folder.mkdirs()
 
         val output = new PrintWriter(path)
         output.write(showRaw(unit.body))

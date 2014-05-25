@@ -1,0 +1,624 @@
+All sizes are in bytes
+showRaw: 228, xz: 176 (.77192), astc: 188 (.82456), ratio of ratios (astc/xz): 1.06818  for file annotation/varargs.scala
+FAILED: xz better than astc.
+showRaw: 228, xz: 176 (.77192), astc: 188 (.82456), ratio of ratios (astc/xz): 1.06818  for file annotation/tailrec.scala
+FAILED: xz better than astc.
+showRaw: 169, xz: 160 (.94674), astc: 184 (1.08875), ratio of ratios (astc/xz): 1.15000  for file annotation/Annotation.scala
+FAILED: xz better than astc.
+showRaw: 2742, xz: 460 (.16776), astc: 352 (.12837), ratio of ratios (astc/xz): .76521  for file annotation/elidable.scala
+showRaw: 457, xz: 260 (.56892), astc: 204 (.44638), ratio of ratios (astc/xz): .78461  for file annotation/compileTimeOnly.scala
+showRaw: 145, xz: 148 (1.02068), astc: 148 (1.02068), ratio of ratios (astc/xz): 1.00000  for file annotation/ClassfileAnnotation.scala
+showRaw: 125, xz: 128 (1.02400), astc: 144 (1.15200), ratio of ratios (astc/xz): 1.12500  for file annotation/StaticAnnotation.scala
+FAILED: xz better than astc.
+showRaw: 250, xz: 196 (.78400), astc: 188 (.75200), ratio of ratios (astc/xz): .95918  for file annotation/bridge.scala
+showRaw: 220, xz: 196 (.89090), astc: 192 (.87272), ratio of ratios (astc/xz): .97959  for file annotation/package.scala
+showRaw: 227, xz: 176 (.77533), astc: 188 (.82819), ratio of ratios (astc/xz): 1.06818  for file annotation/switch.scala
+FAILED: xz better than astc.
+showRaw: 355, xz: 220 (.61971), astc: 196 (.55211), ratio of ratios (astc/xz): .89090  for file annotation/implicitNotFound.scala
+showRaw: 229, xz: 180 (.78602), astc: 188 (.82096), ratio of ratios (astc/xz): 1.04444  for file annotation/strictfp.scala
+FAILED: xz better than astc.
+showRaw: 489, xz: 228 (.46625), astc: 192 (.39263), ratio of ratios (astc/xz): .84210  for file annotation/migration.scala
+showRaw: 123, xz: 132 (1.07317), astc: 144 (1.17073), ratio of ratios (astc/xz): 1.09090  for file annotation/TypeConstraint.scala
+FAILED: xz better than astc.
+showRaw: 234, xz: 184 (.78632), astc: 188 (.80341), ratio of ratios (astc/xz): 1.02173  for file annotation/unspecialized.scala
+FAILED: xz better than astc.
+showRaw: 230, xz: 192 (.83478), astc: 188 (.81739), ratio of ratios (astc/xz): .97916  for file beans/BooleanBeanProperty.scala
+showRaw: 368, xz: 224 (.60869), astc: 204 (.55434), ratio of ratios (astc/xz): .91071  for file beans/BeanDisplayName.scala
+showRaw: 368, xz: 224 (.60869), astc: 204 (.55434), ratio of ratios (astc/xz): .91071  for file beans/BeanDescription.scala
+showRaw: 202, xz: 172 (.85148), astc: 188 (.93069), ratio of ratios (astc/xz): 1.09302  for file beans/BeanInfo.scala
+FAILED: xz better than astc.
+showRaw: 206, xz: 176 (.85436), astc: 188 (.91262), ratio of ratios (astc/xz): 1.06818  for file beans/BeanInfoSkip.scala
+FAILED: xz better than astc.
+showRaw: 2422, xz: 564 (.23286), astc: 420 (.17341), ratio of ratios (astc/xz): .74468  for file beans/ScalaBeanInfo.scala
+showRaw: 223, xz: 188 (.84304), astc: 188 (.84304), ratio of ratios (astc/xz): 1.00000  for file beans/BeanProperty.scala
+showRaw: 1931, xz: 372 (.19264), astc: 420 (.21750), ratio of ratios (astc/xz): 1.12903  for file concurrent/Channel.scala
+FAILED: xz better than astc.
+showRaw: 842, xz: 320 (.38004), astc: 232 (.27553), ratio of ratios (astc/xz): .72500  for file concurrent/JavaConversions.scala
+showRaw: 1287, xz: 388 (.30147), astc: 300 (.23310), ratio of ratios (astc/xz): .77319  for file concurrent/DelayedLazyVal.scala
+showRaw: 293, xz: 224 (.76450), astc: 172 (.58703), ratio of ratios (astc/xz): .76785  for file concurrent/ManagedBlocker.scala
+showRaw: 2363, xz: 544 (.23021), astc: 364 (.15404), ratio of ratios (astc/xz): .66911  for file concurrent/ThreadPoolRunner.scala
+showRaw: 25400, xz: 2068 (.08141), astc: 1776 (.06992), ratio of ratios (astc/xz): .85880  for file concurrent/Future.scala
+showRaw: 9975, xz: 908 (.09102), astc: 828 (.08300), ratio of ratios (astc/xz): .91189  for file concurrent/package.scala
+showRaw: 723, xz: 316 (.43706), astc: 204 (.28215), ratio of ratios (astc/xz): .64556  for file concurrent/TaskRunner.scala
+showRaw: 696, xz: 244 (.35057), astc: 196 (.28160), ratio of ratios (astc/xz): .80327  for file concurrent/Awaitable.scala
+showRaw: 2188, xz: 492 (.22486), astc: 452 (.20658), ratio of ratios (astc/xz): .91869  for file concurrent/SyncChannel.scala
+showRaw: 1965, xz: 456 (.23206), astc: 396 (.20152), ratio of ratios (astc/xz): .86842  for file concurrent/BlockContext.scala
+showRaw: 822, xz: 336 (.40875), astc: 208 (.25304), ratio of ratios (astc/xz): .61904  for file concurrent/FutureTaskRunner.scala
+showRaw: 3133, xz: 572 (.18257), astc: 520 (.16597), ratio of ratios (astc/xz): .90909  for file concurrent/SyncVar.scala
+showRaw: 3514, xz: 548 (.15594), astc: 360 (.10244), ratio of ratios (astc/xz): .65693  for file concurrent/ExecutionContext.scala
+showRaw: 3557, xz: 588 (.16530), astc: 444 (.12482), ratio of ratios (astc/xz): .75510  for file concurrent/Promise.scala
+showRaw: 4343, xz: 840 (.19341), astc: 608 (.13999), ratio of ratios (astc/xz): .72380  for file concurrent/BatchingExecutor.scala
+showRaw: 629, xz: 272 (.43243), astc: 284 (.45151), ratio of ratios (astc/xz): 1.04411  for file concurrent/Lock.scala
+FAILED: xz better than astc.
+showRaw: 9225, xz: 588 (.06373), astc: 496 (.05376), ratio of ratios (astc/xz): .84353  for file duration/DurationConversions.scala
+showRaw: 35099, xz: 2624 (.07475), astc: 2460 (.07008), ratio of ratios (astc/xz): .93750  for file duration/Duration.scala
+showRaw: 4260, xz: 708 (.16619), astc: 572 (.13427), ratio of ratios (astc/xz): .80790  for file duration/Deadline.scala
+showRaw: 2142, xz: 608 (.28384), astc: 412 (.19234), ratio of ratios (astc/xz): .67763  for file impl/Future.scala
+showRaw: 14708, xz: 1644 (.11177), astc: 1096 (.07451), ratio of ratios (astc/xz): .66666  for file impl/ExecutionContextImpl.scala
+showRaw: 18393, xz: 1788 (.09721), astc: 1472 (.08003), ratio of ratios (astc/xz): .82326  for file impl/Promise.scala
+showRaw: 4313, xz: 780 (.18084), astc: 588 (.13633), ratio of ratios (astc/xz): .75384  for file io/BufferedSource.scala
+showRaw: 469, xz: 260 (.55437), astc: 212 (.45202), ratio of ratios (astc/xz): .81538  for file macros/macroImpl.scala
+showRaw: 262, xz: 184 (.70229), astc: 192 (.73282), ratio of ratios (astc/xz): 1.04347  for file meta/beanGetter.scala
+FAILED: xz better than astc.
+showRaw: 266, xz: 184 (.69172), astc: 192 (.72180), ratio of ratios (astc/xz): 1.04347  for file meta/companionClass.scala
+FAILED: xz better than astc.
+showRaw: 495, xz: 228 (.46060), astc: 196 (.39595), ratio of ratios (astc/xz): .85964  for file meta/languageFeature.scala
+showRaw: 267, xz: 188 (.70411), astc: 192 (.71910), ratio of ratios (astc/xz): 1.02127  for file meta/companionObject.scala
+FAILED: xz better than astc.
+showRaw: 262, xz: 184 (.70229), astc: 192 (.73282), ratio of ratios (astc/xz): 1.04347  for file meta/beanSetter.scala
+FAILED: xz better than astc.
+showRaw: 257, xz: 180 (.70038), astc: 192 (.74708), ratio of ratios (astc/xz): 1.06666  for file meta/param.scala
+FAILED: xz better than astc.
+showRaw: 257, xz: 176 (.68482), astc: 192 (.74708), ratio of ratios (astc/xz): 1.09090  for file meta/field.scala
+FAILED: xz better than astc.
+showRaw: 267, xz: 188 (.70411), astc: 192 (.71910), ratio of ratios (astc/xz): 1.02127  for file meta/companionMethod.scala
+FAILED: xz better than astc.
+showRaw: 258, xz: 180 (.69767), astc: 192 (.74418), ratio of ratios (astc/xz): 1.06666  for file meta/setter.scala
+FAILED: xz better than astc.
+showRaw: 258, xz: 180 (.69767), astc: 192 (.74418), ratio of ratios (astc/xz): 1.06666  for file meta/getter.scala
+FAILED: xz better than astc.
+showRaw: 2634, xz: 488 (.18526), astc: 368 (.13971), ratio of ratios (astc/xz): .75409  for file ref/WeakReference.scala
+showRaw: 1827, xz: 372 (.20361), astc: 268 (.14668), ratio of ratios (astc/xz): .72043  for file ref/PhantomReference.scala
+showRaw: 708, xz: 268 (.37853), astc: 236 (.33333), ratio of ratios (astc/xz): .88059  for file ref/Reference.scala
+showRaw: 1961, xz: 396 (.20193), astc: 292 (.14890), ratio of ratios (astc/xz): .73737  for file ref/SoftReference.scala
+showRaw: 1894, xz: 448 (.23653), astc: 328 (.17317), ratio of ratios (astc/xz): .73214  for file ref/ReferenceQueue.scala
+showRaw: 1152, xz: 352 (.30555), astc: 308 (.26736), ratio of ratios (astc/xz): .87500  for file ref/ReferenceWrapper.scala
+showRaw: 423, xz: 196 (.46335), astc: 200 (.47281), ratio of ratios (astc/xz): 1.02040  for file runtime/AbstractFunction4.scala
+FAILED: xz better than astc.
+showRaw: 567, xz: 196 (.34567), astc: 204 (.35978), ratio of ratios (astc/xz): 1.04081  for file runtime/AbstractFunction7.scala
+FAILED: xz better than astc.
+showRaw: 953, xz: 200 (.20986), astc: 204 (.21406), ratio of ratios (astc/xz): 1.02000  for file runtime/AbstractFunction15.scala
+FAILED: xz better than astc.
+showRaw: 615, xz: 196 (.31869), astc: 208 (.33821), ratio of ratios (astc/xz): 1.06122  for file runtime/AbstractFunction8.scala
+FAILED: xz better than astc.
+showRaw: 327, xz: 196 (.59938), astc: 200 (.61162), ratio of ratios (astc/xz): 1.02040  for file runtime/AbstractFunction2.scala
+FAILED: xz better than astc.
+showRaw: 761, xz: 200 (.26281), astc: 204 (.26806), ratio of ratios (astc/xz): 1.02000  for file runtime/AbstractFunction11.scala
+FAILED: xz better than astc.
+showRaw: 713, xz: 200 (.28050), astc: 204 (.28611), ratio of ratios (astc/xz): 1.02000  for file runtime/AbstractFunction10.scala
+FAILED: xz better than astc.
+showRaw: 1001, xz: 200 (.19980), astc: 204 (.20379), ratio of ratios (astc/xz): 1.02000  for file runtime/AbstractFunction16.scala
+FAILED: xz better than astc.
+showRaw: 471, xz: 196 (.41613), astc: 200 (.42462), ratio of ratios (astc/xz): 1.02040  for file runtime/AbstractFunction5.scala
+FAILED: xz better than astc.
+showRaw: 1193, xz: 204 (.17099), astc: 208 (.17435), ratio of ratios (astc/xz): 1.01960  for file runtime/AbstractFunction20.scala
+FAILED: xz better than astc.
+showRaw: 375, xz: 196 (.52266), astc: 204 (.54400), ratio of ratios (astc/xz): 1.04081  for file runtime/AbstractFunction3.scala
+FAILED: xz better than astc.
+showRaw: 1049, xz: 204 (.19447), astc: 204 (.19447), ratio of ratios (astc/xz): 1.00000  for file runtime/AbstractFunction17.scala
+showRaw: 231, xz: 188 (.81385), astc: 196 (.84848), ratio of ratios (astc/xz): 1.04255  for file runtime/AbstractFunction0.scala
+FAILED: xz better than astc.
+showRaw: 809, xz: 200 (.24721), astc: 204 (.25216), ratio of ratios (astc/xz): 1.02000  for file runtime/AbstractFunction12.scala
+FAILED: xz better than astc.
+showRaw: 1289, xz: 204 (.15826), astc: 208 (.16136), ratio of ratios (astc/xz): 1.01960  for file runtime/AbstractFunction22.scala
+FAILED: xz better than astc.
+showRaw: 1097, xz: 204 (.18596), astc: 204 (.18596), ratio of ratios (astc/xz): 1.00000  for file runtime/AbstractFunction18.scala
+showRaw: 905, xz: 200 (.22099), astc: 204 (.22541), ratio of ratios (astc/xz): 1.02000  for file runtime/AbstractFunction14.scala
+FAILED: xz better than astc.
+showRaw: 279, xz: 196 (.70250), astc: 200 (.71684), ratio of ratios (astc/xz): 1.02040  for file runtime/AbstractFunction1.scala
+FAILED: xz better than astc.
+showRaw: 1241, xz: 204 (.16438), astc: 208 (.16760), ratio of ratios (astc/xz): 1.01960  for file runtime/AbstractFunction21.scala
+FAILED: xz better than astc.
+showRaw: 663, xz: 200 (.30165), astc: 208 (.31372), ratio of ratios (astc/xz): 1.04000  for file runtime/AbstractFunction9.scala
+FAILED: xz better than astc.
+showRaw: 1145, xz: 204 (.17816), astc: 204 (.17816), ratio of ratios (astc/xz): 1.00000  for file runtime/AbstractFunction19.scala
+showRaw: 519, xz: 196 (.37764), astc: 204 (.39306), ratio of ratios (astc/xz): 1.04081  for file runtime/AbstractFunction6.scala
+FAILED: xz better than astc.
+showRaw: 857, xz: 200 (.23337), astc: 204 (.23803), ratio of ratios (astc/xz): 1.02000  for file runtime/AbstractFunction13.scala
+FAILED: xz better than astc.
+showRaw: 8891, xz: 1000 (.11247), astc: 892 (.10032), ratio of ratios (astc/xz): .89200  for file scala/BufferLike.scala
+showRaw: 3520, xz: 532 (.15113), astc: 492 (.13977), ratio of ratios (astc/xz): .92481  for file scala/Tuple3.scala
+showRaw: 195, xz: 176 (.90256), astc: 180 (.92307), ratio of ratios (astc/xz): 1.02272  for file scala/native.scala
+FAILED: xz better than astc.
+showRaw: 3699, xz: 348 (.09407), astc: 340 (.09191), ratio of ratios (astc/xz): .97701  for file scala/Function15.scala
+showRaw: 484, xz: 236 (.48760), astc: 176 (.36363), ratio of ratios (astc/xz): .74576  for file scala/HasNewCombiner.scala
+showRaw: 9400, xz: 584 (.06212), astc: 628 (.06680), ratio of ratios (astc/xz): 1.07534  for file scala/Tuple9.scala
+FAILED: xz better than astc.
+showRaw: 4465, xz: 452 (.10123), astc: 360 (.08062), ratio of ratios (astc/xz): .79646  for file scala/Product21.scala
+showRaw: 1192, xz: 340 (.28523), astc: 332 (.27852), ratio of ratios (astc/xz): .97647  for file scala/NonFatal.scala
+showRaw: 1038, xz: 324 (.31213), astc: 276 (.26589), ratio of ratios (astc/xz): .85185  for file scala/DefaultEntry.scala
+showRaw: 11085, xz: 1156 (.10428), astc: 984 (.08876), ratio of ratios (astc/xz): .85121  for file scala/IterableLike.scala
+showRaw: 7193, xz: 624 (.08675), astc: 480 (.06673), ratio of ratios (astc/xz): .76923  for file scala/ProcessBuilder.scala
+showRaw: 4645, xz: 452 (.09730), astc: 364 (.07836), ratio of ratios (astc/xz): .80530  for file scala/Product22.scala
+showRaw: 10451, xz: 1020 (.09759), astc: 848 (.08114), ratio of ratios (astc/xz): .83137  for file scala/GenTraversableFactory.scala
+showRaw: 743, xz: 300 (.40376), astc: 284 (.38223), ratio of ratios (astc/xz): .94666  for file scala/MatchError.scala
+showRaw: 1235, xz: 368 (.29797), astc: 284 (.22995), ratio of ratios (astc/xz): .77173  for file scala/MapBuilder.scala
+showRaw: 4390, xz: 572 (.13029), astc: 564 (.12847), ratio of ratios (astc/xz): .98601  for file scala/Responder.scala
+showRaw: 27339, xz: 1420 (.05194), astc: 1604 (.05867), ratio of ratios (astc/xz): 1.12957  for file scala/Either.scala
+FAILED: xz better than astc.
+showRaw: 3610, xz: 556 (.15401), astc: 324 (.08975), ratio of ratios (astc/xz): .58273  for file scala/ParSeq.scala
+showRaw: 67499, xz: 3088 (.04574), astc: 3348 (.04960), ratio of ratios (astc/xz): 1.08419  for file scala/RedBlackTree.scala
+FAILED: xz better than astc.
+showRaw: 12547, xz: 1356 (.10807), astc: 1228 (.09787), ratio of ratios (astc/xz): .90560  for file scala/OpenHashMap.scala
+showRaw: 2485, xz: 340 (.13682), astc: 324 (.13038), ratio of ratios (astc/xz): .95294  for file scala/Function9.scala
+showRaw: 4959, xz: 696 (.14035), astc: 636 (.12825), ratio of ratios (astc/xz): .91379  for file scala/Location.scala
+showRaw: 1378, xz: 408 (.29608), astc: 284 (.20609), ratio of ratios (astc/xz): .69607  for file scala/GenSetFactory.scala
+showRaw: 13040, xz: 1516 (.11625), astc: 1096 (.08404), ratio of ratios (astc/xz): .72295  for file scala/BasicIO.scala
+showRaw: 7315, xz: 1120 (.15311), astc: 1008 (.13779), ratio of ratios (astc/xz): .90000  for file scala/StringContext.scala
+showRaw: 1479, xz: 320 (.21636), astc: 316 (.21365), ratio of ratios (astc/xz): .98750  for file scala/Function4.scala
+showRaw: 11913, xz: 596 (.05002), astc: 616 (.05170), ratio of ratios (astc/xz): 1.03355  for file scala/Tuple11.scala
+FAILED: xz better than astc.
+showRaw: 827, xz: 316 (.38210), astc: 288 (.34824), ratio of ratios (astc/xz): .91139  for file scala/NoStackTrace.scala
+showRaw: 2352, xz: 568 (.24149), astc: 476 (.20238), ratio of ratios (astc/xz): .83802  for file scala/UninitializedFieldError.scala
+showRaw: 1222, xz: 420 (.34369), astc: 260 (.21276), ratio of ratios (astc/xz): .61904  for file scala/ImmutableSetFactory.scala
+showRaw: 17713, xz: 1848 (.10433), astc: 1568 (.08852), ratio of ratios (astc/xz): .84848  for file scala/FlatHashTable.scala
+showRaw: 3295, xz: 348 (.10561), astc: 332 (.10075), ratio of ratios (astc/xz): .95402  for file scala/Function13.scala
+showRaw: 5113, xz: 360 (.07040), astc: 336 (.06571), ratio of ratios (astc/xz): .93333  for file scala/Function22.scala
+showRaw: 421, xz: 212 (.50356), astc: 156 (.37054), ratio of ratios (astc/xz): .73584  for file scala/IndexedSeqOptimized.scala
+showRaw: 6154, xz: 552 (.08969), astc: 556 (.09034), ratio of ratios (astc/xz): 1.00724  for file scala/Tuple6.scala
+FAILED: xz better than astc.
+showRaw: 16179, xz: 608 (.03757), astc: 664 (.04104), ratio of ratios (astc/xz): 1.09210  for file scala/Tuple14.scala
+FAILED: xz better than astc.
+showRaw: 24842, xz: 2176 (.08759), astc: 1492 (.06005), ratio of ratios (astc/xz): .68566  for file scala/ParHashMap.scala
+showRaw: 2955, xz: 380 (.12859), astc: 284 (.09610), ratio of ratios (astc/xz): .74736  for file scala/ProcessIO.scala
+showRaw: 2182, xz: 508 (.23281), astc: 348 (.15948), ratio of ratios (astc/xz): .68503  for file scala/IsTraversableLike.scala
+showRaw: 1299, xz: 396 (.30484), astc: 272 (.20939), ratio of ratios (astc/xz): .68686  for file scala/GenSeq.scala
+showRaw: 959, xz: 336 (.35036), astc: 236 (.24608), ratio of ratios (astc/xz): .70238  for file scala/IterableForwarder.scala
+showRaw: 812, xz: 328 (.40394), astc: 236 (.29064), ratio of ratios (astc/xz): .71951  for file scala/SeqFactory.scala
+showRaw: 397, xz: 248 (.62468), astc: 192 (.48362), ratio of ratios (astc/xz): .77419  for file scala/JavaConversions.scala
+showRaw: 3385, xz: 428 (.12644), astc: 356 (.10516), ratio of ratios (astc/xz): .83177  for file scala/Product15.scala
+showRaw: 4437, xz: 748 (.16858), astc: 584 (.13162), ratio of ratios (astc/xz): .78074  for file scala/LinkedListLike.scala
+showRaw: 3705, xz: 564 (.15222), astc: 432 (.11659), ratio of ratios (astc/xz): .76595  for file scala/ProcessLogger.scala
+showRaw: 1931, xz: 440 (.22786), astc: 276 (.14293), ratio of ratios (astc/xz): .62727  for file scala/Set.scala
+showRaw: 238, xz: 172 (.72268), astc: 180 (.75630), ratio of ratios (astc/xz): 1.04651  for file scala/Function0.scala
+FAILED: xz better than astc.
+showRaw: 2445, xz: 544 (.22249), astc: 340 (.13905), ratio of ratios (astc/xz): .62500  for file scala/LinkedList.scala
+showRaw: 4068, xz: 636 (.15634), astc: 532 (.13077), ratio of ratios (astc/xz): .83647  for file scala/BooleanProp.scala
+showRaw: 39391, xz: 1364 (.03462), astc: 1528 (.03879), ratio of ratios (astc/xz): 1.12023  for file scala/ArrayBuilder.scala
+FAILED: xz better than astc.
+showRaw: 13693, xz: 1156 (.08442), astc: 788 (.05754), ratio of ratios (astc/xz): .68166  for file scala/ClassTag.scala
+showRaw: 556, xz: 264 (.47482), astc: 172 (.30935), ratio of ratios (astc/xz): .65151  for file scala/TraversableFactory.scala
+showRaw: 20074, xz: 1752 (.08727), astc: 1564 (.07791), ratio of ratios (astc/xz): .89269  for file scala/NumericRange.scala
+showRaw: 1513, xz: 216 (.14276), astc: 256 (.16920), ratio of ratios (astc/xz): 1.18518  for file scala/AnsiColor.scala
+FAILED: xz better than astc.
+showRaw: 4959, xz: 856 (.17261), astc: 576 (.11615), ratio of ratios (astc/xz): .67289  for file scala/Random.scala
+showRaw: 535, xz: 276 (.51588), astc: 212 (.39626), ratio of ratios (astc/xz): .76811  for file scala/GenSeqFactory.scala
+showRaw: 1979, xz: 452 (.22839), astc: 288 (.14552), ratio of ratios (astc/xz): .63716  for file scala/WeakHashMap.scala
+showRaw: 7414, xz: 948 (.12786), astc: 784 (.10574), ratio of ratios (astc/xz): .82700  for file scala/ParHashTable.scala
+showRaw: 7957, xz: 676 (.08495), astc: 532 (.06685), ratio of ratios (astc/xz): .78698  for file scala/ScalaNumberProxy.scala
+showRaw: 2000, xz: 440 (.22000), astc: 332 (.16600), ratio of ratios (astc/xz): .75454  for file scala/PriorityQueueProxy.scala
+showRaw: 18280, xz: 1740 (.09518), astc: 1604 (.08774), ratio of ratios (astc/xz): .92183  for file scala/HashTable.scala
+showRaw: 1283, xz: 404 (.31488), astc: 276 (.21512), ratio of ratios (astc/xz): .68316  for file scala/ParFactory.scala
+showRaw: 3293, xz: 560 (.17005), astc: 332 (.10081), ratio of ratios (astc/xz): .59285  for file scala/ParIterable.scala
+showRaw: 3929, xz: 656 (.16696), astc: 484 (.12318), ratio of ratios (astc/xz): .73780  for file scala/GenMapLike.scala
+showRaw: 6409, xz: 896 (.13980), astc: 596 (.09299), ratio of ratios (astc/xz): .66517  for file scala/MutableList.scala
+showRaw: 2687, xz: 504 (.18756), astc: 464 (.17268), ratio of ratios (astc/xz): .92063  for file scala/Sorted.scala
+showRaw: 14689, xz: 604 (.04111), astc: 668 (.04547), ratio of ratios (astc/xz): 1.10596  for file scala/Tuple13.scala
+FAILED: xz better than astc.
+showRaw: 6914, xz: 980 (.14174), astc: 724 (.10471), ratio of ratios (astc/xz): .73877  for file scala/Queue.scala
+showRaw: 6583, xz: 1400 (.21266), astc: 1144 (.17378), ratio of ratios (astc/xz): .81714  for file scala/PagedSeq.scala
+showRaw: 11218, xz: 1196 (.10661), astc: 884 (.07880), ratio of ratios (astc/xz): .73913  for file scala/SortedMap.scala
+showRaw: 3307, xz: 456 (.13788), astc: 484 (.14635), ratio of ratios (astc/xz): 1.06140  for file scala/ScalaNumericConversions.scala
+FAILED: xz better than astc.
+showRaw: 2090, xz: 436 (.20861), astc: 364 (.17416), ratio of ratios (astc/xz): .83486  for file scala/StackProxy.scala
+showRaw: 5655, xz: 696 (.12307), astc: 464 (.08205), ratio of ratios (astc/xz): .66666  for file scala/Map.scala
+showRaw: 195, xz: 176 (.90256), astc: 180 (.92307), ratio of ratios (astc/xz): 1.02272  for file scala/inline.scala
+FAILED: xz better than astc.
+showRaw: 3703, xz: 584 (.15770), astc: 412 (.11126), ratio of ratios (astc/xz): .70547  for file scala/ImmutableMapAdaptor.scala
+showRaw: 302, xz: 224 (.74172), astc: 196 (.64900), ratio of ratios (astc/xz): .87500  for file scala/transient.scala
+showRaw: 250, xz: 200 (.80000), astc: 168 (.67200), ratio of ratios (astc/xz): .84000  for file scala/AnyVal.scala
+showRaw: 290, xz: 172 (.59310), astc: 152 (.52413), ratio of ratios (astc/xz): .88372  for file scala/SeqProxy.scala
+showRaw: 917, xz: 248 (.27044), astc: 256 (.27917), ratio of ratios (astc/xz): 1.03225  for file scala/Function1.scala
+FAILED: xz better than astc.
+showRaw: 404, xz: 252 (.62376), astc: 192 (.47524), ratio of ratios (astc/xz): .76190  for file scala/JavaConverters.scala
+showRaw: 2769, xz: 492 (.17768), astc: 408 (.14734), ratio of ratios (astc/xz): .82926  for file scala/RichLong.scala
+showRaw: 8515, xz: 768 (.09019), astc: 388 (.04556), ratio of ratios (astc/xz): .50520  for file scala/GenTraversableOnce.scala
+showRaw: 6448, xz: 820 (.12717), astc: 724 (.11228), ratio of ratios (astc/xz): .88292  for file scala/StdIn.scala
+showRaw: 325, xz: 212 (.65230), astc: 180 (.55384), ratio of ratios (astc/xz): .84905  for file scala/BufferedIterator.scala
+showRaw: 5957, xz: 836 (.14033), astc: 644 (.10810), ratio of ratios (astc/xz): .77033  for file scala/ParRange.scala
+showRaw: 17897, xz: 1456 (.08135), astc: 1164 (.06503), ratio of ratios (astc/xz): .79945  for file scala/ProcessBuilderImpl.scala
+showRaw: 2513, xz: 536 (.21329), astc: 324 (.12892), ratio of ratios (astc/xz): .60447  for file scala/TraversableView.scala
+showRaw: 651, xz: 300 (.46082), astc: 216 (.33179), ratio of ratios (astc/xz): .72000  for file scala/SetFactory.scala
+showRaw: 109, xz: 128 (1.17431), astc: 152 (1.39449), ratio of ratios (astc/xz): 1.18750  for file scala/Parallel.scala
+FAILED: xz better than astc.
+showRaw: 1215, xz: 396 (.32592), astc: 244 (.20082), ratio of ratios (astc/xz): .61616  for file scala/GenericOrderedTraversableTemplate.scala
+showRaw: 2888, xz: 548 (.18975), astc: 396 (.13711), ratio of ratios (astc/xz): .72262  for file scala/LazyCombiner.scala
+showRaw: 4230, xz: 708 (.16737), astc: 484 (.11442), ratio of ratios (astc/xz): .68361  for file scala/ListMap.scala
+showRaw: 42195, xz: 2844 (.06740), astc: 2100 (.04976), ratio of ratios (astc/xz): .73839  for file scala/Predef.scala
+showRaw: 661, xz: 288 (.43570), astc: 212 (.32072), ratio of ratios (astc/xz): .73611  for file scala/ImmutableMapFactory.scala
+showRaw: 2470, xz: 556 (.22510), astc: 420 (.17004), ratio of ratios (astc/xz): .75539  for file scala/LinearSeqLike.scala
+showRaw: 7168, xz: 560 (.07812), astc: 600 (.08370), ratio of ratios (astc/xz): 1.07142  for file scala/Tuple7.scala
+FAILED: xz better than astc.
+showRaw: 2310, xz: 496 (.21471), astc: 332 (.14372), ratio of ratios (astc/xz): .66935  for file scala/GenMapFactory.scala
+showRaw: 1339, xz: 408 (.30470), astc: 316 (.23599), ratio of ratios (astc/xz): .77450  for file scala/ArrayLike.scala
+showRaw: 1764, xz: 392 (.22222), astc: 344 (.19501), ratio of ratios (astc/xz): .87755  for file scala/Product6.scala
+showRaw: 24058, xz: 1640 (.06816), astc: 1560 (.06484), ratio of ratios (astc/xz): .95121  for file scala/SeqViewLike.scala
+showRaw: 11444, xz: 568 (.04963), astc: 356 (.03110), ratio of ratios (astc/xz): .62676  for file scala/Char.scala
+showRaw: 9818, xz: 1056 (.10755), astc: 868 (.08840), ratio of ratios (astc/xz): .82196  for file scala/LinkedHashMap.scala
+showRaw: 1268, xz: 388 (.30599), astc: 272 (.21451), ratio of ratios (astc/xz): .70103  for file scala/GenSet.scala
+showRaw: 864, xz: 304 (.35185), astc: 192 (.22222), ratio of ratios (astc/xz): .63157  for file scala/CanCombineFrom.scala
+showRaw: 10687, xz: 1060 (.09918), astc: 1060 (.09918), ratio of ratios (astc/xz): 1.00000  for file scala/LinearSeqOptimized.scala
+showRaw: 20114, xz: 1744 (.08670), astc: 1428 (.07099), ratio of ratios (astc/xz): .81880  for file scala/Exception.scala
+showRaw: 796, xz: 328 (.41206), astc: 244 (.30653), ratio of ratios (astc/xz): .74390  for file scala/specialized.scala
+showRaw: 1313, xz: 408 (.31073), astc: 268 (.20411), ratio of ratios (astc/xz): .65686  for file scala/OrderedTraversableFactory.scala
+showRaw: 42769, xz: 3080 (.07201), astc: 2672 (.06247), ratio of ratios (astc/xz): .86753  for file scala/Iterator.scala
+showRaw: 40333, xz: 2004 (.04968), astc: 1760 (.04363), ratio of ratios (astc/xz): .87824  for file scala/Ordering.scala
+showRaw: 17411, xz: 1308 (.07512), astc: 1204 (.06915), ratio of ratios (astc/xz): .92048  for file scala/Try.scala
+showRaw: 2804, xz: 532 (.18972), astc: 344 (.12268), ratio of ratios (astc/xz): .64661  for file scala/SortedMapFactory.scala
+showRaw: 1048, xz: 376 (.35877), astc: 324 (.30916), ratio of ratios (astc/xz): .86170  for file scala/Product2.scala
+showRaw: 8575, xz: 1048 (.12221), astc: 636 (.07416), ratio of ratios (astc/xz): .60687  for file scala/ParVector.scala
+showRaw: 66, xz: 112 (1.69696), astc: 144 (2.18181), ratio of ratios (astc/xz): 1.28571  for file scala/NotNull.scala
+FAILED: xz better than astc.
+showRaw: 7236, xz: 992 (.13709), astc: 768 (.10613), ratio of ratios (astc/xz): .77419  for file scala/ResizableParArrayCombiner.scala
+showRaw: 6082, xz: 956 (.15718), astc: 592 (.09733), ratio of ratios (astc/xz): .61924  for file scala/Stack.scala
+showRaw: 691, xz: 268 (.38784), astc: 184 (.26628), ratio of ratios (astc/xz): .68656  for file scala/CanBuildFrom.scala
+showRaw: 197, xz: 176 (.89340), astc: 180 (.91370), ratio of ratios (astc/xz): 1.02272  for file scala/noinline.scala
+FAILED: xz better than astc.
+showRaw: 12164, xz: 940 (.07727), astc: 1040 (.08549), ratio of ratios (astc/xz): 1.10638  for file scala/Message.scala
+FAILED: xz better than astc.
+showRaw: 2689, xz: 344 (.12792), astc: 328 (.12197), ratio of ratios (astc/xz): .95348  for file scala/Function10.scala
+showRaw: 8262, xz: 1136 (.13749), astc: 836 (.10118), ratio of ratios (astc/xz): .73591  for file scala/UnrolledParArrayCombiner.scala
+showRaw: 29919, xz: 1908 (.06377), astc: 1444 (.04826), ratio of ratios (astc/xz): .75681  for file scala/ArrayOps.scala
+showRaw: 1041, xz: 352 (.33813), astc: 244 (.23439), ratio of ratios (astc/xz): .69318  for file scala/MutableSetFactory.scala
+showRaw: 586, xz: 288 (.49146), astc: 240 (.40955), ratio of ratios (astc/xz): .83333  for file scala/AbstractPartialFunction.scala
+showRaw: 72, xz: 116 (1.61111), astc: 148 (2.05555), ratio of ratios (astc/xz): 1.27586  for file scala/Immutable.scala
+FAILED: xz better than astc.
+showRaw: 23725, xz: 1928 (.08126), astc: 1764 (.07435), ratio of ratios (astc/xz): .91493  for file scala/Range.scala
+showRaw: 1363, xz: 384 (.28173), astc: 272 (.19955), ratio of ratios (astc/xz): .70833  for file scala/GenTraversable.scala
+showRaw: 12512, xz: 1084 (.08663), astc: 944 (.07544), ratio of ratios (astc/xz): .87084  for file scala/Tuple3Zipped.scala
+showRaw: 70, xz: 112 (1.60000), astc: 148 (2.11428), ratio of ratios (astc/xz): 1.32142  for file scala/Mutable.scala
+FAILED: xz better than astc.
+showRaw: 845, xz: 308 (.36449), astc: 272 (.32189), ratio of ratios (astc/xz): .88311  for file scala/Shrinkable.scala
+showRaw: 12460, xz: 1116 (.08956), astc: 1040 (.08346), ratio of ratios (astc/xz): .93189  for file scala/PartialFunction.scala
+showRaw: 1967, xz: 512 (.26029), astc: 300 (.15251), ratio of ratios (astc/xz): .58593  for file scala/Platform.scala
+showRaw: 257, xz: 160 (.62256), astc: 164 (.63813), ratio of ratios (astc/xz): 1.02500  for file scala/Equals.scala
+FAILED: xz better than astc.
+showRaw: 2893, xz: 540 (.18665), astc: 464 (.16038), ratio of ratios (astc/xz): .85925  for file scala/Publisher.scala
+showRaw: 1878, xz: 468 (.24920), astc: 320 (.17039), ratio of ratios (astc/xz): .68376  for file scala/Combiner.scala
+showRaw: 1313, xz: 424 (.32292), astc: 344 (.26199), ratio of ratios (astc/xz): .81132  for file scala/DynamicVariable.scala
+showRaw: 22872, xz: 1620 (.07082), astc: 1396 (.06103), ratio of ratios (astc/xz): .86172  for file scala/TraversableViewLike.scala
+showRaw: 1860, xz: 332 (.17849), astc: 340 (.18279), ratio of ratios (astc/xz): 1.02409  for file scala/PartialOrdering.scala
+FAILED: xz better than astc.
+showRaw: 199, xz: 168 (.84422), astc: 160 (.80402), ratio of ratios (astc/xz): .95238  for file scala/Sizing.scala
+showRaw: 14756, xz: 1088 (.07373), astc: 1204 (.08159), ratio of ratios (astc/xz): 1.10661  for file scala/TailCalls.scala
+FAILED: xz better than astc.
+showRaw: 341, xz: 200 (.58651), astc: 176 (.51612), ratio of ratios (astc/xz): .88000  for file scala/Subscriber.scala
+showRaw: 1111, xz: 356 (.32043), astc: 292 (.26282), ratio of ratios (astc/xz): .82022  for file scala/LazyBuilder.scala
+showRaw: 628, xz: 280 (.44585), astc: 248 (.39490), ratio of ratios (astc/xz): .88571  for file scala/RichException.scala
+showRaw: 11365, xz: 568 (.04997), astc: 352 (.03097), ratio of ratios (astc/xz): .61971  for file scala/Int.scala
+showRaw: 301, xz: 220 (.73089), astc: 196 (.65116), ratio of ratios (astc/xz): .89090  for file scala/volatile.scala
+showRaw: 9574, xz: 784 (.08188), astc: 520 (.05431), ratio of ratios (astc/xz): .66326  for file scala/TraversableForwarder.scala
+showRaw: 2101, xz: 500 (.23798), astc: 348 (.16563), ratio of ratios (astc/xz): .69600  for file scala/IsSeqLike.scala
+showRaw: 8860, xz: 936 (.10564), astc: 704 (.07945), ratio of ratios (astc/xz): .75213  for file scala/Process.scala
+showRaw: 2136, xz: 504 (.23595), astc: 376 (.17602), ratio of ratios (astc/xz): .74603  for file scala/History.scala
+showRaw: 1826, xz: 452 (.24753), astc: 404 (.22124), ratio of ratios (astc/xz): .89380  for file scala/Breaks.scala
+showRaw: 8690, xz: 1060 (.12197), astc: 740 (.08515), ratio of ratios (astc/xz): .69811  for file scala/HashMap.scala
+showRaw: 17592, xz: 1452 (.08253), astc: 1356 (.07708), ratio of ratios (astc/xz): .93388  for file scala/AVLTree.scala
+showRaw: 2207, xz: 380 (.17217), astc: 292 (.13230), ratio of ratios (astc/xz): .76842  for file scala/languageFeature.scala
+showRaw: 2562, xz: 456 (.17798), astc: 408 (.15925), ratio of ratios (astc/xz): .89473  for file scala/Prop.scala
+showRaw: 2665, xz: 416 (.15609), astc: 352 (.13208), ratio of ratios (astc/xz): .84615  for file scala/Product11.scala
+showRaw: 1354, xz: 316 (.23338), astc: 196 (.14475), ratio of ratios (astc/xz): .62025  for file scala/FilterMonadic.scala
+showRaw: 1881, xz: 368 (.19564), astc: 232 (.12333), ratio of ratios (astc/xz): .63043  for file scala/GenIterableLike.scala
+showRaw: 628, xz: 292 (.46496), astc: 224 (.35668), ratio of ratios (astc/xz): .76712  for file scala/CustomParallelizable.scala
+showRaw: 1960, xz: 448 (.22857), astc: 392 (.20000), ratio of ratios (astc/xz): .87500  for file scala/Integral.scala
+showRaw: 28513, xz: 644 (.02258), astc: 672 (.02356), ratio of ratios (astc/xz): 1.04347  for file scala/Tuple21.scala
+FAILED: xz better than astc.
+showRaw: 2722, xz: 520 (.19103), astc: 284 (.10433), ratio of ratios (astc/xz): .54615  for file scala/ParMapLike.scala
+showRaw: 1888, xz: 444 (.23516), astc: 276 (.14618), ratio of ratios (astc/xz): .62162  for file scala/SortedSet.scala
+showRaw: 1817, xz: 444 (.24435), astc: 276 (.15189), ratio of ratios (astc/xz): .62162  for file scala/LinearSeq.scala
+showRaw: 1861, xz: 436 (.23428), astc: 368 (.19774), ratio of ratios (astc/xz): .84403  for file scala/ObservableSet.scala
+showRaw: 1922, xz: 452 (.23517), astc: 284 (.14776), ratio of ratios (astc/xz): .62831  for file scala/Buffer.scala
+showRaw: 1794, xz: 444 (.24749), astc: 336 (.18729), ratio of ratios (astc/xz): .75675  for file scala/SynchronizedStack.scala
+showRaw: 1173, xz: 296 (.25234), astc: 296 (.25234), ratio of ratios (astc/xz): 1.00000  for file scala/SetProxy.scala
+showRaw: 1778, xz: 428 (.24071), astc: 344 (.19347), ratio of ratios (astc/xz): .80373  for file scala/DefaultMapModel.scala
+showRaw: 7423, xz: 928 (.12501), astc: 696 (.09376), ratio of ratios (astc/xz): .75000  for file scala/MapLike.scala
+showRaw: 2154, xz: 504 (.23398), astc: 372 (.17270), ratio of ratios (astc/xz): .73809  for file scala/SortedSetLike.scala
+showRaw: 7345, xz: 740 (.10074), astc: 548 (.07460), ratio of ratios (astc/xz): .74054  for file scala/GenSeqLike.scala
+showRaw: 21325, xz: 1860 (.08722), astc: 1476 (.06921), ratio of ratios (astc/xz): .79354  for file scala/Regex.scala
+showRaw: 1357, xz: 424 (.31245), astc: 336 (.24760), ratio of ratios (astc/xz): .79245  for file scala/ShutdownHookThread.scala
+showRaw: 2301, xz: 404 (.17557), astc: 344 (.14950), ratio of ratios (astc/xz): .85148  for file scala/Product9.scala
+showRaw: 731, xz: 320 (.43775), astc: 224 (.30642), ratio of ratios (astc/xz): .70000  for file scala/IndexedSeqFactory.scala
+showRaw: 46677, xz: 2568 (.05501), astc: 2832 (.06067), ratio of ratios (astc/xz): 1.10280  for file scala/ParSeqLike.scala
+FAILED: xz better than astc.
+showRaw: 2786, xz: 504 (.18090), astc: 380 (.13639), ratio of ratios (astc/xz): .75396  for file scala/Decorators.scala
+showRaw: 11946, xz: 1196 (.10011), astc: 1092 (.09141), ratio of ratios (astc/xz): .91304  for file scala/MurmurHash3.scala
+showRaw: 8250, xz: 568 (.06884), astc: 604 (.07321), ratio of ratios (astc/xz): 1.06338  for file scala/Tuple8.scala
+FAILED: xz better than astc.
+showRaw: 10346, xz: 1044 (.10090), astc: 876 (.08467), ratio of ratios (astc/xz): .83908  for file scala/Tuple2Zipped.scala
+showRaw: 644, xz: 296 (.45962), astc: 212 (.32919), ratio of ratios (astc/xz): .71621  for file scala/ImmutableSortedMapFactory.scala
+showRaw: 3683, xz: 704 (.19114), astc: 536 (.14553), ratio of ratios (astc/xz): .76136  for file scala/Symbol.scala
+showRaw: 13267, xz: 600 (.04522), astc: 632 (.04763), ratio of ratios (astc/xz): 1.05333  for file scala/Tuple12.scala
+FAILED: xz better than astc.
+showRaw: 1943, xz: 396 (.20380), astc: 356 (.18322), ratio of ratios (astc/xz): .89898  for file scala/Product7.scala
+showRaw: 4709, xz: 356 (.07559), astc: 336 (.07135), ratio of ratios (astc/xz): .94382  for file scala/Function20.scala
+showRaw: 689, xz: 308 (.44702), astc: 240 (.34833), ratio of ratios (astc/xz): .77922  for file scala/Unit.scala
+showRaw: 1734, xz: 376 (.21683), astc: 336 (.19377), ratio of ratios (astc/xz): .89361  for file scala/IndexedSeqLike.scala
+showRaw: 205, xz: 172 (.83902), astc: 160 (.78048), ratio of ratios (astc/xz): .93023  for file scala/Undoable.scala
+showRaw: 4885, xz: 540 (.11054), astc: 436 (.08925), ratio of ratios (astc/xz): .80740  for file scala/RichChar.scala
+showRaw: 2048, xz: 312 (.15234), astc: 256 (.12500), ratio of ratios (astc/xz): .82051  for file scala/SetProxyLike.scala
+showRaw: 3205, xz: 424 (.13229), astc: 352 (.10982), ratio of ratios (astc/xz): .83018  for file scala/Product14.scala
+showRaw: 3497, xz: 348 (.09951), astc: 336 (.09608), ratio of ratios (astc/xz): .96551  for file scala/Function14.scala
+showRaw: 3879, xz: 600 (.15467), astc: 492 (.12683), ratio of ratios (astc/xz): .82000  for file scala/RichFloat.scala
+showRaw: 4988, xz: 864 (.17321), astc: 568 (.11387), ratio of ratios (astc/xz): .65740  for file scala/ArraySeq.scala
+showRaw: 181, xz: 168 (.92817), astc: 192 (1.06077), ratio of ratios (astc/xz): 1.14285  for file scala/unchecked.scala
+FAILED: xz better than astc.
+showRaw: 7724, xz: 968 (.12532), astc: 720 (.09321), ratio of ratios (astc/xz): .74380  for file scala/Codec.scala
+showRaw: 1406, xz: 384 (.27311), astc: 348 (.24751), ratio of ratios (astc/xz): .90625  for file scala/Product4.scala
+showRaw: 5045, xz: 824 (.16333), astc: 556 (.11020), ratio of ratios (astc/xz): .67475  for file scala/SystemProperties.scala
+showRaw: 3043, xz: 604 (.19848), astc: 392 (.12882), ratio of ratios (astc/xz): .64900  for file scala/WrappedString.scala
+showRaw: 14989, xz: 1112 (.07418), astc: 1080 (.07205), ratio of ratios (astc/xz): .97122  for file scala/BigInt.scala
+showRaw: 8364, xz: 676 (.08082), astc: 564 (.06743), ratio of ratios (astc/xz): .83431  for file scala/WrapAsJava.scala
+showRaw: 746, xz: 288 (.38605), astc: 220 (.29490), ratio of ratios (astc/xz): .76388  for file scala/deprecatedOverriding.scala
+showRaw: 3790, xz: 560 (.14775), astc: 340 (.08970), ratio of ratios (astc/xz): .60714  for file scala/GenericParTemplate.scala
+showRaw: 1063, xz: 316 (.29727), astc: 296 (.27845), ratio of ratios (astc/xz): .93670  for file scala/Function2.scala
+showRaw: 765, xz: 284 (.37124), astc: 240 (.31372), ratio of ratios (astc/xz): .84507  for file scala/throws.scala
+showRaw: 2934, xz: 532 (.18132), astc: 452 (.15405), ratio of ratios (astc/xz): .84962  for file scala/Tuple2.scala
+showRaw: 1034, xz: 336 (.32495), astc: 268 (.25918), ratio of ratios (astc/xz): .79761  for file scala/SetBuilder.scala
+showRaw: 4330, xz: 536 (.12378), astc: 520 (.12009), ratio of ratios (astc/xz): .97014  for file scala/Tuple4.scala
+showRaw: 21797, xz: 1940 (.08900), astc: 1580 (.07248), ratio of ratios (astc/xz): .81443  for file scala/ParHashSet.scala
+showRaw: 1886, xz: 452 (.23966), astc: 288 (.15270), ratio of ratios (astc/xz): .63716  for file scala/SeqView.scala
+showRaw: 4285, xz: 444 (.10361), astc: 364 (.08494), ratio of ratios (astc/xz): .81981  for file scala/Product20.scala
+showRaw: 30547, xz: 648 (.02121), astc: 688 (.02252), ratio of ratios (astc/xz): 1.06172  for file scala/Tuple22.scala
+FAILED: xz better than astc.
+showRaw: 26330, xz: 2336 (.08872), astc: 1856 (.07048), ratio of ratios (astc/xz): .79452  for file scala/Tasks.scala
+showRaw: 22915, xz: 1956 (.08535), astc: 1480 (.06458), ratio of ratios (astc/xz): .75664  for file scala/TraversableOnce.scala
+showRaw: 183, xz: 168 (.91803), astc: 184 (1.00546), ratio of ratios (astc/xz): 1.09523  for file scala/Nothing$.scala
+FAILED: xz better than astc.
+showRaw: 1802, xz: 440 (.24417), astc: 272 (.15094), ratio of ratios (astc/xz): .61818  for file scala/Traversable.scala
+showRaw: 1514, xz: 356 (.23513), astc: 308 (.20343), ratio of ratios (astc/xz): .86516  for file scala/SeqExtractors.scala
+showRaw: 1997, xz: 404 (.20230), astc: 364 (.18227), ratio of ratios (astc/xz): .90099  for file scala/SliceInterval.scala
+showRaw: 2993, xz: 532 (.17774), astc: 308 (.10290), ratio of ratios (astc/xz): .57894  for file scala/ParSet.scala
+showRaw: 206, xz: 176 (.85436), astc: 160 (.77669), ratio of ratios (astc/xz): .90909  for file scala/Clearable.scala
+showRaw: 4911, xz: 360 (.07330), astc: 336 (.06841), ratio of ratios (astc/xz): .93333  for file scala/Function21.scala
+showRaw: 14155, xz: 1436 (.10144), astc: 920 (.06499), ratio of ratios (astc/xz): .64066  for file scala/ParTrieMap.scala
+showRaw: 56148, xz: 5440 (.09688), astc: 4896 (.08719), ratio of ratios (astc/xz): .90000  for file scala/TrieMap.scala
+showRaw: 1994, xz: 412 (.20661), astc: 300 (.15045), ratio of ratios (astc/xz): .72815  for file scala/SynchronizedQueue.scala
+showRaw: 33934, xz: 3408 (.10043), astc: 2964 (.08734), ratio of ratios (astc/xz): .86971  for file scala/RemainsIterator.scala
+showRaw: 20398, xz: 1568 (.07687), astc: 1124 (.05510), ratio of ratios (astc/xz): .71683  for file scala/ClassManifestDeprecatedApis.scala
+showRaw: 19363, xz: 620 (.03201), astc: 652 (.03367), ratio of ratios (astc/xz): 1.05161  for file scala/Tuple16.scala
+FAILED: xz better than astc.
+showRaw: 2891, xz: 344 (.11898), astc: 340 (.11760), ratio of ratios (astc/xz): .98837  for file scala/Function11.scala
+showRaw: 1926, xz: 452 (.23468), astc: 288 (.14953), ratio of ratios (astc/xz): .63716  for file scala/IterableView.scala
+showRaw: 738, xz: 288 (.39024), astc: 196 (.26558), ratio of ratios (astc/xz): .68055  for file scala/PreciseSplitter.scala
+showRaw: 322, xz: 180 (.55900), astc: 152 (.47204), ratio of ratios (astc/xz): .84444  for file scala/TraversableProxy.scala
+showRaw: 2055, xz: 444 (.21605), astc: 376 (.18296), ratio of ratios (astc/xz): .84684  for file scala/RichShort.scala
+showRaw: 2047, xz: 468 (.22862), astc: 292 (.14264), ratio of ratios (astc/xz): .62393  for file scala/Seq.scala
+showRaw: 1707, xz: 492 (.28822), astc: 340 (.19917), ratio of ratios (astc/xz): .69105  for file scala/App.scala
+showRaw: 11341, xz: 568 (.05008), astc: 344 (.03033), ratio of ratios (astc/xz): .60563  for file scala/Long.scala
+showRaw: 50889, xz: 3100 (.06091), astc: 2864 (.05627), ratio of ratios (astc/xz): .92387  for file scala/ParArray.scala
+showRaw: 1652, xz: 388 (.23486), astc: 344 (.20823), ratio of ratios (astc/xz): .88659  for file scala/Ordered.scala
+showRaw: 413, xz: 232 (.56174), astc: 172 (.41646), ratio of ratios (astc/xz): .74137  for file scala/HasNewBuilder.scala
+showRaw: 7085, xz: 860 (.12138), astc: 872 (.12307), ratio of ratios (astc/xz): 1.01395  for file scala/NameTransformer.scala
+FAILED: xz better than astc.
+showRaw: 5547, xz: 888 (.16008), astc: 628 (.11321), ratio of ratios (astc/xz): .70720  for file scala/ResizableArray.scala
+showRaw: 805, xz: 324 (.40248), astc: 240 (.29813), ratio of ratios (astc/xz): .74074  for file scala/MapFactory.scala
+showRaw: 753, xz: 324 (.43027), astc: 268 (.35590), ratio of ratios (astc/xz): .82716  for file scala/package.scala
+showRaw: 6087, xz: 660 (.10842), astc: 564 (.09265), ratio of ratios (astc/xz): .85454  for file scala/WrapAsScala.scala
+showRaw: 1418, xz: 420 (.29619), astc: 268 (.18899), ratio of ratios (astc/xz): .63809  for file scala/ClassTagTraversableFactory.scala
+showRaw: 2004, xz: 452 (.22554), astc: 304 (.15169), ratio of ratios (astc/xz): .67256  for file scala/ParSetFactory.scala
+showRaw: 123, xz: 144 (1.17073), astc: 144 (1.17073), ratio of ratios (astc/xz): 1.00000  for file scala/Serializable.scala
+showRaw: 154, xz: 156 (1.01298), astc: 152 (.98701), ratio of ratios (astc/xz): .97435  for file scala/OptManifest.scala
+showRaw: 586, xz: 292 (.49829), astc: 212 (.36177), ratio of ratios (astc/xz): .72602  for file scala/ImmutableSortedSetFactory.scala
+showRaw: 1507, xz: 424 (.28135), astc: 292 (.19376), ratio of ratios (astc/xz): .68867  for file scala/SeqLike.scala
+showRaw: 1840, xz: 448 (.24347), astc: 276 (.15000), ratio of ratios (astc/xz): .61607  for file scala/IndexedSeq.scala
+showRaw: 4171, xz: 584 (.14001), astc: 452 (.10836), ratio of ratios (astc/xz): .77397  for file scala/RichInt.scala
+showRaw: 8630, xz: 912 (.10567), astc: 636 (.07369), ratio of ratios (astc/xz): .69736  for file scala/Console.scala
+showRaw: 5028, xz: 648 (.12887), astc: 560 (.11137), ratio of ratios (astc/xz): .86419  for file scala/Signalling.scala
+showRaw: 655, xz: 288 (.43969), astc: 228 (.34809), ratio of ratios (astc/xz): .79166  for file scala/NonLocalReturnControl.scala
+showRaw: 2485, xz: 412 (.16579), astc: 352 (.14164), ratio of ratios (astc/xz): .85436  for file scala/Product10.scala
+showRaw: 7786, xz: 1068 (.13716), astc: 708 (.09093), ratio of ratios (astc/xz): .66292  for file scala/ListSet.scala
+showRaw: 3532, xz: 532 (.15062), astc: 456 (.12910), ratio of ratios (astc/xz): .85714  for file scala/Equiv.scala
+showRaw: 352, xz: 232 (.65909), astc: 204 (.57954), ratio of ratios (astc/xz): .87931  for file scala/NoManifest.scala
+showRaw: 1231, xz: 396 (.32168), astc: 300 (.24370), ratio of ratios (astc/xz): .75757  for file scala/GenericCompanion.scala
+showRaw: 27791, xz: 2092 (.07527), astc: 1904 (.06851), ratio of ratios (astc/xz): .91013  for file scala/BigDecimal.scala
+showRaw: 3267, xz: 628 (.19222), astc: 428 (.13100), ratio of ratios (astc/xz): .68152  for file scala/PropImpl.scala
+showRaw: 70182, xz: 2940 (.04189), astc: 3584 (.05106), ratio of ratios (astc/xz): 1.21904  for file scala/Wrappers.scala
+FAILED: xz better than astc.
+showRaw: 3753, xz: 580 (.15454), astc: 492 (.13109), ratio of ratios (astc/xz): .84827  for file scala/RichDouble.scala
+showRaw: 10420, xz: 796 (.07639), astc: 560 (.05374), ratio of ratios (astc/xz): .70351  for file scala/StreamViewLike.scala
+showRaw: 4601, xz: 684 (.14866), astc: 604 (.13127), ratio of ratios (astc/xz): .88304  for file scala/ObservableBuffer.scala
+showRaw: 9267, xz: 1236 (.13337), astc: 848 (.09150), ratio of ratios (astc/xz): .68608  for file scala/ArrayStack.scala
+showRaw: 190, xz: 172 (.90526), astc: 168 (.88421), ratio of ratios (astc/xz): .97674  for file scala/ControlThrowable.scala
+showRaw: 17290, xz: 1604 (.09277), astc: 1444 (.08351), ratio of ratios (astc/xz): .90024  for file scala/ListBuffer.scala
+showRaw: 9381, xz: 556 (.05926), astc: 348 (.03709), ratio of ratios (astc/xz): .62589  for file scala/Double.scala
+showRaw: 3925, xz: 440 (.11210), astc: 364 (.09273), ratio of ratios (astc/xz): .82727  for file scala/Product18.scala
+showRaw: 9470, xz: 628 (.06631), astc: 648 (.06842), ratio of ratios (astc/xz): 1.03184  for file scala/Function.scala
+FAILED: xz better than astc.
+showRaw: 1413, xz: 384 (.27176), astc: 340 (.24062), ratio of ratios (astc/xz): .88541  for file scala/Hashing.scala
+showRaw: 9651, xz: 1084 (.11231), astc: 932 (.09657), ratio of ratios (astc/xz): .85977  for file scala/Searching.scala
+showRaw: 290, xz: 216 (.74482), astc: 192 (.66206), ratio of ratios (astc/xz): .88888  for file scala/SerialVersionUID.scala
+showRaw: 11455, xz: 568 (.04958), astc: 356 (.03107), ratio of ratios (astc/xz): .62676  for file scala/Short.scala
+showRaw: 1386, xz: 408 (.29437), astc: 256 (.18470), ratio of ratios (astc/xz): .62745  for file scala/MutableSortedSetFactory.scala
+showRaw: 28978, xz: 1800 (.06211), astc: 1284 (.04430), ratio of ratios (astc/xz): .71333  for file scala/Manifest.scala
+showRaw: 167, xz: 172 (1.02994), astc: 184 (1.10179), ratio of ratios (astc/xz): 1.06976  for file scala/UninitializedError.scala
+FAILED: xz better than astc.
+showRaw: 2306, xz: 424 (.18386), astc: 444 (.19254), ratio of ratios (astc/xz): 1.04716  for file scala/MultiMap.scala
+FAILED: xz better than astc.
+showRaw: 3108, xz: 476 (.15315), astc: 308 (.09909), ratio of ratios (astc/xz): .64705  for file scala/TaskSupport.scala
+showRaw: 5649, xz: 548 (.09700), astc: 316 (.05593), ratio of ratios (astc/xz): .57664  for file scala/GenTraversableLike.scala
+showRaw: 1212, xz: 332 (.27392), astc: 296 (.24422), ratio of ratios (astc/xz): .89156  for file scala/DefaultMap.scala
+showRaw: 10783, xz: 1172 (.10868), astc: 928 (.08606), ratio of ratios (astc/xz): .79180  for file scala/Option.scala
+showRaw: 26708, xz: 1236 (.04627), astc: 1708 (.06395), ratio of ratios (astc/xz): 1.38187  for file scala/Sorting.scala
+FAILED: xz better than astc.
+showRaw: 1439, xz: 340 (.23627), astc: 312 (.21681), ratio of ratios (astc/xz): .91764  for file scala/ByteswapHashing.scala
+showRaw: 25185, xz: 2296 (.09116), astc: 1724 (.06845), ratio of ratios (astc/xz): .75087  for file scala/List.scala
+showRaw: 14454, xz: 984 (.06807), astc: 684 (.04732), ratio of ratios (astc/xz): .69512  for file scala/TraversableProxyLike.scala
+showRaw: 1219, xz: 360 (.29532), astc: 308 (.25266), ratio of ratios (astc/xz): .85555  for file scala/Splitter.scala
+showRaw: 745, xz: 316 (.42416), astc: 256 (.34362), ratio of ratios (astc/xz): .81012  for file scala/Parallelizable.scala
+showRaw: 71455, xz: 3552 (.04970), astc: 4276 (.05984), ratio of ratios (astc/xz): 1.20382  for file scala/Vector.scala
+FAILED: xz better than astc.
+showRaw: 1011, xz: 364 (.36003), astc: 268 (.26508), ratio of ratios (astc/xz): .73626  for file scala/GrowingBuilder.scala
+showRaw: 2966, xz: 532 (.17936), astc: 448 (.15104), ratio of ratios (astc/xz): .84210  for file scala/SeqCharSequence.scala
+showRaw: 11536, xz: 568 (.04923), astc: 360 (.03120), ratio of ratios (astc/xz): .63380  for file scala/Byte.scala
+showRaw: 6963, xz: 824 (.11833), astc: 632 (.09076), ratio of ratios (astc/xz): .76699  for file scala/WrappedArrayBuilder.scala
+showRaw: 164, xz: 156 (.95121), astc: 188 (1.14634), ratio of ratios (astc/xz): 1.20512  for file scala/Null$.scala
+FAILED: xz better than astc.
+showRaw: 14312, xz: 1620 (.11319), astc: 1196 (.08356), ratio of ratios (astc/xz): .73827  for file scala/Enumeration.scala
+showRaw: 2081, xz: 336 (.16146), astc: 320 (.15377), ratio of ratios (astc/xz): .95238  for file scala/Function7.scala
+showRaw: 153184, xz: 6324 (.04128), astc: 6912 (.04512), ratio of ratios (astc/xz): 1.09297  for file scala/ParIterableLike.scala
+FAILED: xz better than astc.
+showRaw: 2052, xz: 484 (.23586), astc: 412 (.20077), ratio of ratios (astc/xz): .85123  for file scala/Tuple1.scala
+showRaw: 5511, xz: 660 (.11976), astc: 476 (.08637), ratio of ratios (astc/xz): .72121  for file scala/MethodCache.scala
+showRaw: 396, xz: 224 (.56565), astc: 172 (.43434), ratio of ratios (astc/xz): .76785  for file scala/GenericSeqCompanion.scala
+showRaw: 5977, xz: 564 (.09436), astc: 356 (.05956), ratio of ratios (astc/xz): .63120  for file scala/DecorateAsJava.scala
+showRaw: 1074, xz: 352 (.32774), astc: 288 (.26815), ratio of ratios (astc/xz): .81818  for file scala/Product.scala
+showRaw: 16860, xz: 1192 (.07069), astc: 956 (.05670), ratio of ratios (astc/xz): .80201  for file scala/TreeMap.scala
+showRaw: 988, xz: 352 (.35627), astc: 308 (.31174), ratio of ratios (astc/xz): .87500  for file scala/StringAdd.scala
+showRaw: 1867, xz: 432 (.23138), astc: 300 (.16068), ratio of ratios (astc/xz): .69444  for file scala/SynchronizedPriorityQueue.scala
+showRaw: 3565, xz: 432 (.12117), astc: 360 (.10098), ratio of ratios (astc/xz): .83333  for file scala/Product16.scala
+showRaw: 2253, xz: 432 (.19174), astc: 276 (.12250), ratio of ratios (astc/xz): .63888  for file scala/ParSetLike.scala
+showRaw: 1062, xz: 336 (.31638), astc: 284 (.26741), ratio of ratios (astc/xz): .84523  for file scala/Subtractable.scala
+showRaw: 8141, xz: 844 (.10367), astc: 500 (.06141), ratio of ratios (astc/xz): .59241  for file scala/ParMap.scala
+showRaw: 4562, xz: 568 (.12450), astc: 340 (.07452), ratio of ratios (astc/xz): .59859  for file scala/MapProxyLike.scala
+showRaw: 5208, xz: 548 (.10522), astc: 552 (.10599), ratio of ratios (astc/xz): 1.00729  for file scala/Tuple5.scala
+FAILED: xz better than astc.
+showRaw: 5322, xz: 796 (.14956), astc: 572 (.10747), ratio of ratios (astc/xz): .71859  for file scala/SetLike.scala
+showRaw: 7537, xz: 912 (.12100), astc: 712 (.09446), ratio of ratios (astc/xz): .78070  for file scala/BitSet.scala
+showRaw: 3623, xz: 608 (.16781), astc: 576 (.15898), ratio of ratios (astc/xz): .94736  for file scala/ObservableMap.scala
+showRaw: 2293, xz: 512 (.22328), astc: 420 (.18316), ratio of ratios (astc/xz): .82031  for file scala/StringOps.scala
+showRaw: 353, xz: 216 (.61189), astc: 212 (.60056), ratio of ratios (astc/xz): .98148  for file scala/NotImplementedError.scala
+showRaw: 869, xz: 368 (.42347), astc: 316 (.36363), ratio of ratios (astc/xz): .85869  for file scala/Product1.scala
+showRaw: 6860, xz: 948 (.13819), astc: 708 (.10320), ratio of ratios (astc/xz): .74683  for file scala/LinkedHashSet.scala
+showRaw: 1677, xz: 332 (.19797), astc: 320 (.19081), ratio of ratios (astc/xz): .96385  for file scala/Function5.scala
+showRaw: 26935, xz: 2148 (.07974), astc: 2112 (.07841), ratio of ratios (astc/xz): .98324  for file scala/AnyRefMap.scala
+showRaw: 10055, xz: 1196 (.11894), astc: 1100 (.10939), ratio of ratios (astc/xz): .91973  for file scala/BitSetLike.scala
+showRaw: 41363, xz: 2996 (.07243), astc: 2336 (.05647), ratio of ratios (astc/xz): .77970  for file scala/Stream.scala
+showRaw: 3141, xz: 484 (.15409), astc: 416 (.13244), ratio of ratios (astc/xz): .85950  for file scala/MapProxy.scala
+showRaw: 11128, xz: 1000 (.08986), astc: 768 (.06901), ratio of ratios (astc/xz): .76800  for file scala/IndexedSeqView.scala
+showRaw: 1538, xz: 324 (.21066), astc: 296 (.19245), ratio of ratios (astc/xz): .91358  for file scala/Boolean.scala
+showRaw: 3751, xz: 524 (.13969), astc: 388 (.10343), ratio of ratios (astc/xz): .74045  for file scala/BufferProxy.scala
+showRaw: 580, xz: 268 (.46206), astc: 208 (.35862), ratio of ratios (astc/xz): .77611  for file scala/GenericSetTemplate.scala
+showRaw: 462, xz: 228 (.49350), astc: 216 (.46753), ratio of ratios (astc/xz): .94736  for file scala/HashEntry.scala
+showRaw: 1468, xz: 440 (.29972), astc: 328 (.22343), ratio of ratios (astc/xz): .74545  for file scala/Growable.scala
+showRaw: 4105, xz: 444 (.10816), astc: 364 (.08867), ratio of ratios (astc/xz): .81981  for file scala/Product19.scala
+showRaw: 28377, xz: 2284 (.08048), astc: 1940 (.06836), ratio of ratios (astc/xz): .84938  for file scala/ScalaRunTime.scala
+showRaw: 5919, xz: 548 (.09258), astc: 416 (.07028), ratio of ratios (astc/xz): .75912  for file scala/SeqForwarder.scala
+showRaw: 1271, xz: 320 (.25177), astc: 312 (.24547), ratio of ratios (astc/xz): .97500  for file scala/Function3.scala
+showRaw: 4507, xz: 356 (.07898), astc: 340 (.07543), ratio of ratios (astc/xz): .95505  for file scala/Function19.scala
+showRaw: 195, xz: 176 (.90256), astc: 180 (.92307), ratio of ratios (astc/xz): 1.02272  for file scala/remote.scala
+FAILED: xz better than astc.
+showRaw: 1585, xz: 388 (.24479), astc: 352 (.22208), ratio of ratios (astc/xz): .90721  for file scala/Product5.scala
+showRaw: 27808, xz: 1824 (.06559), astc: 1476 (.05307), ratio of ratios (astc/xz): .80921  for file scala/Array.scala
+showRaw: 3154, xz: 620 (.19657), astc: 540 (.17121), ratio of ratios (astc/xz): .87096  for file scala/DoubleLinkedListLike.scala
+showRaw: 379, xz: 192 (.50659), astc: 156 (.41160), ratio of ratios (astc/xz): .81250  for file scala/StreamView.scala
+showRaw: 1879, xz: 336 (.17881), astc: 320 (.17030), ratio of ratios (astc/xz): .95238  for file scala/Function6.scala
+showRaw: 30852, xz: 2356 (.07636), astc: 2388 (.07740), ratio of ratios (astc/xz): 1.01358  for file scala/LongMap.scala
+FAILED: xz better than astc.
+showRaw: 24676, xz: 1400 (.05673), astc: 944 (.03825), ratio of ratios (astc/xz): .67428  for file scala/Numeric.scala
+showRaw: 1706, xz: 436 (.25556), astc: 276 (.16178), ratio of ratios (astc/xz): .63302  for file scala/GenMap.scala
+showRaw: 2122, xz: 400 (.18850), astc: 356 (.16776), ratio of ratios (astc/xz): .89000  for file scala/Product8.scala
+showRaw: 10180, xz: 1208 (.11866), astc: 920 (.09037), ratio of ratios (astc/xz): .76158  for file scala/PriorityQueue.scala
+showRaw: 5136, xz: 588 (.11448), astc: 328 (.06386), ratio of ratios (astc/xz): .55782  for file scala/DecorateAsScala.scala
+showRaw: 2043, xz: 448 (.21928), astc: 376 (.18404), ratio of ratios (astc/xz): .83928  for file scala/RichByte.scala
+showRaw: 2796, xz: 504 (.18025), astc: 312 (.11158), ratio of ratios (astc/xz): .61904  for file scala/ParMapFactory.scala
+showRaw: 5691, xz: 552 (.09699), astc: 596 (.10472), ratio of ratios (astc/xz): 1.07971  for file scala/BitOperations.scala
+FAILED: xz better than astc.
+showRaw: 3745, xz: 436 (.11642), astc: 364 (.09719), ratio of ratios (astc/xz): .83486  for file scala/Product17.scala
+showRaw: 3373, xz: 628 (.18618), astc: 424 (.12570), ratio of ratios (astc/xz): .67515  for file scala/DoubleLinkedList.scala
+showRaw: 8383, xz: 936 (.11165), astc: 820 (.09781), ratio of ratios (astc/xz): .87606  for file scala/SortedMapLike.scala
+showRaw: 1762, xz: 412 (.23382), astc: 332 (.18842), ratio of ratios (astc/xz): .80582  for file scala/QueueProxy.scala
+showRaw: 1580, xz: 420 (.26582), astc: 304 (.19240), ratio of ratios (astc/xz): .72380  for file scala/GenericClassTagCompanion.scala
+showRaw: 15356, xz: 1460 (.09507), astc: 1168 (.07606), ratio of ratios (astc/xz): .80000  for file scala/Source.scala
+showRaw: 782, xz: 296 (.37851), astc: 236 (.30179), ratio of ratios (astc/xz): .79729  for file scala/deprecated.scala
+showRaw: 17543, xz: 1568 (.08938), astc: 1304 (.07433), ratio of ratios (astc/xz): .83163  for file scala/ProcessImpl.scala
+showRaw: 4851, xz: 720 (.14842), astc: 628 (.12945), ratio of ratios (astc/xz): .87222  for file scala/ParFlatHashTable.scala
+showRaw: 1070, xz: 360 (.33644), astc: 344 (.32149), ratio of ratios (astc/xz): .95555  for file scala/Proxy.scala
+showRaw: 3366, xz: 500 (.14854), astc: 424 (.12596), ratio of ratios (astc/xz): .84800  for file scala/SynchronizedSet.scala
+showRaw: 992, xz: 360 (.36290), astc: 312 (.31451), ratio of ratios (astc/xz): .86666  for file scala/RichBoolean.scala
+showRaw: 1329, xz: 384 (.28893), astc: 272 (.20466), ratio of ratios (astc/xz): .70833  for file scala/GenIterable.scala
+showRaw: 318, xz: 208 (.65408), astc: 176 (.55345), ratio of ratios (astc/xz): .84615  for file scala/Scriptable.scala
+showRaw: 219, xz: 188 (.85844), astc: 164 (.74885), ratio of ratios (astc/xz): .87234  for file scala/DelayedInit.scala
+showRaw: 3860, xz: 524 (.13575), astc: 428 (.11088), ratio of ratios (astc/xz): .81679  for file scala/SynchronizedBuffer.scala
+showRaw: 8065, xz: 1076 (.13341), astc: 916 (.11357), ratio of ratios (astc/xz): .85130  for file scala/MurmurHash.scala
+showRaw: 1227, xz: 380 (.30969), astc: 332 (.27057), ratio of ratios (astc/xz): .87368  for file scala/Product3.scala
+showRaw: 16231, xz: 1448 (.08921), astc: 1428 (.08797), ratio of ratios (astc/xz): .98618  for file scala/TrieIterator.scala
+showRaw: 3093, xz: 344 (.11121), astc: 332 (.10733), ratio of ratios (astc/xz): .96511  for file scala/Function12.scala
+showRaw: 3367, xz: 516 (.15325), astc: 360 (.10692), ratio of ratios (astc/xz): .69767  for file scala/IterableProxyLike.scala
+showRaw: 1010, xz: 344 (.34059), astc: 304 (.30099), ratio of ratios (astc/xz): .88372  for file scala/StringFormat.scala
+showRaw: 3717, xz: 572 (.15388), astc: 400 (.10761), ratio of ratios (astc/xz): .69930  for file scala/Builder.scala
+showRaw: 12889, xz: 1044 (.08099), astc: 792 (.06144), ratio of ratios (astc/xz): .75862  for file scala/StringBuilder.scala
+showRaw: 66, xz: 112 (1.69696), astc: 144 (2.18181), ratio of ratios (astc/xz): 1.28571  for file scala/Dynamic.scala
+FAILED: xz better than astc.
+showRaw: 2121, xz: 400 (.18859), astc: 280 (.13201), ratio of ratios (astc/xz): .70000  for file scala/language.scala
+showRaw: 24664, xz: 2048 (.08303), astc: 1624 (.06584), ratio of ratios (astc/xz): .79296  for file scala/TraversableLike.scala
+showRaw: 748, xz: 292 (.39037), astc: 220 (.29411), ratio of ratios (astc/xz): .75342  for file scala/deprecatedInheritance.scala
+showRaw: 22819, xz: 628 (.02752), astc: 696 (.03050), ratio of ratios (astc/xz): 1.10828  for file scala/Tuple18.scala
+FAILED: xz better than astc.
+showRaw: 4205, xz: 524 (.12461), astc: 412 (.09797), ratio of ratios (astc/xz): .78625  for file scala/SynchronizedMap.scala
+showRaw: 2844, xz: 536 (.18846), astc: 388 (.13642), ratio of ratios (astc/xz): .72388  for file scala/GenSetLike.scala
+showRaw: 18842, xz: 1744 (.09255), astc: 1440 (.07642), ratio of ratios (astc/xz): .82568  for file scala/UnrolledBuffer.scala
+showRaw: 26547, xz: 640 (.02410), astc: 688 (.02591), ratio of ratios (astc/xz): 1.07500  for file scala/Tuple20.scala
+FAILED: xz better than astc.
+showRaw: 6161, xz: 812 (.13179), astc: 656 (.10647), ratio of ratios (astc/xz): .80788  for file scala/GenericTraversableTemplate.scala
+showRaw: 8046, xz: 1404 (.17449), astc: 876 (.10887), ratio of ratios (astc/xz): .62393  for file scala/Properties.scala
+showRaw: 3025, xz: 424 (.14016), astc: 356 (.11768), ratio of ratios (astc/xz): .83962  for file scala/Product13.scala
+showRaw: 1743, xz: 452 (.25932), astc: 280 (.16064), ratio of ratios (astc/xz): .61946  for file scala/GenericClassTagTraversableTemplate.scala
+showRaw: 8254, xz: 1044 (.12648), astc: 768 (.09304), ratio of ratios (astc/xz): .73563  for file scala/TreeSet.scala
+showRaw: 100, xz: 124 (1.24000), astc: 152 (1.52000), ratio of ratios (astc/xz): 1.22580  for file scala/Boxed.scala
+FAILED: xz better than astc.
+showRaw: 2607, xz: 528 (.20253), astc: 304 (.11660), ratio of ratios (astc/xz): .57575  for file scala/Iterable.scala
+showRaw: 9945, xz: 720 (.07239), astc: 612 (.06153), ratio of ratios (astc/xz): .85000  for file scala/SeqProxyLike.scala
+showRaw: 393, xz: 256 (.65139), astc: 204 (.51908), ratio of ratios (astc/xz): .79687  for file scala/deprecatedName.scala
+showRaw: 10627, xz: 592 (.05570), astc: 640 (.06022), ratio of ratios (astc/xz): 1.08108  for file scala/Tuple10.scala
+FAILED: xz better than astc.
+showRaw: 354, xz: 208 (.58757), astc: 208 (.58757), ratio of ratios (astc/xz): 1.00000  for file scala/Cloneable.scala
+showRaw: 2095, xz: 496 (.23675), astc: 348 (.16610), ratio of ratios (astc/xz): .70161  for file scala/IsTraversableOnce.scala
+showRaw: 1541, xz: 420 (.27255), astc: 352 (.22842), ratio of ratios (astc/xz): .83809  for file scala/Fractional.scala
+showRaw: 4749, xz: 832 (.17519), astc: 516 (.10865), ratio of ratios (astc/xz): .62019  for file scala/HashSet.scala
+showRaw: 872, xz: 344 (.39449), astc: 304 (.34862), ratio of ratios (astc/xz): .88372  for file scala/RevertibleHistory.scala
+showRaw: 2576, xz: 512 (.19875), astc: 352 (.13664), ratio of ratios (astc/xz): .68750  for file scala/SortedSetFactory.scala
+showRaw: 2159, xz: 456 (.21120), astc: 400 (.18527), ratio of ratios (astc/xz): .87719  for file scala/Position.scala
+showRaw: 3901, xz: 348 (.08920), astc: 328 (.08408), ratio of ratios (astc/xz): .94252  for file scala/Function16.scala
+showRaw: 310, xz: 176 (.56774), astc: 152 (.49032), ratio of ratios (astc/xz): .86363  for file scala/IterableProxy.scala
+showRaw: 17892, xz: 1360 (.07601), astc: 984 (.05499), ratio of ratios (astc/xz): .72352  for file scala/WrappedArray.scala
+showRaw: 24649, xz: 632 (.02563), astc: 668 (.02710), ratio of ratios (astc/xz): 1.05696  for file scala/Tuple19.scala
+FAILED: xz better than astc.
+showRaw: 1778, xz: 344 (.19347), astc: 232 (.13048), ratio of ratios (astc/xz): .67441  for file scala/GenericParCompanion.scala
+showRaw: 2283, xz: 336 (.14717), astc: 328 (.14367), ratio of ratios (astc/xz): .97619  for file scala/Function8.scala
+showRaw: 1041, xz: 344 (.33045), astc: 248 (.23823), ratio of ratios (astc/xz): .72093  for file scala/MutableMapFactory.scala
+showRaw: 1190, xz: 300 (.25210), astc: 280 (.23529), ratio of ratios (astc/xz): .93333  for file scala/LinkedEntry.scala
+showRaw: 1456, xz: 408 (.28021), astc: 304 (.20879), ratio of ratios (astc/xz): .74509  for file scala/GenericOrderedCompanion.scala
+showRaw: 4103, xz: 352 (.08579), astc: 336 (.08189), ratio of ratios (astc/xz): .95454  for file scala/Function17.scala
+showRaw: 2887, xz: 352 (.12192), astc: 412 (.14270), ratio of ratios (astc/xz): 1.17045  for file scala/PartiallyOrdered.scala
+FAILED: xz better than astc.
+showRaw: 11638, xz: 1452 (.12476), astc: 1172 (.10070), ratio of ratios (astc/xz): .80716  for file scala/StringLike.scala
+showRaw: 21057, xz: 628 (.02982), astc: 652 (.03096), ratio of ratios (astc/xz): 1.03821  for file scala/Tuple17.scala
+FAILED: xz better than astc.
+showRaw: 1345, xz: 456 (.33903), astc: 308 (.22899), ratio of ratios (astc/xz): .67543  for file scala/BitSetFactory.scala
+showRaw: 49047, xz: 2676 (.05455), astc: 2624 (.05349), ratio of ratios (astc/xz): .98056  for file scala/IntMap.scala
+showRaw: 14317, xz: 1088 (.07599), astc: 828 (.05783), ratio of ratios (astc/xz): .76102  for file scala/IterableViewLike.scala
+showRaw: 2845, xz: 420 (.14762), astc: 352 (.12372), ratio of ratios (astc/xz): .83809  for file scala/Product12.scala
+showRaw: 152, xz: 192 (1.26315), astc: 136 (.89473), ratio of ratios (astc/xz): .70833  for file scala/AnyValCompanion.scala
+showRaw: 17737, xz: 612 (.03450), astc: 644 (.03630), ratio of ratios (astc/xz): 1.05228  for file scala/Tuple15.scala
+FAILED: xz better than astc.
+showRaw: 9477, xz: 584 (.06162), astc: 364 (.03840), ratio of ratios (astc/xz): .62328  for file scala/Float.scala
+showRaw: 4305, xz: 352 (.08176), astc: 340 (.07897), ratio of ratios (astc/xz): .96590  for file scala/Function18.scala
+showRaw: 2400, xz: 416 (.17333), astc: 388 (.16166), ratio of ratios (astc/xz): .93269  for file scala/Specializable.scala
+showRaw: 6734, xz: 988 (.14671), astc: 648 (.09622), ratio of ratios (astc/xz): .65587  for file scala/ArrayBuffer.scala
+showRaw: 2041, xz: 440 (.21558), astc: 324 (.15874), ratio of ratios (astc/xz): .73636  for file scala/ImmutableSetAdaptor.scala
+showRaw: 4888, xz: 840 (.17184), astc: 564 (.11538), ratio of ratios (astc/xz): .67142  for file sys/package.scala
+showRaw: 20443, xz: 1668 (.08159), astc: 1804 (.08824), ratio of ratios (astc/xz): 1.08153  for file text/Document.scala
+FAILED: xz better than astc.
+showRaw: 277, xz: 184 (.66425), astc: 192 (.69314), ratio of ratios (astc/xz): 1.04347  for file unchecked/uncheckedStable.scala
+FAILED: xz better than astc.
+showRaw: 279, xz: 188 (.67383), astc: 192 (.68817), ratio of ratios (astc/xz): 1.02127  for file unchecked/uncheckedVariance.scala
+FAILED: xz better than astc.
+Global statistics
+Raw: 3394020, xz: 338476, astc: 285716
+In general, our compression is smaller than a classic xz of .84412
+Tests where xz was better: 98 over 516 tests
+The normal compilation time was of:
+real 2m27.429s user 5m3.256s sys 0m2.220s
+The time of compilation using the plugin was of:
+real 4m39.099s user 7m58.436s sys 0m3.180s
+
