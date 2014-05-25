@@ -29,29 +29,33 @@ mkdir $outputpath
 
 # Forcing the time format
 saved_TIMEFORMAT="$TIMEFORMAT"
-TIMEFORMAT='%3R'
+TIMEFORMAT='%E'
 
 # General variables
 total_time_norm=0
 total_time_astc=0
+nb_tests=0
+
 #iterate on all files from the sourcepath
 for f in $(find $sourcepath -type f)
 do
+	nb_tests=$(echo "scale=0; $nb_tests + 1" | bc)
+
 	# scalac options:
 	# 	1. -Xplugin:<absolutepath>		Passing a NSC plugin
 	# 	2. -d <directory|jar>			Specify output directory
 	#	3. -classpath <path1:path2>		Specify the classpath for the compilation
 	# Unfortunately for time precision reasons, we cannot use sbt dependency mechanism. We need to store the .jar specifically.
 	# TODO: make that work with Typers.scala
-	time_norm="$(time (scalac "$f" -d "$outputpath") 2>&1 1>/dev/null)"
-	time_astc="$(time (scalac "$f" -Xplugin:"$astc_jar" -d "$outputpath") 2>&1 1>/dev/null)"
+	time_norm="$(time (scalac "$f" -d "$outputpath" -nowarn) 2>&1 1>/dev/null)"
+	time_astc="$(time (scalac "$f" -Xplugin:"$astc_jar" -d "$outputpath" -nowarn) 2>&1 1>/dev/null)"
 
 	# Let's test if numeric (in such a case, there should be no error)
 	if [[ $time_norm =~ "error" ]]; then
 		echo "Bad compilation for: $f"
 	else
 		if [[ $time_norm =~ "warning" ]]; then
-			echo "Got warnings, unfortunately this would break our stats for file $f" # TODO
+			echo "Got warnings, unfortunately this would break our stats for file $f" # Should never happen due to -nowarn
 		else
 			time_incr=$(echo "scale=10; $time_astc / $time_norm" | bc)
 			time_incr=$(echo "scale=10; $time_incr - 1" | bc)
@@ -59,7 +63,7 @@ do
 			total_time_norm=$(echo "scale=10; $total_time_norm + $time_norm" | bc)
 			total_time_astc=$(echo "scale=10; $total_time_astc + $time_astc" | bc)
 
-			echo "normal time: $time_norm, with astc: $time_astc (+ $time_diff), increased of (ratio): $time_incr for file $f"
+			echo "$nb_tests: normal time: $time_norm, with astc: $time_astc (+ $time_diff), increased of (ratio): $time_incr for file $f"
 		fi
 	fi
 done
