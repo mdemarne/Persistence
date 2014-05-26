@@ -6,6 +6,12 @@ scalaversion='2.11'
 rawfolder="tests/target/scala-$scalaversion/raw/*"
 astfolder="tests/target/scala-$scalaversion/asts"
 
+# data file for plots
+date=$(date +%Y.%m.%d:%H:%M:%S)
+datafile="benchmark/plots/plot-$date.dat"
+mkdir "benchmark/plots/" > /dev/null 2>&1 # Avoiding error if the folder didn't exist before.
+echo '# normal_size		astc_size 		xz_size' >> $datafile
+
 # Allow to select which test we would like to run easily.
 case $1 in
 	1) conf="testBasic" ;;
@@ -138,6 +144,9 @@ do
 		nb_failed=$(echo "scale=0; $nb_failed + 1" | bc)
 		echo "FAILED: xz better than astc."
 	fi
+
+	# Output the results to the datafile for plots ~~~~ #
+	echo "$raw_size  	$astc_size 		$xz_size" >> $datafile
 done
 
 # Print the global statistics ~~~~ #
@@ -152,3 +161,7 @@ echo "The normal compilation time was of:"
 echo $normal_time
 echo "The time of compilation using the plugin was of:"
 echo $astc_time
+
+
+# Let's now plot everything
+gnuplot -p -e "plot \"$datafile\" using 1:2 title 'astc', \"$datafile\" using 1:3 title 'xz'"
