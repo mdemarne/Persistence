@@ -59,8 +59,8 @@ class Plugin(val global: Global) extends NscPlugin {
         @tailrec def loop(trees: List[Tree], dict: Map[Tree, Node]): Map[Tree, Node] = trees match {
           case Nil => dict
           case x :: xs =>
-            symbolList :+= x.symbol
-            typeList :+= x.tpe
+            //symbolList :+= x.symbol
+            //typeList :+= x.tpe
             val res = x match {
               case PackageDef(pid, stats) =>
                 Node(NodeTag.PackageDef, dict(pid) :: (stats map (dict(_))))
@@ -140,7 +140,7 @@ class Plugin(val global: Global) extends NscPlugin {
               case ReferenceToBoxed(ident) =>
                 Node(NodeTag.ReferenceToBoxed, List(dict(ident)))
               case Literal(value) =>
-                constList :+= value
+                //constList :+= value
                 Node(NodeTag.Literal)
               case Annotated(annot, arg) =>
                 Node(NodeTag.Annotated, List(annot, arg) map (dict(_)))
