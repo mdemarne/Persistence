@@ -278,16 +278,16 @@ object build extends Build {
   /* TODO: check what we need as a Manifest(if relevant) */
   val packageAst = TaskKey[File]("package-ast", "Produce an artifact containing compressed Scala ASTs.")
   val packageAstTask = packageAst := {
-    val generalPath = new File((fullClasspath in Compile).value.files.head.getParent).getAbsolutePath
+    (compile in Compile).value     /* First let's compile everything */
+    val generalPath = new File((classDirectory in Compile).value.getParent).getAbsolutePath
     val astsPath = generalPath + "/asts/"
-    val outputJar = new File(generalPath + "/" + name.value +"_" + version.value + "-asts.jar")
+    val outputJar = new File(generalPath + "/" + name.value + "_" + version.value + "-asts.jar")
     val astsSources = findFiles(new File(astsPath))
     val log = streams.value.log
     val manifest = new java.util.jar.Manifest()
     Package.makeJar(astsSources.map(f => (f, f.getAbsolutePath.replace(astsPath, ""))), outputJar, manifest, log)
     outputJar
   }
-
   def findFiles(root: File): List[File] = root match {
       case _ if root.isDirectory => root.listFiles.toList.flatMap(f => findFiles(f))
       case _ => root :: Nil
