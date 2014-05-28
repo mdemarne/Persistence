@@ -10,7 +10,7 @@ object build extends Build {
     id = "sbt-persistence",
     base = file(".")
   ) settings (
-  	scalaVersion := "2.11.0",
+  	scalaVersion := "2.10.3", // Forced for now due to SBT macro system compilation.
     scalacOptions ++= Seq("-deprecation", "-feature", "-optimise"),
     // Thanks to https://github.com/gkossakowski/scala-sbt-cross-compile
     // add scala-xml dependency when needed (for Scala 2.11 and newer) in a robust way
