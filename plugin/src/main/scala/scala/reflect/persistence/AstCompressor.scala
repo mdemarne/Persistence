@@ -15,7 +15,7 @@ class AstCompressor(out: DataOutputStream) {
   import Enrichments._
   
   var toWrite: List[Byte] = Nil
-  var names: Map[String, (List[Int], Boolean)] = Map()
+  var names: Map[String, List[Int]] = Map()
   /* Reparse the tree using the new dictionary */
   def splitTree(node: Node): (NodeDict, List[List[NodeBFS]], List[(Int, Int)]) = {
     val ids = {
@@ -77,10 +77,12 @@ class AstCompressor(out: DataOutputStream) {
     }
     loop(occ, Nil)
   }
+  
   def outputOccs(occs: List[Byte]): Unit = {
     toWrite ++= ShortToBytes(occs.size.toShort)
     toWrite ++= compressBytes(occs)
   }
+  
   def outputDict(dict: HufDict): Unit = {
     toWrite ++= IntToBytes(dict.size)
     dict.foreach { e =>
@@ -91,6 +93,7 @@ class AstCompressor(out: DataOutputStream) {
       ndBfs.foreach { n => toWrite :+= (n._1); toWrite ++= ShortToBytes(n._2.toShort); toWrite ++= ShortToBytes(n._3.toShort)}
     }
   }
+  
   def outputEdges(edges: List[(Int, Int)]): Unit = {
     out.writeInt(edges.size - 1)
     edges.tail foreach { edge =>
@@ -99,6 +102,7 @@ class AstCompressor(out: DataOutputStream) {
     }
     out.flush
   }
+  
   /* Compresses the List of 0 and 1's into bytes */
   def compressBytes(bytes: List[Byte]): Array[Byte] = {
     val groups: List[(Int, List[(Byte, Int)])] = bytes.reverse.zipWithIndex.groupBy(_._2 / 8).toList
@@ -107,6 +111,7 @@ class AstCompressor(out: DataOutputStream) {
       o.zipWithIndex.map(b => (b._1 << b._2).toByte).sum.toByte
     }.toArray
   }
+  
   def apply(node: Node): Unit = {
     toWrite = Nil
     if (names.isEmpty) 
@@ -124,6 +129,8 @@ class AstCompressor(out: DataOutputStream) {
     out.writeLong(toWrite.size)
     applyXZ
   }
+ 
+  /*Sub-optimal implementation, TODO remove this*/
   def outputCompEdges(edges: List[(Int, Int)]): Unit = {
     @tailrec def loop(old: (Int, Int), count: Int, edgs: List[(Int, Int)]): Unit = edgs match {
       case Nil =>
@@ -142,6 +149,8 @@ class AstCompressor(out: DataOutputStream) {
     loop(edges.tail.head, 1, edges.tail.tail)
     out.flush
   }
+ 
+  /*Prefered version */
   def outputComp2Edges(edges: List[(Int, Int)]): Unit = {
     require(edges.size > 0)
     val (lp1, lp2) = edges.tail.unzip
@@ -181,21 +190,17 @@ class AstCompressor(out: DataOutputStream) {
 
   /*Encode the names
   TODO this is a very simple version*/
-  def outputNames(nameBFS: Map[String, (List[Int], Boolean)]): Unit = {
+  def outputNames(nameBFS: Map[String, List[Int]]): Unit = {
     toWrite ++= IntToBytes(nameBFS.size)
     nameBFS.foreach{ n =>
-      if(n._2._2)
-        toWrite :+= 1.toByte
-      else 
-        toWrite :+= 0.toByte
       toWrite ++= n._1.getBytes.toList
       toWrite :+= '\n'.toByte
-      toWrite ++= ShortToBytes(n._2._1.size.toShort)
-      toWrite ++= n._2._1.map(e => ShortToBytes(e.toShort)).flatten 
+      toWrite ++= ShortToBytes(n._2.size.toShort)
+      toWrite ++= n._2.map(e => ShortToBytes(e.toShort)).flatten 
     }  
   }
 
-  def setNames(names: Map[String, (List[Int], Boolean)]) {
+  def setNames(names: Map[String, List[Int]]) {
     this.names = names
   }
 }
