@@ -10,11 +10,8 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   import Enrichments._
   
   /* General function returning the whole tree */
-  /* TODO: figure out how we want to deal with the source */
   def getTst(source: String): Tree = {
     
-    //TODO I think jar containing AST needs to be in classpath (lib)
-    //TODO throws NullPointerException if does not exists
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(source))
     
     val nodeTree = new AstDecompressor(src)()
@@ -35,4 +32,29 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   def getClass(file: String, name: String): Tree = {
     ???
   }
+
+  //TODO 
+  /* Tail rec function called extractSubtree
+    take only parent node + all child => easy if Node, a bit more complicated in BFS
+  */
+  
+  def extractSubTBFS(nodes: List[NodeBFS]): List[NodeBFS] = {
+    def loop(nds: List[NodeBFS], acc: List[NodeBFS]): List[NodeBFS] = nds match {
+      case Nil => acc
+      case n::ns if(acc.exists( e => e.bfsIdx == n.parentBfsIdx)) => 
+        loop(acc:::List(n), ns)
+      case n::ns => loop(acc, ns)
+    }
+    /*TODO doesn't work yet need to know where to start*/
+    loop(Nil, nodes)
+  }
+  /*Need some way to know the index where looking for*/
+  def extractSub(node: Node) : Node = {
+    val bfs: List[NodeBFS] = node.flattenBFSIdx
+    //TODO this is to be replaced
+    val idx: Int = 34
+    val(_, good) = bfs.splitAt(idx)
+    val subT: List[NodeBFS] = extractSubTBFS(good) //TODO complete that
+    subT.toTree
+  } 
 }

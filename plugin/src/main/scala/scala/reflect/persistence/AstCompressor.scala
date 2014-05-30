@@ -16,6 +16,7 @@ class AstCompressor(out: DataOutputStream) {
   
   var toWrite: List[Byte] = Nil
   var names: Map[String, List[Int]] = Map()
+ 
   /* Reparse the tree using the new dictionary */
   def splitTree(node: Node): (NodeDict, List[List[NodeBFS]], List[(Int, Int)]) = {
     val ids = {
