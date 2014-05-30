@@ -54,7 +54,6 @@ class Plugin(val global: Global) extends NscPlugin {
         var symbolList: RevList[Symbol] = List()
         var typeList: RevList[Type] = List()
         var constList: RevList[Constant] = List()
-        var definitions: RevList[Int] = List()
         /* Traverse the tree, save names, type, symbols into corresponding list
          * and replace them in the tree by default values*/
         @tailrec def loop(trees: List[Tree], dict: Map[Tree, Node]): Map[Tree, Node] = trees match {
@@ -67,28 +66,22 @@ class Plugin(val global: Global) extends NscPlugin {
                 Node(NodeTag.PackageDef, dict(pid) :: (stats map (dict(_))))
               case ClassDef(mods, name, tparams, impl) =>
                 nameList :+= name
-                definitions :+= nameList.size - 1
                 Node(NodeTag.ClassDef, (tparams ::: List(impl) map (dict(_))))
               case ModuleDef(mods, name, impl) =>
                 nameList :+= name
-                definitions :+= nameList.size - 1
                 Node(NodeTag.ModuleDef, List(dict(impl)))
               case ValDef(mods, name, tpt, rhs) =>
                 nameList :+= name
-                definitions :+= nameList.size - 1 
                 Node(NodeTag.ValDef, List(dict(tpt), dict(rhs)))
               case DefDef(mods, name, tparams, vparams, tpt, rhs) =>
                 nameList :+= name
-                definitions :+= nameList.size - 1
                 val vnodes = vparams.map(_.map(dict(_))).flatMap(_ :+ Node.separator)
                 Node(NodeTag.DefDef, (tparams.map(dict(_)) ::: List(Node.separator) ::: vnodes ::: List(dict(tpt), dict(rhs))))
               case TypeDef(mods, name, tparams, rhs) =>
                 nameList :+ name
-                definitions :+= nameList.size - 1
                 Node(NodeTag.TypeDef, (tparams ::: List(rhs)) map (dict(_)))
               case LabelDef(name, params, rhs) =>
                 nameList :+= name
-                definitions :+= nameList.size - 1 
                 Node(NodeTag.LabelDef, (params ::: List(rhs)) map (dict(_)))
               case Import(expr, selectors) =>
                 Node(NodeTag.Import, List(dict(expr)))
