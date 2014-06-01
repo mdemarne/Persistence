@@ -11,7 +11,6 @@ object Enrichments {
   type HufDict = Map[List[NodeBFS], List[Byte]]
   type RevHufDict = Map[List[Byte], List[NodeBFS]]
 
-  /* TODO: move that elsewhere? */
   /* Meta entry for dictionary testing */
   case class MetaEntry(tpe: NodeTag.Value, idx: Int, parentIdx: Int) {
     override def toString = s"(${tpe}, ${idx}, ${parentIdx})"
@@ -110,4 +109,28 @@ object Enrichments {
   def ShortToBytes(s: Short): List[Byte] = {
     List((s & 0xff).toByte, ((s >> 8)& 0xff).toByte)
   }
+
+/*Returns an Int and the rest of the input*/
+  def readInt(toRead: List[Byte]): (Int, List[Byte]) = toRead match {
+    case w::x::y::z::xs => 
+      (((w) + (x << 8) + (y << 16) + (z << 24)).toInt, xs)
+    case x => 
+      throw new Exception("Error: Decompressor cannot read an Int from ${x}")
+  }
+  
+  /*Returns a Short and the rest of the input*/
+  def readShort(toRead: List[Byte]): (Short, List[Byte]) = toRead match {
+    case x::y::xs => 
+      (((x) + (y << 8)).toShort, xs)
+    case x =>
+      throw new Exception(s"Error: Decompressor cannot read Short from ${x}")
+  }
+
+ /* Decompresses the byte into a list of 8 bytes */
+  def decompressBytes(byte: Byte): List[Byte] = {
+    (0 to 7).map{ i => 
+      if((byte & (1 << i)) != 0) 1.toByte
+      else 0.toByte
+    }.toList.reverse
+  } 
 }

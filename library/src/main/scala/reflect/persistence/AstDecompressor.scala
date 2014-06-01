@@ -1,14 +1,12 @@
 package scala.reflect.persistence
 
-import java.io.DataInputStream
-import org.tukaani.xz.SingleXZInputStream
 
 /* TODO: make some functions private. Here public for tests */
-class AstDecompressor(in: DataInputStream) {
+class AstDecompressor {
   import Enrichments._
   
   var toRead: List[Byte] = Nil
-  var namesStr: Map[String, List[Int]] = Map()
+  
   def rebuiltTree(occs: List[List[NodeBFS]], edges: List[(Int, Int)]): Node = {
     def loop(revOccs: RevList[List[NodeBFS]], revEdges: RevList[(Int, Int)]): List[NodeBFS] = (revOccs, revEdges) match {
       case (x :: Nil, Nil) => x /* We have recomposed all the tree. NB: (-1, -1) for the root should not be there. */
@@ -20,6 +18,7 @@ class AstDecompressor(in: DataInputStream) {
     } 
     loop(occs.reverse, edges.reverse).toTree
   }
+  
   /* Decode the occurrences from a list of bytes to a list of subtrees in BFS order */
   def decodeOccs(occs: List[Byte], revDict: RevHufDict): List[List[NodeBFS]] = {
     def loop(occs: List[Byte]): List[List[NodeBFS]] = occs match {
@@ -30,7 +29,11 @@ class AstDecompressor(in: DataInputStream) {
     }
     loop(occs)
   }
+  
+  /*Extracts the occurrences from the input*/
   def inputOccs: List[Byte] = readBytes(readShort)
+  
+  /*Extracts the inputDict from the input*/
   def inputDict: RevHufDict = {
     var dict: RevHufDict = Map()
     val nbEntries = readInt
@@ -45,18 +48,7 @@ class AstDecompressor(in: DataInputStream) {
     }
     dict
   }
-  def readBytes(size: Int): List[Byte] = {
-    var bytes: List[Byte] = Nil
-    for(i <- (0 until Math.ceil(size.toDouble / 8).toInt)){
-      //bytes  :+= in.readByte
-      bytes :+= readByte
-    }
-    bytes.map(decompressBytes(_)).reverse.flatten.drop((8 - (size % 8)) % 8)
-  }
-  def inputEdges: List[(Int, Int)] = {
-    val size: Int = in.readInt
-    (for(i <- 1 to size) yield (in.readShort.toInt, in.readShort.toInt)).toList
-  }
+
   /* Decompresses the byte into a list of 8 bytes */
   def decompressBytes(byte: Byte): List[Byte] = {
     (0 to 7).map{ i => 
@@ -64,30 +56,8 @@ class AstDecompressor(in: DataInputStream) {
       else 0.toByte
     }.toList.reverse
   } 
-  def apply(): Node = {
-    toRead = Nil
-    unapplyXZ
-    val hasNames = readByte
-    //TODO modify this
-    if(hasNames == 1)
-      namesStr = inputNames
-    val dOccs = inputOccs
-    val dEdges = inputComp2Edges
-    val dDict = inputDict
-    val decodedOccs = decodeOccs(dOccs, dDict)
-    rebuiltTree(decodedOccs, dEdges)
-  }
-  def inputCompEdges: List[(Int, Int)] = {
-    val size: Int = in.readInt
-    var sum: Int = 0
-    var comp: List[((Int, Int), Int)] = Nil
-    do {
-      comp :+= ((in.readShort.toInt, in.readShort.toInt), in.readShort.toInt)
-      sum += comp.last._2
-    } while (sum < size)
-
-    comp.map(e => (for(i <- (1 to e._2)) yield e._1).toList).flatten
-  }
+  
+  /*Extracts the edges encoded in the input*/
   def inputComp2Edges: List[(Int, Int)] = {
    val size: Int = readInt
    //Read the first list
@@ -96,7 +66,8 @@ class AstDecompressor(in: DataInputStream) {
    while(sum < size) {
     l1 :+= (readByte.toInt, readShort.toInt)
     sum += l1.last._2
-   } 
+   }
+
   /* Decompress the first list */
    val l1f: List[Int] = l1.zipWithIndex.map{ e => 
     val value = l1.zipWithIndex.filter(x => x._2 <= e._2).map(_._1._1).sum
@@ -116,7 +87,7 @@ class AstDecompressor(in: DataInputStream) {
    l1f.zip(l2f)
   }
 
-
+  /*These methods are here to simplify the reading from the input list of bytes*/
   def readInt: Int = toRead match {
     case w::x::y::z::xs => 
       toRead = xs
@@ -140,25 +111,21 @@ class AstDecompressor(in: DataInputStream) {
     case x => 
       throw new Exception("Error: Decompressor cannot read Byte ${x}")
   }
-
-  def unapplyXZ {
-    val total: Long = in.readLong
-    val decomp: SingleXZInputStream = new SingleXZInputStream(in)
-    for(i <- (1.toLong to total)){
-      toRead :+= (decomp.read()).toByte
+ 
+ /*Read size bytes and unflatten them*/
+  def readBytes(size: Int): List[Byte] = {
+    var bytes: List[Byte] = Nil
+    for(i <- (0 until Math.ceil(size.toDouble / 8).toInt)){
+      bytes :+= readByte
     }
+    bytes.map(decompressBytes(_)).reverse.flatten.drop((8 - (size % 8)) % 8)
   }
-
-  def inputNames: Map[String, List[Int]] = {
-    val size = readInt
-    var res: Map[String, List[Int]] = Map()
-    (0 until size).foreach{ y => 
-      val name: String = toRead.takeWhile(_ != '\n'.toByte).mkString
-      toRead = toRead.dropWhile(_ != '\n').tail
-      val entriesSize = readShort
-      var entries: List[Int] = (0 until entriesSize).map( x => readShort.toInt).toList
-      res += (name -> entries)
-    }
-    res
+  def apply(bytes: List[Byte]): Node = {
+    toRead = bytes
+    val dOccs = inputOccs
+    val dEdges = inputComp2Edges
+    val dDict = inputDict
+    val decodedOccs = decodeOccs(dOccs, dDict)
+    rebuiltTree(decodedOccs, dEdges)
   }
 }

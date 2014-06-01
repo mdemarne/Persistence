@@ -14,10 +14,10 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(source))
     
-    val nodeTree = new AstDecompressor(src)()
+    //val nodeTree = new AstDecompressor(src)()
 
     /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
-    val tree = new TreeRecomposer[u.type](u)(nodeTree, ???, ???, ???, ???)
+    //val tree = new TreeRecomposer[u.type](u)(nodeTree, ???, ???, ???, ???)
     ???
   }
 
@@ -33,11 +33,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     ???
   }
 
-  //TODO 
-  /* Tail rec function called extractSubtree
-    take only parent node + all child => easy if Node, a bit more complicated in BFS
-  */
-  
   def extractSubTBFS(nodes: List[NodeBFS]): List[NodeBFS] = {
     def loop(nds: List[NodeBFS], acc: List[NodeBFS]): List[NodeBFS] = nds match {
       case Nil => acc
