@@ -83,7 +83,6 @@ class AstCompressor(out: DataOutputStream) {
     toWrite ++= ShortToBytes(occs.size.toShort)
     toWrite ++= compressBytes(occs)
   }
-  
   def outputDict(dict: HufDict): Unit = {
     toWrite ++= IntToBytes(dict.size)
     dict.foreach { e =>
@@ -94,65 +93,7 @@ class AstCompressor(out: DataOutputStream) {
       ndBfs.foreach { n => toWrite :+= (n._1); toWrite ++= ShortToBytes(n._2.toShort); toWrite ++= ShortToBytes(n._3.toShort)}
     }
   }
-  
   def outputEdges(edges: List[(Int, Int)]): Unit = {
-    out.writeInt(edges.size - 1)
-    edges.tail foreach { edge =>
-      out.writeShort(edge._1)
-      out.writeShort(edge._2)
-    }
-    out.flush
-  }
-  
-  /* Compresses the List of 0 and 1's into bytes */
-  def compressBytes(bytes: List[Byte]): Array[Byte] = {
-    val groups: List[(Int, List[(Byte, Int)])] = bytes.reverse.zipWithIndex.groupBy(_._2 / 8).toList
-    val octoBytes: List[List[Byte]] = groups.sortBy(i => i._1).map(l => l._2.map(_._1))
-    octoBytes.map { o =>
-      o.zipWithIndex.map(b => (b._1 << b._2).toByte).sum.toByte
-    }.toArray
-  }
-  
-  def apply(node: Node): Unit = {
-    toWrite = Nil
-    if (names.isEmpty) 
-      toWrite :+= 0.toByte 
-    else 
-      toWrite :+= 1.toByte
-    val (nodeDict, occs, edges) = splitTree(node)
-    val hufDict = genHuffman(nodeDict)
-    val encodedOccs = encodeOccs(occs, hufDict)
-    outputOccs(encodedOccs)
-    outputComp2Edges(edges)
-    outputDict(hufDict)
-    if(!names.isEmpty)
-      outputNames(names) 
-    out.writeLong(toWrite.size)
-    applyXZ
-  }
- 
-  /*Sub-optimal implementation, TODO remove this*/
-  def outputCompEdges(edges: List[(Int, Int)]): Unit = {
-    @tailrec def loop(old: (Int, Int), count: Int, edgs: List[(Int, Int)]): Unit = edgs match {
-      case Nil =>
-        out.writeShort(count)
-      case x :: xs if old == x =>
-        loop(old, count + 1, xs)
-      case x :: xs =>
-        out.writeShort(count)
-        out.writeShort(x._1)
-        out.writeShort(x._2)
-        loop(x, 1, xs)
-    }
-    out.writeInt(edges.tail.size)
-    out.writeShort(edges.tail.head._1)
-    out.writeShort(edges.tail.head._2)
-    loop(edges.tail.head, 1, edges.tail.tail)
-    out.flush
-  }
- 
-  /*Prefered version */
-  def outputComp2Edges(edges: List[(Int, Int)]): Unit = {
     require(edges.size > 0)
     val (lp1, lp2) = edges.tail.unzip
     @tailrec def loop(curr: Int, count: Int, entries: List[Int], bool: Boolean): Unit = entries match {
@@ -174,15 +115,21 @@ class AstCompressor(out: DataOutputStream) {
     toWrite ++= ShortToBytes(lp2.head.toShort)
     loop(lp2.head, 1, lp2.tail, false)
   }
-
+  
+  /* Compresses the List of 0 and 1's into bytes */
+  def compressBytes(bytes: List[Byte]): Array[Byte] = {
+    val groups: List[(Int, List[(Byte, Int)])] = bytes.reverse.zipWithIndex.groupBy(_._2 / 8).toList
+    val octoBytes: List[List[Byte]] = groups.sortBy(i => i._1).map(l => l._2.map(_._1))
+    octoBytes.map { o =>
+      o.zipWithIndex.map(b => (b._1 << b._2).toByte).sum.toByte
+    }.toArray
+  }
   def IntToBytes(i: Int): List[Byte] = {
     List((i & 0xff).toByte, ((i >> 8)& 0xff).toByte, ((i >> 16)& 0xff).toByte, ((i >> 24)& 0xff).toByte)
   }
-
   def ShortToBytes(s: Short): List[Byte] = {
     List((s & 0xff).toByte, ((s >> 8)& 0xff).toByte)
   }
-
   def applyXZ {
     val comp: XZOutputStream = new XZOutputStream(out, new LZMA2Options())
     toWrite.foreach{comp.write(_)}
@@ -200,8 +147,25 @@ class AstCompressor(out: DataOutputStream) {
       toWrite ++= n._2.map(e => ShortToBytes(e.toShort)).flatten 
     }  
   }
-
   def setNames(names: Map[String, List[Int]]) {
     this.names = names
+  }
+  
+  def apply(node: Node): Unit = {
+    toWrite = Nil
+    if (names.isEmpty) 
+      toWrite :+= 0.toByte 
+    else 
+      toWrite :+= 1.toByte
+    val (nodeDict, occs, edges) = splitTree(node)
+    val hufDict = genHuffman(nodeDict)
+    val encodedOccs = encodeOccs(occs, hufDict)
+    outputOccs(encodedOccs)
+    outputEdges(edges)
+    outputDict(hufDict)
+    if(!names.isEmpty)
+      outputNames(names) 
+    out.writeLong(toWrite.size)
+    applyXZ
   }
 }
