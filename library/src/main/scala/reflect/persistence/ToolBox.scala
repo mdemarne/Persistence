@@ -13,25 +13,59 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   def getTst(source: String): Tree = {
     
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(source))
+    val bytes: List[Byte] = new XZReader(src)()
+    val hasNames: Boolean = (bytes.head == 1.toByte)
+    val decompressor: AstDecompressor = new AstDecompressor()
+    val nodeTree = decompressor(bytes.tail)
+    val toRead: List[Byte] = decompressor.getToRead 
+    var names: Map[String, List[Int]] = Map()
+    if(hasNames)
+      names = (new NameDecompressor()(toRead))._1
     
-    //val nodeTree = new AstDecompressor(src)()
-
     /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
-    //val tree = new TreeRecomposer[u.type](u)(nodeTree, ???, ???, ???, ???)
+    val tree = new TreeRecomposer[u.type](u)(nodeTree, ???, ???, ???, ???)
     ???
   }
 
   def getMethodDef(file: String, name: String): Tree = {
+    val (nodeTree, names) = nameBasedRead(file, name) 
+
     ???
   }
 
   def getValDef(file: String, name: String): Tree = {
+    val (nodeTree, names) = nameBasedRead(file, name)  
+    ???
+  }
+  
+  def getObject(file: String, name: String): Tree = {
+    val (nodeTree, names) = nameBasedRead(file, name)
     ???
   }
 
   def getClass(file: String, name: String): Tree = {
+
     ???
   }
+
+  /*Helper function that reads all the elements we need to reconstruct the tree*/
+  private def nameBasedRead(file: String, name: String): (Node, Map[String, List[Int]]) = {
+    val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
+    val bytes: List[Byte] = new XZReader(src)()
+    val hasNames: Boolean = (bytes.head == 1.toByte)
+    if(!hasNames)
+      throw new Exception("Error: names are not saved !")
+    val decompressor: AstDecompressor = new AstDecompressor()
+    val nodeTree: Node = decompressor(bytes.tail)
+    val toRead: List[Byte] = decompressor.getToRead
+    var names: Map[String, List[Int]] = (new NameDecompressor()(toRead))._1
+    if(!names.contains(name))
+      throw new Exception("Error: specified name doesn't exist")
+    src.close()
+    (nodeTree, names)
+  }
+
+
 
   def extractSubTBFS(nodes: List[NodeBFS]): List[NodeBFS] = {
     def loop(nds: List[NodeBFS], acc: List[NodeBFS]): List[NodeBFS] = nds match {

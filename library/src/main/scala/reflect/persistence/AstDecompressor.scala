@@ -120,6 +120,9 @@ class AstDecompressor {
     }
     bytes.map(decompressBytes(_)).reverse.flatten.drop((8 - (size % 8)) % 8)
   }
+
+  def getToRead: List[Byte] = toRead
+
   def apply(bytes: List[Byte]): Node = {
     toRead = bytes
     val dOccs = inputOccs
