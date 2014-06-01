@@ -13,6 +13,10 @@ object NodeTag extends Enumeration {
   def getVal(i: Int): NodeTag.Value = {
     (NodeTag.values.toList.sortBy(_.toString).toList)(i)
   }
+
+  def isADefine(s: NodeTag.Value): Boolean = {
+    (s == ClassDef || s == ModuleDef || s == Value || s == DefDef || s == TypeDef || s == LabelDef)
+  }
 }
 
 case class NodeBFS(node: Node, bfsIdx: Int, parentBfsIdx: Int) {

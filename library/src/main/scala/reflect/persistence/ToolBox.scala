@@ -28,25 +28,61 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   }
 
   def getMethodDef(file: String, name: String): Tree = {
-    val (nodeTree, names) = nameBasedRead(file, name) 
+    val (nodeTree, names) = nameBasedRead(file, name)
+    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
+    val index: Int = findIndex(bfs, NodeTag.DefDef, names(name))
     ???
   }
 
   def getValDef(file: String, name: String): Tree = {
-    val (nodeTree, names) = nameBasedRead(file, name)  
-    ???
+    val (nodeTree, names) = nameBasedRead(file, name)
+    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
+    val index: Int = findIndex(bfs, NodeTag.ValDef, names(name))
+   ???
   }
   
   def getObject(file: String, name: String): Tree = {
     val (nodeTree, names) = nameBasedRead(file, name)
+    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
+    val index: Int = findIndex(bfs, NodeTag.ModuleDef, names(name))
     ???
   }
 
-  def getClass(file: String, name: String): Tree = {
+  def getClassDef(file: String, name: String): Tree = {
     val (nodeTree, names) = nameBasedRead(file, name)
+    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
+    val index: Int = findIndex(bfs, NodeTag.ClassDef, names(name))
+    ???
+  }
+ 
+  def getTypeDef(file: String, name: String): Tree = {
+    val (nodeTree, names) = nameBasedRead(file, name)
+    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx 
+    val index: Int = findIndex(bfs, NodeTag.TypeDef, names(name))
     ???
   }
 
+  def getLabelDef(file: String, name: String): Tree = {
+    val (nodeTree, names) = nameBasedRead(file, name)
+    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx 
+    val index: Int = findIndex(bfs, NodeTag.LabelDef, names(name))
+    ???
+  }
+
+  /*Find the bfs index of the element that corresponds to our search*/
+  private def findIndex(nodes: RevList[NodeBFS], tpe: NodeTag.Value, occs: List[Int]): Int = occs match{
+    case o::os =>
+      /*TODO check if not possible to get the element at index o instead*/
+      val node: NodeBFS = nodes.find(_.bfsIdx == occs.head).get
+      if(node.node.tpe == tpe)
+        o
+      else if (! NodeTag.isADefine(node.node.tpe))
+        -1
+      else 
+        findIndex(nodes, tpe, os)
+    case _ => 
+      -1
+  }
   /*Helper function that reads all the elements we need to reconstruct the tree*/
   private def nameBasedRead(file: String, name: String): (Node, Map[String, List[Int]]) = {
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
@@ -63,8 +99,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     src.close()
     (nodeTree, names)
   }
-
-
 
   def extractSubTBFS(nodes: List[NodeBFS]): List[NodeBFS] = {
     def loop(nds: List[NodeBFS], acc: List[NodeBFS]): List[NodeBFS] = nds match {
