@@ -31,6 +31,8 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val (nodeTree, names) = nameBasedRead(file, name)
     val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
     val index: Int = findIndex(bfs, NodeTag.DefDef, names(name))
+    if(index == -1)
+      throw new Exception(s"Error: ${name} is not defined here")
     ???
   }
 
@@ -38,13 +40,17 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val (nodeTree, names) = nameBasedRead(file, name)
     val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
     val index: Int = findIndex(bfs, NodeTag.ValDef, names(name))
-   ???
+    if(index == -1)
+      throw new Exception(s"Error: ${name} is not defined here")
+    ???
   }
   
   def getObject(file: String, name: String): Tree = {
     val (nodeTree, names) = nameBasedRead(file, name)
     val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
     val index: Int = findIndex(bfs, NodeTag.ModuleDef, names(name))
+    if(index == -1)
+      throw new Exception(s"Error: ${name} is not defined here")
     ???
   }
 
@@ -52,13 +58,17 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val (nodeTree, names) = nameBasedRead(file, name)
     val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
     val index: Int = findIndex(bfs, NodeTag.ClassDef, names(name))
+    if(index == -1)
+      throw new Exception(s"Error: ${name} is not defined here")
     ???
   }
  
   def getTypeDef(file: String, name: String): Tree = {
     val (nodeTree, names) = nameBasedRead(file, name)
     val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx 
-    val index: Int = findIndex(bfs, NodeTag.TypeDef, names(name))
+    val index: Int = findIndex(bfs, NodeTag.TypeDef, names(name)) 
+    if(index == -1)
+      throw new Exception(s"Error: ${name} is not defined here")
     ???
   }
 
@@ -66,6 +76,8 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val (nodeTree, names) = nameBasedRead(file, name)
     val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx 
     val index: Int = findIndex(bfs, NodeTag.LabelDef, names(name))
+    if(index == -1)
+      throw new Exception(s"Error: ${name} is not defined here")
     ???
   }
 
