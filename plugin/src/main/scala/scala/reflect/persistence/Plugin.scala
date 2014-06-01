@@ -35,7 +35,8 @@ class Plugin(val global: Global) extends NscPlugin {
         val compAsts = new AstCompressor()(decTree.tree)
         // TODO: uncomment for names
         // val compNames = new NameCompressor()(decTree.names)
-        new XZWriter(new DataOutputStream(new FileOutputStream(path)))(compAsts /*++ compNames*/)
+        // TODO: remove 0.toByte once names always compressed. Modify decompression accordingly.
+        new XZWriter(new DataOutputStream(new FileOutputStream(path)))(0.toByte :: compAsts /*++ compNames*/)
       }
     }
 
