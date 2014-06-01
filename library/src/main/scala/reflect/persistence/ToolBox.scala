@@ -29,7 +29,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
 
   def getMethodDef(file: String, name: String): Tree = {
     val (nodeTree, names) = nameBasedRead(file, name) 
-
     ???
   }
 
@@ -44,7 +43,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   }
 
   def getClass(file: String, name: String): Tree = {
-
+    val (nodeTree, names) = nameBasedRead(file, name)
     ???
   }
 
