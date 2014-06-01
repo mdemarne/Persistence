@@ -2,6 +2,7 @@ package scala.reflect.persistence
 
 import java.io.DataInputStream
 import org.tukaani.xz.SingleXZInputStream
+
 /* TODO: make some functions private. Here public for tests */
 class AstDecompressor(in: DataInputStream) {
   import Enrichments._

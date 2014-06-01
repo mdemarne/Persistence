@@ -11,7 +11,7 @@ class AstCompressorTest extends FunSuite {
 
   /* Tests concerning computeFreqs */
 
-  val compressor = new AstCompressor(null)
+  val compressor = new AstCompressor()
 
   test("parseTreeTest1") {
     val tree = ParseTestTree.parse("n ( n ( n n ) n )").get

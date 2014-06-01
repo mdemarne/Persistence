@@ -8,14 +8,11 @@ import java.io.{File,FileInputStream,FileOutputStream}
 import org.tukaani.xz.{XZOutputStream, LZMA2Options}
 import java.io.OutputStream
 
-
-/* TODO: optimize. The splitTree method is very slow on big files, (ex. Typers.scala, 5'500 lines of code) */
 /* TODO: make some functions private. Here public for tests */
-class AstCompressor(out: DataOutputStream) {
+class AstCompressor {
   import Enrichments._
   
   var toWrite: List[Byte] = Nil
-  var names: Map[String, List[Int]] = Map()
  
   /* Reparse the tree using the new dictionary */
   def splitTree(node: Node): (NodeDict, List[List[NodeBFS]], List[(Int, Int)]) = {
@@ -115,7 +112,6 @@ class AstCompressor(out: DataOutputStream) {
     toWrite ++= ShortToBytes(lp2.head.toShort)
     loop(lp2.head, 1, lp2.tail, false)
   }
-  
   /* Compresses the List of 0 and 1's into bytes */
   def compressBytes(bytes: List[Byte]): Array[Byte] = {
     val groups: List[(Int, List[(Byte, Int)])] = bytes.reverse.zipWithIndex.groupBy(_._2 / 8).toList
@@ -124,48 +120,14 @@ class AstCompressor(out: DataOutputStream) {
       o.zipWithIndex.map(b => (b._1 << b._2).toByte).sum.toByte
     }.toArray
   }
-  def IntToBytes(i: Int): List[Byte] = {
-    List((i & 0xff).toByte, ((i >> 8)& 0xff).toByte, ((i >> 16)& 0xff).toByte, ((i >> 24)& 0xff).toByte)
-  }
-  def ShortToBytes(s: Short): List[Byte] = {
-    List((s & 0xff).toByte, ((s >> 8)& 0xff).toByte)
-  }
-  def applyXZ {
-    val comp: XZOutputStream = new XZOutputStream(out, new LZMA2Options())
-    toWrite.foreach{comp.write(_)}
-    comp.close()
-  }
-
-  /*Encode the names
-  TODO this is a very simple version*/
-  def outputNames(nameBFS: Map[String, List[Int]]): Unit = {
-    toWrite ++= IntToBytes(nameBFS.size)
-    nameBFS.foreach{ n =>
-      toWrite ++= n._1.getBytes.toList
-      toWrite :+= '\n'.toByte
-      toWrite ++= ShortToBytes(n._2.size.toShort)
-      toWrite ++= n._2.map(e => ShortToBytes(e.toShort)).flatten 
-    }  
-  }
-  def setNames(names: Map[String, List[Int]]) {
-    this.names = names
-  }
   
-  def apply(node: Node): Unit = {
-    toWrite = Nil
-    if (names.isEmpty) 
-      toWrite :+= 0.toByte 
-    else 
-      toWrite :+= 1.toByte
+  def apply(node: Node): List[Byte] = {
     val (nodeDict, occs, edges) = splitTree(node)
     val hufDict = genHuffman(nodeDict)
     val encodedOccs = encodeOccs(occs, hufDict)
     outputOccs(encodedOccs)
     outputEdges(edges)
     outputDict(hufDict)
-    if(!names.isEmpty)
-      outputNames(names) 
-    out.writeLong(toWrite.size)
-    applyXZ
+    toWrite
   }
 }

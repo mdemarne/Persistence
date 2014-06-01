@@ -17,9 +17,10 @@ class AstWriterTest extends FunSuite {
     val tree = ParseTestTree.parse(treeStr).get
     
     val file = new File("WritingTest.ast")
-    val compressor = new AstCompressor(new DataOutputStream(new FileOutputStream(file)))
+    val compressor = new AstCompressor()
+  	val xzWriter = new XZWriter(new DataOutputStream(new FileOutputStream(file)))
     val decompressor = new AstDecompressor(new DataInputStream(new FileInputStream(file)))
-    compressor(tree)
+    xzWriter(compressor(tree))
     val recupTree = decompressor()
     assert(tree == recupTree, s"Error: Not matching:\n${tree}\nAnd\n${recupTree}")    
     file.delete()

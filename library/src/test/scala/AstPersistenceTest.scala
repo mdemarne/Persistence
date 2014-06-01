@@ -15,10 +15,13 @@ class AstPersistenceTest extends FunSuite {
 
     count += 1
     val file = new File("WriteTest"+count+".xz")
-    val compressor = new AstCompressor(new DataOutputStream(new FileOutputStream(file)))
+    
+    val compressor = new AstCompressor()
+    val xzWriter = new XZWriter(new DataOutputStream(new FileOutputStream(file)))
+    
     val decompressor = new AstDecompressor(new DataInputStream(new FileInputStream(file)))
 
-    compressor(tree)
+    xzWriter(compressor(tree))
     val recupTree = decompressor()
 
     assert(tree == recupTree, s"${tree} \nDid not match\n${recupTree}")

@@ -104,4 +104,10 @@ object Enrichments {
       loop(in.head :: Nil, in.tail)
     }
   }
+  def IntToBytes(i: Int): List[Byte] = {
+    List((i & 0xff).toByte, ((i >> 8)& 0xff).toByte, ((i >> 16)& 0xff).toByte, ((i >> 24)& 0xff).toByte)
+  }
+  def ShortToBytes(s: Short): List[Byte] = {
+    List((s & 0xff).toByte, ((s >> 8)& 0xff).toByte)
+  }
 }
