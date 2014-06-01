@@ -28,56 +28,37 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   }
 
   def getMethodDef(file: String, name: String): Tree = {
-    val (nodeTree, names) = nameBasedRead(file, name)
-    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
-    val index: Int = findIndex(bfs, NodeTag.DefDef, names(name))
-    if(index == -1)
-      throw new Exception(s"Error: ${name} is not defined here")
-    ???
+   getElement(file, name, NodeTag.DefDef) 
   }
 
   def getValDef(file: String, name: String): Tree = {
-    val (nodeTree, names) = nameBasedRead(file, name)
-    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
-    val index: Int = findIndex(bfs, NodeTag.ValDef, names(name))
-    if(index == -1)
-      throw new Exception(s"Error: ${name} is not defined here")
-    ???
+    getElement(file, name, NodeTag.ValDef)
   }
   
+  
   def getObject(file: String, name: String): Tree = {
-    val (nodeTree, names) = nameBasedRead(file, name)
-    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
-    val index: Int = findIndex(bfs, NodeTag.ModuleDef, names(name))
-    if(index == -1)
-      throw new Exception(s"Error: ${name} is not defined here")
-    ???
+    getElement(file, name, NodeTag.ModuleDef)
   }
 
   def getClassDef(file: String, name: String): Tree = {
-    val (nodeTree, names) = nameBasedRead(file, name)
-    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
-    val index: Int = findIndex(bfs, NodeTag.ClassDef, names(name))
-    if(index == -1)
-      throw new Exception(s"Error: ${name} is not defined here")
-    ???
+   getElement(file, name, NodeTag.ClassDef) 
   }
  
   def getTypeDef(file: String, name: String): Tree = {
-    val (nodeTree, names) = nameBasedRead(file, name)
-    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx 
-    val index: Int = findIndex(bfs, NodeTag.TypeDef, names(name)) 
-    if(index == -1)
-      throw new Exception(s"Error: ${name} is not defined here")
-    ???
+   getElement(file, name, NodeTag.TypeDef) 
   }
 
   def getLabelDef(file: String, name: String): Tree = {
+   getElement(file, name, NodeTag.LabelDef) 
+  }
+
+  def getElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
     val (nodeTree, names) = nameBasedRead(file, name)
-    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx 
-    val index: Int = findIndex(bfs, NodeTag.LabelDef, names(name))
+    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
+    val index: Int = findIndex(bfs, tpe, names(name))
     if(index == -1)
       throw new Exception(s"Error: ${name} is not defined here")
+    val subtree: List[NodeBFS] = extractSubTBFS(bfs.filter(_.bfsIdx > index), bfs.find(_.bfsIdx == index).get)
     ???
   }
 
@@ -112,7 +93,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     (nodeTree, names)
   }
 
-  def extractSubTBFS(nodes: List[NodeBFS]): List[NodeBFS] = {
+  def extractSubTBFS(nodes: List[NodeBFS], head: NodeBFS): List[NodeBFS] = {
     def loop(nds: List[NodeBFS], acc: List[NodeBFS]): List[NodeBFS] = nds match {
       case Nil => acc
       case n::ns if(acc.exists( e => e.bfsIdx == n.parentBfsIdx)) => 
@@ -120,15 +101,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
       case n::ns => loop(acc, ns)
     }
     /*TODO doesn't work yet need to know where to start*/
-    loop(Nil, nodes)
+    loop(head::Nil, nodes)
   }
-  /*Need some way to know the index where looking for*/
-  def extractSub(node: Node) : Node = {
-    val bfs: List[NodeBFS] = node.flattenBFSIdx
-    //TODO this is to be replaced
-    val idx: Int = 34
-    val(_, good) = bfs.splitAt(idx)
-    val subT: List[NodeBFS] = extractSubTBFS(good) //TODO complete that
-    subT.toTree
-  } 
 }
