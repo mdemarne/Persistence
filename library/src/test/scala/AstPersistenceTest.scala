@@ -2,17 +2,12 @@ package scala.reflect.persistence.test
 
 import org.scalatest.FunSuite
 import scala.reflect.persistence._
-import java.io.File
-import java.io.DataOutputStream
-import java.io.DataInputStream
-import java.io.FileOutputStream
-import java.io.FileInputStream
+
 
 class AstPersistenceTest extends FunSuite {
-  var count = 0
+ 
   def compWriteReadDecomp(treeStr: String) {
     val tree = ParseTestTree.parse(treeStr).get
-
     val compressor = new AstCompressor()
     val decompressor = new AstDecompressor()
     val bytes: List[Byte] = compressor(tree)
