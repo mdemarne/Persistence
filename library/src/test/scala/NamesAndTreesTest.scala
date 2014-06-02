@@ -24,6 +24,7 @@ class NamesAndTreesTest extends FunSuite {
     val nameDecomp: NameDecompressor = new NameDecompressor()
 
     val nameBytes: List[Byte] = nameComp(names)
+    println(s"Name bytes: ${nameBytes}")
     val recupNames: Map[String, List[Int]] = nameDecomp(nameBytes)._1
     assert(recupNames == names, s"\n${names}\n did not match\n${recupNames}")
 

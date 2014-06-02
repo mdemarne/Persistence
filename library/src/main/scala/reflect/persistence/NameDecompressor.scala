@@ -7,7 +7,7 @@ class NameDecompressor {
     val (size, xs) = readInt(toRead)
     var rest: List[Byte] = xs
     val res: Map[String, List[Int]] = (0 until size).map{ y => 
-      val name: String = rest.takeWhile(_ != '\n'.toByte).mkString
+      val name: String = rest.takeWhile(_ != '\n'.toByte).map(_.toChar).mkString
       rest = toRead.dropWhile(_ != '\n').tail
       val (entriesSize, xs) = readShort(rest)
       rest = xs
