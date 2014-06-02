@@ -14,6 +14,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(source))
     val bytes: List[Byte] = new XZReader(src)()
+    src.close()
     val hasNames: Boolean = (bytes.head == 1.toByte)
     val decompressor: AstDecompressor = new AstDecompressor()
     val nodeTree = decompressor(bytes.tail)
