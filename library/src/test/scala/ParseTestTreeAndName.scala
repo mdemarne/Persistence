@@ -7,7 +7,7 @@ import java.io.StringReader
 import scala.language.implicitConversions
 
 object ParseTestTreeAndName  extends StandardTokenParsers {
-  lexical.delimiters ++= List("(", ")")
+  lexical.delimiters ++= List("(", ")", "!")
   import Enrichments._ 
   
   case class NodeName(tpe: NodeTag.Value, name: Option[String], var children: List[NodeName]) {
@@ -64,11 +64,29 @@ object ParseTestTreeAndName  extends StandardTokenParsers {
     def generateFlattenBFS(q: List[(NodeName, Int)], acc: RevList[NodeBFS]): RevList[NodeBFS] = q match {
       case Nil => acc
       case n::ns => 
-        val children = n._1.children.map((_, incr))
-        /*TODO handle the names*/
+        val children: List[(NodeName, Int)] = n._1.children.map((_, incr))
+        /*handles the names*/
+        children.foreach{ e => 
+          names = updateMap(names, e._1.name, e._2, e._1.tpe)
+        }
         generateFlattenBFS(ns:::children, children.map(x => NodeBFS(x._1, x._2, n._2)).reverse:::acc)
     }
-    ??? 
+    names = updateMap(names, ndName.name, 0, ndName.tpe)
+    val res: RevList[NodeBFS] = generateFlattenBFS((ndName, 0)::Nil, List(NodeBFS(ndName, 0, -1)))
+    (res.toTree, names)
+  }
+  
+  /*Enables us to update the map of strings*/
+  private def updateMap(m: Map[String, List[Int]], name: Option[String], idx: Int, tpe: NodeTag.Value): Map[String, List[Int]] = name match {
+    case None => m
+    case Some(e) => 
+      if(m.contains(e)){
+        val entries: List[Int] = m(e)
+        val up: List[Int] = if(NodeTag.isADefine(tpe)) idx::entries else entries:::List(idx)
+        m + (e -> up)
+      }else {
+        m + (e -> List(idx))
+      }   
   }
 }
 
