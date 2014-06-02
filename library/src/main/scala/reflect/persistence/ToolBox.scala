@@ -14,6 +14,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
     val bytes: List[Byte] = new XZReader(src)()
+    src.close()
     val hasNames: Boolean = (bytes.head == 1.toByte)
     val decompressor: AstDecompressor = new AstDecompressor()
     val nodeTree = decompressor(bytes.tail)
@@ -58,7 +59,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     if(index == -1)
       throw new Exception(s"Error: ${name} is not defined here")
     val subtree: List[NodeBFS] = extractSubTBFS(bfs.filter(_.bfsIdx > index), bfs.find(_.bfsIdx == index).get)
-    ???
+    new TreeRecomposer[u.type](u)(DecTree(subtree.toTree, names), index)
   }
 
   /*Find the bfs index of the element that corresponds to our search*/
@@ -92,7 +93,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     (nodeTree, names)
   }
 
-  def extractSubTBFS(nodes: List[NodeBFS], head: NodeBFS): List[NodeBFS] = {
+  def extractSubTBFS(nodes: List[NodeBFS], head: NodeBFS): RevList[NodeBFS] = {
     def loop(nds: List[NodeBFS], acc: List[NodeBFS]): List[NodeBFS] = nds match {
       case Nil => acc
       case n::ns if(acc.exists( e => e.bfsIdx == n.parentBfsIdx)) => 

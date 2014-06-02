@@ -8,7 +8,7 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
   import u._
   import Enrichments._
   
-  def apply(decTree: DecTree): Tree = {
+  def apply(decTree: DecTree, start: Int = 0): Tree = {
     var names = decTree.names.unzipWithIdxs
     @tailrec def loop(trees: List[Node], dict: Map[Node, Tree], count: Int): Map[Node, Tree] = trees match {
       case Nil => dict
@@ -108,6 +108,6 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
         }
         loop(xs, dict + (x -> res), count + 1)
     }
-    loop(decTree.tree.flattenBFS.filter(x => x.tpe != NodeTag.Separator), Map((Node.empty -> EmptyTree)), 0)(decTree.tree)
+    loop(decTree.tree.flattenBFS.filter(x => x.tpe != NodeTag.Separator), Map((Node.empty -> EmptyTree)), start)(decTree.tree)
   }
 }
