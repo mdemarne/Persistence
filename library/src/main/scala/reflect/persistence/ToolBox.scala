@@ -10,9 +10,9 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   import Enrichments._
   
   /* General function returning the whole tree */
-  def getTst(source: String): Tree = {
+  def getTst(file: String): Tree = {
     
-    val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(source))
+    val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
     val bytes: List[Byte] = new XZReader(src)()
     src.close()
     val hasNames: Boolean = (bytes.head == 1.toByte)
@@ -36,7 +36,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   }
   
   
-  def getObject(file: String, name: String): Tree = {
+  def getModuleDef(file: String, name: String): Tree = {
     getElement(file, name, NodeTag.ModuleDef)
   }
 
