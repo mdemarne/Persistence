@@ -24,8 +24,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
       names = (new NameDecompressor()(toRead))._1
     
     /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
-    val tree = new TreeRecomposer[u.type](u)(nodeTree, ???, ???, ???, ???)
-    ???
+    new TreeRecomposer[u.type](u)(DecTree(nodeTree, names))
   }
 
   def getMethodDef(file: String, name: String): Tree = {

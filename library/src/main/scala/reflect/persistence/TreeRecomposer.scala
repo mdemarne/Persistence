@@ -7,41 +7,29 @@ import scala.language.postfixOps
 class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
   import u._
   import Enrichments._
-  var trans: Map[Name, List[Int]] = Map() 
   
-  def transformNames(ln: Map[String, List[Int]]){
-    trans = ln.map{e => (TermName(e._1), e._2) }
-  }
-  def apply(tree: Node, namesBFS: Map[Name, List[Int]], symbBFS: Map[Symbol, List[Int]], typesBFS: Map[Type, List[Int]], constBFS: Map[Constant, List[Int]]): Tree = {
-    var nameList: RevList[Name] = namesBFS.unzipWithIdxs
-    var symbolList: RevList[Symbol] = symbBFS.unzipWithIdxs
-    var typeList: RevList[Type] = typesBFS.unzipWithIdxs
-    var constList: RevList[Constant] = constBFS.unzipWithIdxs
-    @tailrec def loop(trees: List[Node], dict: Map[Node, Tree]): Map[Node, Tree] = trees match {
+  def apply(decTree: DecTree): Tree = {
+    var names = decTree.names.unzipWithIdxs
+    @tailrec def loop(trees: List[Node], dict: Map[Node, Tree], count: Int): Map[Node, Tree] = trees match {
       case Nil => dict
       case x :: xs =>
         val res = x.tpe match {
           case NodeTag.PackageDef =>
             PackageDef(dict(x.children.head).asInstanceOf[RefTree], x.children.tail map (dict(_)))
           case NodeTag.ClassDef =>
-            val nm = fetchName.asInstanceOf[TypeName] /* Need to fetch name first to avoid swap with name of modifier */
-            ClassDef(NoMods, nm, x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last).asInstanceOf[Template])
+            ClassDef(NoMods, TypeName(names(count)), x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last).asInstanceOf[Template])
           case NodeTag.ModuleDef =>
-            val nm = fetchName.asInstanceOf[TermName]
-            ModuleDef(NoMods, nm, dict(x.children.head).asInstanceOf[Template])
+            ModuleDef(NoMods, TermName(names(count)), dict(x.children.head).asInstanceOf[Template])
           case NodeTag.ValDef =>
-            val nm = fetchName.asInstanceOf[TermName]
-            ValDef(NoMods, nm, dict(x.children.head), dict(x.children.last))
+            ValDef(NoMods, TermName(names(count)), dict(x.children.head), dict(x.children.last))
           case NodeTag.DefDef =>
             val params = x.children.dropRight(2).splitOn(_ == Node.separator)
             val vparams = params.tail.map(x => x.map(dict(_).asInstanceOf[ValDef]))
-            val nm = fetchName.asInstanceOf[TermName]
-            DefDef(NoMods, nm, params.head.map(dict(_).asInstanceOf[TypeDef]), vparams, dict(x.children.init.last), dict(x.children.last))
+            DefDef(NoMods, TermName(names(count)), params.head.map(dict(_).asInstanceOf[TypeDef]), vparams, dict(x.children.init.last), dict(x.children.last))
           case NodeTag.TypeDef =>
-            val nm = fetchName.asInstanceOf[TypeName]
-            TypeDef(NoMods, nm, x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last))
+            TypeDef(NoMods, TypeName(names(count)), x.children.init map (dict(_).asInstanceOf[TypeDef]), dict(x.children.last))
           case NodeTag.LabelDef =>
-            LabelDef(fetchName.asInstanceOf[TermName], x.children.init map (dict(_).asInstanceOf[Ident]), dict(x.children.last))
+            LabelDef(TermName(names(count)), x.children.init map (dict(_).asInstanceOf[Ident]), dict(x.children.last))
           case NodeTag.Import =>
             Import(dict(x.children.head), Nil)
           case NodeTag.Template =>
@@ -56,7 +44,7 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case NodeTag.Star =>
             Star(dict(x.children.head))
           case NodeTag.Bind =>
-            Bind(fetchName, dict(x.children.head))
+            Bind(TermName(names(count)), dict(x.children.head))
           case NodeTag.UnApply =>
             UnApply(dict(x.children.head), x.children.tail map (dict(_)))
           case NodeTag.ArrayValue => ??? /* TODO */
@@ -88,23 +76,21 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case NodeTag.ApplyDynamic => ??? /* TODO */
           /*ApplyDynamic(dict(x.children.head), x.children.tail map (dict(_)))*/
           case NodeTag.This =>
-            This(fetchName.asInstanceOf[TypeName])
+            This(TypeName(names(count)))
           case NodeTag.Select =>
-            Select(dict(x.children.head), fetchName)
+            Select(dict(x.children.head), TermName(names(count)))
           case NodeTag.Ident =>
-            Ident(fetchName)
+            Ident(TermName(names(count)))
           case NodeTag.ReferenceToBoxed =>
             ReferenceToBoxed(dict(x.children.head).asInstanceOf[Ident])
           case NodeTag.Literal =>
-            val const = constList.head
-            constList = constList.tail
-            Literal(const)
+            Literal(Constant(0))
           case NodeTag.Annotated =>
             Annotated(dict(x.children.head), dict(x.children.last))
           case NodeTag.SingletonTypeTree =>
             SingletonTypeTree(dict(x.children.head))
           case NodeTag.SelectFromTypeTree =>
-            SelectFromTypeTree(dict(x.children.head), fetchName.asInstanceOf[TypeName])
+            SelectFromTypeTree(dict(x.children.head), TypeName(names(count)))
           case NodeTag.CompoundTypeTree =>
             CompoundTypeTree(dict(x.children.head).asInstanceOf[Template])
           case NodeTag.AppliedTypeTree =>
@@ -116,24 +102,12 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case NodeTag.TypeTree =>
             TypeTree()
           case NodeTag.Super =>
-            Super(dict(x.children.head), fetchName.asInstanceOf[TypeName])
+            Super(dict(x.children.head), TypeName(names(count)))
           case NodeTag.EmptyTree => EmptyTree
-          case _ => sys.error(x.getClass().toString()) /* TODO : remove */
+          case _ => sys.error(x.getClass().toString()) /* Should never happen */
         }
-        /* TODO: find a way to add types back, etc. */
-        /*if (x.tpe != NodeTag.EmptyTree) {
-            if (typeList.head != null) res.setType(typeList.head)
-            typeList = typeList.tail
-            if (symbolList.head != null && x.tpe != NodeTag.TypeTree) res.setSymbol(symbolList.head) /* TODO: cannot set symbols to TypeTree, figure out */
-            symbolList = symbolList.tail
-          }*/
-        loop(xs, dict + (x -> res))
+        loop(xs, dict + (x -> res), count + 1)
     }
-    def fetchName = {
-      val ret = nameList.head
-      nameList = nameList.tail
-      ret
-    }
-    loop(tree.flattenBFS.filter(x => x.tpe != NodeTag.Separator), Map((Node.empty -> EmptyTree)))(tree)
+    loop(decTree.tree.flattenBFS.filter(x => x.tpe != NodeTag.Separator), Map((Node.empty -> EmptyTree)), 0)(decTree.tree)
   }
 }
