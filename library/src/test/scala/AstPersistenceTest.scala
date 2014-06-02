@@ -13,19 +13,12 @@ class AstPersistenceTest extends FunSuite {
   def compWriteReadDecomp(treeStr: String) {
     val tree = ParseTestTree.parse(treeStr).get
 
-    count += 1
-    val file = new File("WriteTest" + count + ".xz")
-
     val compressor = new AstCompressor()
-    val xzWriter = new XZWriter(new DataOutputStream(new FileOutputStream(file)))
-
-    val decompressor = new AstDecompressor(new DataInputStream(new FileInputStream(file)))
-    // TODO: remove 0.toByte once names always compressed. Modify decompression accordingly.
-    xzWriter(0.toByte :: compressor(tree))
-    val recupTree = decompressor()
-
+    val decompressor = new AstDecompressor()
+    val bytes: List[Byte] = compressor(tree)
+    val recupTree = decompressor(bytes)
+    
     assert(tree == recupTree, s"${tree} \nDid not match\n${recupTree}")
-    file.delete()
   }
 
   test("First Tree") {

@@ -8,7 +8,7 @@ class AstDecompressorTest extends FunSuite {
 
   /* NB: assumes that the splitTree, genHuffman, encodeOccs are working, i.e. the compression itself. */
 
-  val decompressor = new AstDecompressor(null)
+  val decompressor = new AstDecompressor()
   val compressor = new AstCompressor()
 
   def splitTreeForTest(treeStr: String) = {
