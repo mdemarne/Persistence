@@ -107,6 +107,6 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
         loop(xs, dict + (x -> res), count - 1)
     }
     val flattenTree = decTree.tree.flattenBFS.filter(x => x.tpe != NodeTag.Separator && x.tpe != NodeTag.EmptyTree) 
-    loop(flattenTree, Map((Node.empty -> EmptyTree)), flattenTree.size - 1 - start)(decTree.tree)
+    loop(flattenTree, Map((Node.empty -> EmptyTree)), flattenTree.size - 1 + start)(decTree.tree)
   }
 }

@@ -50,20 +50,20 @@ class TreeRecomposerTest extends FunSuite {
     }.tree
     testAndPrint(t1)
   }
-  test("Basic object, Lists, and nested class") {
-    val t1 = reify {
-      object Flower {
-        case class Tulipe(xs: List[Int]) {
-          def add(y: Int) = y :: xs
-          def remove(y: Int) = xs.filter(x => x != y)
-          def dummy = println("hello, " + x)
-          def addAll(y: List[Int]) = x ++ y
-          def zipAll(y: List[Boolean]) = x zip y
-        }
-        val x = new Tulipe(44 :: 55 :: Nil).add(22)
+  val methodObj = reify {
+    object Flower {
+      case class Tulipe(xs: List[Int]) {
+        def add(y: Int) = y :: xs
+        def remove(y: Int) = xs.filter(x => x != y)
+        def dummy = println("hello, " + x)
+        def addAll(y: List[Int]) = x ++ y
+        def zipAll(y: List[Boolean]) = x zip y
       }
-    }.tree
-    testAndPrint(t1)
+      val x = new Tulipe(44 :: 55 :: Nil).add(22)
+    }
+  }.tree
+  test("Basic object, Lists, and nested class") {
+    testAndPrint(methodObj)
   }
   test("Basic class and pattern matching") {
     val t1 = reify {
@@ -133,14 +133,5 @@ class TreeRecomposerTest extends FunSuite {
 
   test("Complicated example1") {
     testAndPrint(lzwExample)
-  }
-
-  test("subtree extraction1") {
-	  val decTree = decomposer(lzwExample)
-	  println(decTree)
-	  val subtree = toolbox.extractSubBFS(decTree.tree.flattenBFSIdx.reverse.drop(28)).toTree
-	  println(subtree)
-	  val nwTree = DecTree(subtree, decTree.names) 
-	  val rec = recomposer(decTree, 28)
   }
 }
