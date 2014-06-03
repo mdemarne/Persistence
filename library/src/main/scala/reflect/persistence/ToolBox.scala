@@ -54,16 +54,16 @@ class ToolBox(val u: scala.reflect.api.Universe) {
 
   def getElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
     val (nodeTree, names) = nameBasedRead(file, name)
-    val bfs: List[NodeBFS] = nodeTree.flattenBFSIdx
+    val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
     val index: Int = findIndex(bfs, tpe, names(name))
     if(index == -1)
       throw new Exception(s"Error: ${name} is not defined here")
-    val subtree: List[NodeBFS] = extractSubTBFS(bfs.filter(_.bfsIdx > index), bfs.find(_.bfsIdx == index).get)
+    val subtree: List[NodeBFS] = extractSubBFS(bfs.reverse.drop(index))
     new TreeRecomposer[u.type](u)(DecTree(subtree.toTree, names), index)
   }
 
   /*Find the bfs index of the element that corresponds to our search*/
-  private def findIndex(nodes: RevList[NodeBFS], tpe: NodeTag.Value, occs: List[Int]): Int = occs match{
+  def findIndex(nodes: RevList[NodeBFS], tpe: NodeTag.Value, occs: List[Int]): Int = occs match{
     case o::os =>
       /*TODO check if not possible to get the element at index o instead*/
       val node: NodeBFS = nodes.find(_.bfsIdx == occs.head).get
@@ -77,7 +77,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
       -1
   }
   /*Helper function that reads all the elements we need to reconstruct the tree*/
-  private def nameBasedRead(file: String, name: String): (Node, Map[String, List[Int]]) = {
+  def nameBasedRead(file: String, name: String): (Node, Map[String, List[Int]]) = {
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
     val bytes: List[Byte] = new XZReader(src)()
     val hasNames: Boolean = (bytes.head == 1.toByte)
@@ -93,14 +93,16 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     (nodeTree, names)
   }
 
-  def extractSubTBFS(nodes: List[NodeBFS], head: NodeBFS): RevList[NodeBFS] = {
-    def loop(nds: List[NodeBFS], acc: List[NodeBFS]): List[NodeBFS] = nds match {
+  /*@warning must give the list of nodes in normal BFS and head is the node we need*/
+  def extractSubBFS(nodes: List[NodeBFS]): RevList[NodeBFS] = {
+    assert(!nodes.isEmpty)
+    def loop(nds: List[NodeBFS], acc: RevList[NodeBFS]): RevList[NodeBFS] = nds match {
       case Nil => acc
-      case n::ns if(acc.exists( e => e.bfsIdx == n.parentBfsIdx)) => 
-        loop(acc:::List(n), ns)
-      case n::ns => loop(acc, ns)
+      case n::ns if(!acc.exists(_.bfsIdx == n.parentBfsIdx)) => 
+        acc
+      case n::ns => 
+        loop(ns, n::acc)
     }
-    /*TODO doesn't work yet need to know where to start*/
-    loop(head::Nil, nodes)
+    loop(nodes.tail, nodes.head::Nil)
   }
 }

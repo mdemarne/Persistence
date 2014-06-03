@@ -10,8 +10,8 @@ object ParseTestTree extends StandardTokenParsers {
   lexical.delimiters ++= List("(", ")")
 
   /* Map for the tpe */
-  val strTpeMap: Map[String, NodeTag.Value] = Map(("v" -> NodeTag.ValDef),
-    ("c" -> NodeTag.ClassDef), ("m" -> NodeTag.ModuleDef), ("t" -> NodeTag.Try))
+  val strTpeMap: Map[String, NodeTag.Value] = Map(("v" -> NodeTag.ValDef), ("c" -> NodeTag.ClassDef), ("m" -> NodeTag.ModuleDef), ("t" -> NodeTag.Try), ("s" -> NodeTag.Star), ("e" -> NodeTag.ExistentialTypeTree))
+
 
   /* Helper function to get type in parser */
   implicit def strToTpe(str: String): NodeTag.Value = strTpeMap.getOrElse(str, NodeTag.EmptyTree)
