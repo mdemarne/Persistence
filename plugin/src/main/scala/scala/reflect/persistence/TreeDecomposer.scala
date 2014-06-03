@@ -133,7 +133,6 @@ class TreeDecomposer[U <: scala.reflect.api.Trees](val u: U) {
         }
       }
       val flattenTree = tree.flattenBFS
-      //flattenTree foreach {v => println(v.getClass())}
       val newTree = loop(flattenTree, Map((EmptyTree -> Node.empty)), Map(), flattenTree.size - 1)
       DecTree(newTree._1(tree), newTree._2)
     }
