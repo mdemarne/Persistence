@@ -30,14 +30,26 @@ class NamesAndTreesTest extends FunSuite {
     val index: Int = tool.findIndex(bfs, tpe, names(name))
     val subtree: Node = tool.extractSubBFS(bfs.reverse.drop(index)).toTree
     val correction: Node = ParseTestTree.parse(expected).get
-    println(s"The subtree ${subtree}")
-    assert(subtree == correction)
+    assert(subtree == correction, s"Extract ${name}")
 
 
   }
 
-  test("First tree") {
-    val treeStr = "c !coucou! (m !coucou! e !yo! v !salut!)"
-    compressionTest(treeStr, "coucou", NodeTag.ClassDef, "c (m e v)")
+  test("First tree: Basic") {
+    val treeStr = "c !coucou! (m !coucou! v !yo! v !salut!)"
+    compressionTest(treeStr, "coucou", NodeTag.ClassDef, "c (m v v)")
+    compressionTest(treeStr, "coucou", NodeTag.ModuleDef, "m")
+    compressionTest(treeStr, "yo", NodeTag.ValDef, "v")
+    compressionTest(treeStr, "salut", NodeTag.ValDef, "v")
+  }
+
+  test("Second Tree: complicated with different names") {
+    val treeStr = "c !first! (m !child! (v v (c (m !Shabat! v v) c (m (v !vindalo! v)))) m(v v (c c !last!)))"
+    compressionTest(treeStr, "first", NodeTag.ClassDef, "c (m (v v (c (m v v) c (m (v v)))) m(v v (c c)))")
+    compressionTest(treeStr, "Shabat", NodeTag.ModuleDef, "m")
+    //TODO problem
+    compressionTest(treeStr, "child", NodeTag.ModuleDef, "m (v v (c (m v v) c (m (v v))))")
+    compressionTest(treeStr, "vindalo", NodeTag.ValDef, "v")
+    compressionTest(treeStr, "last", NodeTag.ClassDef, "c")
   }
 }
