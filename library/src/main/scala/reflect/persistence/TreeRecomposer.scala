@@ -76,9 +76,9 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case NodeTag.This =>
             This(TypeName(names(count)))
           case NodeTag.Select =>
-            Select(dict(x.children.head), TermName(names(count)))
+            Select(dict(x.children.head), TypeName(names(count)))
           case NodeTag.Ident =>
-            Ident(TermName(names(count)))
+            Ident(TypeName(names(count)))
           case NodeTag.ReferenceToBoxed =>
             ReferenceToBoxed(dict(x.children.head).asInstanceOf[Ident])
           case NodeTag.Literal =>
@@ -104,10 +104,10 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case NodeTag.EmptyTree => EmptyTree
           case _ => sys.error(x.getClass().toString()) /* Should never happen */
         }
+        println(res.isType + " " + res + " " + res.getClass)
         loop(xs, dict + (x -> res), count - 1)
     }
     val flattenTree = decTree.tree.flattenBFS.filter(x => x.tpe != NodeTag.Separator && x.tpe != NodeTag.EmptyTree) 
-    //flattenTree foreach {v => println(v.tpe)}
     loop(flattenTree, Map((Node.empty -> EmptyTree)), flattenTree.size - 1 - start)(decTree.tree)
   }
 }
