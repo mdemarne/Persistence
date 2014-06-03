@@ -32,7 +32,7 @@ class Plugin(val global: Global) extends NscPlugin {
       def apply(unit: CompilationUnit) {
         val path = generatePath(unit)
         val decTree = new TreeDecomposer[global.type](global)(unit.body)
-        val compAsts = new AstCompressor()(decTree.tree)
+        val compAsts = new AstCompressor()(decTree.treeBFS.toTree)
         // TODO: uncomment for names
         // val compNames = new NameCompressor()(decTree.names)
         // TODO: remove 0.toByte once names always compressed. Modify decompression accordingly.

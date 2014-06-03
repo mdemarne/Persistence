@@ -15,12 +15,24 @@ class TreeRecomposerTest extends FunSuite {
 
   /* Simply decompose and recompose the tree, hence testing both the Recomposer and the Decomposer.
    * Printout - see if the normal Scala printer works on our simplified trees */
+
   def testAndPrint(t1: Tree) {
     val decTree = decomposer(t1)
-    println("decTree: " + decTree)
+    println(decTree.treeBFS.map(x => (x.node.tpe, x.bfsIdx, x.parentBfsIdx)))
+    println("name list:" + decTree.names)
     println("Original tree:\n" + t1)
     val t2 = recomposer(decTree)
     println("Recomposed tree:\n" + t2)
+    /* Visual debugging */
+  }
+  def testAndPrintSubtree(t1: Tree, idx: Int) {
+    val decTree = decomposer(t1)
+    println("name list:" + decTree.names)
+    println("Original tree:\n" + t1)
+    val newBFS = toolbox.extractSubBFS(decTree.treeBFS.reverse.drop(idx))
+    println("subtree:" + newBFS.toTree)
+    val t2 = recomposer(DecTree(newBFS, decTree.names))
+    println("Recomposed subtree:\n" + t2)
     /* Visual debugging */
   }
 
@@ -133,5 +145,14 @@ class TreeRecomposerTest extends FunSuite {
 
   test("Complicated example1") {
     testAndPrint(lzwExample)
+  }
+  test("subtree extraction1") {
+    testAndPrintSubtree(methodObj, 9)
+  }
+  test("subtree extraction2") {
+    testAndPrintSubtree(lzwExample, 28)
+  }
+  test("subtree extraction3") {
+    testAndPrintSubtree(lzwExample, 121)
   }
 }

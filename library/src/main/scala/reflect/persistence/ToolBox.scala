@@ -4,7 +4,6 @@ import java.io._
 import scala.language.existentials
 
 /* Fetch trees and subtrees from the decompressed AST. */
-/* For now : return the entire AST, take a universe as argument */
 class ToolBox(val u: scala.reflect.api.Universe) {
   import u._
   import Enrichments._
@@ -24,33 +23,15 @@ class ToolBox(val u: scala.reflect.api.Universe) {
       names = (new NameDecompressor()(toRead))._1
     
     /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
-    new TreeRecomposer[u.type](u)(DecTree(nodeTree, names))
+    new TreeRecomposer[u.type](u)(DecTree(nodeTree.flattenBFSIdx, names))
   }
 
-  def getMethodDef(file: String, name: String): Tree = {
-   getElement(file, name, NodeTag.DefDef) 
-  }
-
-  def getValDef(file: String, name: String): Tree = {
-    getElement(file, name, NodeTag.ValDef)
-  }
-  
-  
-  def getModuleDef(file: String, name: String): Tree = {
-    getElement(file, name, NodeTag.ModuleDef)
-  }
-
-  def getClassDef(file: String, name: String): Tree = {
-   getElement(file, name, NodeTag.ClassDef) 
-  }
- 
-  def getTypeDef(file: String, name: String): Tree = {
-   getElement(file, name, NodeTag.TypeDef) 
-  }
-
-  def getLabelDef(file: String, name: String): Tree = {
-   getElement(file, name, NodeTag.LabelDef) 
-  }
+  def getMethodDef(file: String, name: String): Tree = getElement(file, name, NodeTag.DefDef) 
+  def getValDef(file: String, name: String): Tree = getElement(file, name, NodeTag.ValDef)  
+  def getModuleDef(file: String, name: String): Tree = getElement(file, name, NodeTag.ModuleDef)
+  def getClassDef(file: String, name: String): Tree = getElement(file, name, NodeTag.ClassDef)  
+  def getTypeDef(file: String, name: String): Tree = getElement(file, name, NodeTag.TypeDef)
+  def getLabelDef(file: String, name: String): Tree = getElement(file, name, NodeTag.LabelDef) 
 
   def getElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
     val (nodeTree, names) = nameBasedRead(file, name)
@@ -59,13 +40,13 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     if(index == -1)
       throw new Exception(s"Error: ${name} is not defined here")
     val subtree: List[NodeBFS] = extractSubBFS(bfs.reverse.drop(index))
-    new TreeRecomposer[u.type](u)(DecTree(subtree.toTree, names), index)
+    new TreeRecomposer[u.type](u)(DecTree(subtree, names))
   }
 
-  /*Find the bfs index of the element that corresponds to our search*/
+  /* Find the bfs index of the element that corresponds to our search */
   def findIndex(nodes: RevList[NodeBFS], tpe: NodeTag.Value, occs: List[Int]): Int = occs match{
     case o::os =>
-      /*TODO check if not possible to get the element at index o instead*/
+      /* TODO check if not possible to get the element at index o instead */
       val node: NodeBFS = nodes.find(_.bfsIdx == occs.head).get
       if(!NodeTag.isADefine(node.node.tpe)){
         -1
@@ -76,7 +57,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     case _ => 
       -1
   }
-  /*Helper function that reads all the elements we need to reconstruct the tree*/
+  /* Helper function that reads all the elements we need to reconstruct the tree */
   def nameBasedRead(file: String, name: String): (Node, Map[String, List[Int]]) = {
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
     val bytes: List[Byte] = new XZReader(src)()
@@ -93,7 +74,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     (nodeTree, names)
   }
 
-  /*@warning must give the list of nodes in normal BFS and head is the node we need*/
+  /* @warning must give the list of nodes in normal BFS and head is the node we need */
   def extractSubBFS(nodes: List[NodeBFS]): RevList[NodeBFS] = {
     assert(!nodes.isEmpty)
     def loop(nds: List[NodeBFS], acc: RevList[NodeBFS]): RevList[NodeBFS] = nds match {
