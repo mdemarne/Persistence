@@ -104,7 +104,6 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case NodeTag.EmptyTree => EmptyTree
           case _ => sys.error(x.getClass().toString()) /* Should never happen */
         }
-        println(res.isType + " " + res + " " + res.getClass)
         loop(xs, dict + (x -> res), count - 1)
     }
     val flattenTree = decTree.tree.flattenBFS.filter(x => x.tpe != NodeTag.Separator && x.tpe != NodeTag.EmptyTree) 
