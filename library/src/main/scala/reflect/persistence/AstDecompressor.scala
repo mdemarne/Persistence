@@ -58,7 +58,7 @@ class AstDecompressor {
   } 
   
   /*Extracts the edges encoded in the input*/
-  def inputComp2Edges: List[(Int, Int)] = {
+  def inputEdges: List[(Int, Int)] = {
    val size: Int = readInt
    //Read the first list
    var l1: List[(Int, Int)] = (readShort.toInt, readShort.toInt)::Nil
@@ -126,7 +126,7 @@ class AstDecompressor {
   def apply(bytes: List[Byte]): Node = {
     toRead = bytes
     val dOccs = inputOccs
-    val dEdges = inputComp2Edges
+    val dEdges = inputEdges
     val dDict = inputDict
     val decodedOccs = decodeOccs(dOccs, dDict)
     rebuiltTree(decodedOccs, dEdges)

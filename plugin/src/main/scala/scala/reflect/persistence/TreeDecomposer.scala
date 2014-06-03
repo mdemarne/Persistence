@@ -136,7 +136,7 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
     val decomposed = loop(flattenTree, Map((EmptyTree -> Node.empty)), Map())
     val flatTree = decomposed._1(tree).flattenBFSIdx
     /* TODO: check why some names seems to correspond to no node at all */
-    val flatNames = decomposed._2.map(e => e._1 -> e._2.map(x => flatTree.find(n => n.node eq x).getOrElse(NodeBFS(Node.empty, -1, -1)).bfsIdx))
+    val flatNames = decomposed._2.map(e => e._1 -> e._2.map(x => flatTree.find(_.node eq x).getOrElse(NodeBFS(Node.empty, -1, -1)).bfsIdx).filter(_ != -1))
     DecTree(flatTree, flatNames)
   }
 }

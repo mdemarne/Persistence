@@ -47,8 +47,6 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
             Bind(TermName(names(idx)), dict(x.children.head))
           case NodeTag.UnApply =>
             UnApply(dict(x.children.head), x.children.tail map (dict(_)))
-          case NodeTag.ArrayValue => ??? /* TODO */
-          /*ArrayValue(dict(x.children.head), x.children.tail map (dict(_)))*/
           case NodeTag.Function =>
             Function(x.children.init map (dict(_).asInstanceOf[ValDef]), dict(x.children.last))
           case NodeTag.Assign =>

@@ -54,7 +54,7 @@ do
 	# For benchmark correctness, we simplify the showRaw as much as possible using simple substitutions ~~~~ #
 
 	# Replacing user-defined names
-	sed -i 's/"[^"]*"/x/g' $f
+	# sed -i 's/"[^"]*"/x/g' $f 
 
 	# Replacing all the names of ASTs by simple character. Since this is a simple optimization, we do it for correctness
 	sed -i 's/PackageDef/a/g' $f

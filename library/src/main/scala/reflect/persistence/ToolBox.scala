@@ -14,13 +14,10 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
     val bytes: List[Byte] = new XZReader(src)()
     src.close()
-    val hasNames: Boolean = (bytes.head == 1.toByte)
     val decompressor: AstDecompressor = new AstDecompressor()
     val nodeTree = decompressor(bytes.tail)
     val toRead: List[Byte] = decompressor.getToRead 
-    var names: Map[String, List[Int]] = Map()
-    if(hasNames)
-      names = (new NameDecompressor()(toRead))._1
+    val names = (new NameDecompressor()(toRead))._1
     
     /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
     new TreeRecomposer[u.type](u)(DecTree(nodeTree.flattenBFSIdx, names))
@@ -61,13 +58,10 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   def nameBasedRead(file: String, name: String): (Node, Map[String, List[Int]]) = {
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
     val bytes: List[Byte] = new XZReader(src)()
-    val hasNames: Boolean = (bytes.head == 1.toByte)
-    if(!hasNames)
-      throw new Exception("Error: names are not saved !")
     val decompressor: AstDecompressor = new AstDecompressor()
     val nodeTree: Node = decompressor(bytes.tail)
     val toRead: List[Byte] = decompressor.getToRead
-    var names: Map[String, List[Int]] = (new NameDecompressor()(toRead))._1
+    val names = (new NameDecompressor()(toRead))._1
     if(!names.contains(name))
       throw new Exception("Error: specified name doesn't exist")
     src.close()
