@@ -67,10 +67,10 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     case o::os =>
       /*TODO check if not possible to get the element at index o instead*/
       val node: NodeBFS = nodes.find(_.bfsIdx == occs.head).get
-      if(node.node.tpe == tpe)
-        o
-      else if (! NodeTag.isADefine(node.node.tpe))
+      if(!NodeTag.isADefine(node.node.tpe)){
         -1
+      }else if (node.node.tpe == tpe)
+        o
       else 
         findIndex(nodes, tpe, os)
     case _ => 
@@ -98,7 +98,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     assert(!nodes.isEmpty)
     def loop(nds: List[NodeBFS], acc: RevList[NodeBFS]): RevList[NodeBFS] = nds match {
       case Nil => acc
-      case n::ns if(!acc.exists(_.bfsIdx == n.parentBfsIdx)) => 
+      case n::ns if(acc.head.bfsIdx > n.bfsIdx && !acc.exists(_.bfsIdx == n.parentBfsIdx)) => 
         acc
       case n::ns => 
         loop(ns, n::acc)

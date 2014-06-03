@@ -15,7 +15,7 @@ object NodeTag extends Enumeration {
   }
 
   def isADefine(s: NodeTag.Value): Boolean = {
-    (s == ClassDef || s == ModuleDef || s == Value || s == DefDef || s == TypeDef || s == LabelDef)
+    (s == ClassDef || s == ModuleDef || s == ValDef || s == DefDef || s == TypeDef || s == LabelDef)
   }
 }
 
