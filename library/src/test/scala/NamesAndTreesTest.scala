@@ -7,9 +7,6 @@ class NamesAndTreesTest extends FunSuite {
 
   def compressionTest(treeStr: String) {
     val (tree, names) = ParseTestTreeAndName.parse(treeStr).get
-    /*println(s"The tree: ${tree}")
-    println(s"The names: ${names}")
-    println(s"The bfsTree: ${tree.flattenBFSIdx}")*/
     
     /*Testing Ast compression*/
     val compressor = new AstCompressor()
