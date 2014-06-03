@@ -21,23 +21,23 @@ class TreeDecomposer[U <: scala.reflect.api.Trees](val u: U) {
             case PackageDef(pid, stats) =>
               Node(NodeTag.PackageDef, dict(pid) :: (stats map (dict(_))))
             case ClassDef(mods, name, tparams, impl) =>
-              foundName = Some(name.toString(), true)
+              foundName = Some(name.toString, true)
               Node(NodeTag.ClassDef, (tparams ::: List(impl) map (dict(_))))
             case ModuleDef(mods, name, impl) =>
-              foundName = Some(name.toString(), true)
+              foundName = Some(name.toString, true)
               Node(NodeTag.ModuleDef, List(dict(impl)))
             case ValDef(mods, name, tpt, rhs) =>
-              foundName = Some(name.toString(), true)
+              foundName = Some(name.toString, true)
               Node(NodeTag.ValDef, List(dict(tpt), dict(rhs)))
             case DefDef(mods, name, tparams, vparams, tpt, rhs) =>
-              foundName = Some(name.toString(), true)
+              foundName = Some(name.toString, true)
               val vnodes = vparams.map(_.map(dict(_))).flatMap(_ :+ Node.separator)
               Node(NodeTag.DefDef, (tparams.map(dict(_)) ::: List(Node.separator) ::: vnodes ::: List(dict(tpt), dict(rhs))))
             case TypeDef(mods, name, tparams, rhs) =>
-              foundName = Some(name.toString(), true)
+              foundName = Some(name.toString, true)
               Node(NodeTag.TypeDef, (tparams ::: List(rhs)) map (dict(_)))
             case LabelDef(name, params, rhs) =>
-              foundName = Some(name.toString(), true)
+              foundName = Some(name.toString, true)
               Node(NodeTag.LabelDef, (params ::: List(rhs)) map (dict(_)))
             case Import(expr, selectors) =>
               Node(NodeTag.Import, List(dict(expr)))
@@ -52,7 +52,7 @@ class TreeDecomposer[U <: scala.reflect.api.Trees](val u: U) {
             case Star(elem) =>
               Node(NodeTag.Star, List(dict(elem)))
             case Bind(name, body) =>
-              foundName = Some(name.toString(), false)
+              foundName = Some(name.toString, false)
               Node(NodeTag.Bind, List(dict(body)))
             case UnApply(fun, args) =>
               Node(NodeTag.UnApply, fun :: args map (dict(_)))
@@ -81,12 +81,13 @@ class TreeDecomposer[U <: scala.reflect.api.Trees](val u: U) {
             case Apply(fun, args) =>
               Node(NodeTag.Apply, fun :: args map (dict(_)))
             case This(qual) =>
-              foundName = Some(qual.toString(), false)
+              foundName = Some(qual.toString, false)
               Node(NodeTag.This, Nil)
             case Select(qualifier, selector) =>
+              foundName = Some(selector.toString, false)
               Node(NodeTag.Select, List(dict(qualifier)))
             case Ident(name) =>
-              foundName = Some(name.toString(), false)
+              foundName = Some(name.toString, false)
               Node(NodeTag.Ident, Nil)
             case Literal(value) =>
               Node(NodeTag.Literal)
@@ -95,7 +96,7 @@ class TreeDecomposer[U <: scala.reflect.api.Trees](val u: U) {
             case SingletonTypeTree(ref) =>
               Node(NodeTag.SingletonTypeTree, List(dict(ref)))
             case SelectFromTypeTree(qualifier, selector) =>
-              foundName = Some(selector.toString(), false)
+              foundName = Some(selector.toString, false)
               Node(NodeTag.SelectFromTypeTree, List(dict(qualifier)))
             case CompoundTypeTree(templ) =>
               Node(NodeTag.CompoundTypeTree, List(dict(templ)))
@@ -108,9 +109,9 @@ class TreeDecomposer[U <: scala.reflect.api.Trees](val u: U) {
             case t: TypeTree =>
               Node(NodeTag.TypeTree, Nil)
             case Super(qual, mix) =>
-              foundName = Some(mix.toString(), false)
+              foundName = Some(mix.toString, false)
               Node(NodeTag.Super, List(dict(qual)))
-            case _ => sys.error(x.getClass().toString()) /* Should never happen */
+            case _ => sys.error(x.getClass().toString) /* Should never happen */
           }
           val newNameList = foundName match {
             case None => nameList /* Nothing to add */
@@ -118,7 +119,7 @@ class TreeDecomposer[U <: scala.reflect.api.Trees](val u: U) {
             case Some((name, _)) if nameList.contains(name) => nameList + (name -> (nameList(name) :+ count))
             case Some((name, _)) => nameList + (name -> (count :: Nil))
           }
-          loop(xs, dict + (x -> res), newNameList, count + 1)
+          loop(xs, dict + (x -> res), newNameList, count - 1)
       }
       /* Generate a list of trees in BFS order */
       implicit class TreeToBFS(tree: Tree) {
@@ -131,7 +132,9 @@ class TreeDecomposer[U <: scala.reflect.api.Trees](val u: U) {
           loop(tree :: Nil, tree :: Nil)
         }
       }
-      val newTree = loop(tree.flattenBFS, Map((EmptyTree -> Node.empty)), Map(), 0)
+      val flattenTree = tree.flattenBFS
+      //flattenTree foreach {v => println(v.getClass())}
+      val newTree = loop(flattenTree, Map((EmptyTree -> Node.empty)), Map(), flattenTree.size - 1)
       DecTree(newTree._1(tree), newTree._2)
     }
 }
