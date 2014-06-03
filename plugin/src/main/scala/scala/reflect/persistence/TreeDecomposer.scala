@@ -6,7 +6,7 @@ import scala.tools.nsc.plugins.{ Plugin => NscPlugin, PluginComponent => NscPlug
 import scala.language.postfixOps
 import scala.annotation.tailrec
 
-class TreeDecomposer[U <: scala.reflect.api.Trees: ClassTag](val u: U) {
+class TreeDecomposer[U <: scala.reflect.api.Trees](val u: U) {
   import u._
   import Enrichments._
       /* Return a simplified tree along with maps of Names / Symbols / Types zipped with occurrences in BFS order */
