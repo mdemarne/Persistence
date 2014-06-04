@@ -6,6 +6,9 @@ import scala.reflect.persistence._
 class NamesAndTreesTest extends FunSuite {
   import Enrichments._
   def compressionTest(treeStr: String, name: String, tpe: NodeTag.Value, expected: String) {
+    def bringBackTheFunk(m: Map[String, List[Int]]): Map[String, List[Int]] = {
+      m.map(x => (x._1, x._2.sorted))
+    }
     val (tree, names) = ParseTestTreeAndName.parse(treeStr).get
     val tool: ToolBox = new ToolBox (scala.reflect.runtime.universe)
     
@@ -28,16 +31,13 @@ class NamesAndTreesTest extends FunSuite {
     
 
     /*Testing the extraction of one part*/
-   /* val bfs: RevList[NodeBFS] = recupTree.flattenBFSIdx
+    val bfs: RevList[NodeBFS] = recupTree.flattenBFSIdx
     val index: Int = tool.findIndex(bfs, tpe, names(name))
     val subtree: Node = tool.extractSubBFS(bfs.reverse.drop(index)).toTree
     val correction: Node = ParseTestTree.parse(expected).get
-    assert(subtree == correction, s"Extract ${name}")*/
+    assert(subtree == correction, s"Extract ${name}")
 
-    def bringBackTheFunk(m: Map[String, List[Int]]): Map[String, List[Int]] = {
-      m.map(x => (x._1, x._2.sorted))
-    }
-  }
+     }
 
   test("First tree: Basic") {
     val treeStr = "c !coucou! (m !coucou! v !yo! v !salut!)"

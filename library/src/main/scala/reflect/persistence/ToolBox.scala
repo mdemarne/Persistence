@@ -31,8 +31,9 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   def getLabelDef(file: String, name: String): Tree = getElement(file, name, NodeTag.LabelDef) 
 
   def getElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
-    val (nodeTree, names) = nameBasedRead(file, name)
+    val (nodeTree, n) = nameBasedRead(file, name)
     val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
+    val names: Map[String, List[Int]] = initNames(n, bfs)
     val index: Int = findIndex(bfs, tpe, names(name))
     if(index == -1)
       throw new Exception(s"Error: ${name} is not defined here")
