@@ -43,12 +43,10 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   /* Find the bfs index of the element that corresponds to our search */
   def findIndex(nodes: RevList[NodeBFS], tpe: NodeTag.Value, occs: List[Int]): Int = occs match{
     case o::os =>
-      /* TODO check if not possible to get the element at index o instead */
       val node: NodeBFS = nodes.find(_.bfsIdx == occs.head).get
-      if(!NodeTag.isADefine(node.node.tpe)){
-        -1
-      }else if (node.node.tpe == tpe)
+      if(node.node.tpe == tpe){
         o
+      }
       else 
         findIndex(nodes, tpe, os)
     case _ => 
