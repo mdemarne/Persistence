@@ -43,11 +43,11 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     new TreeRecomposer[u.type](u)(DecTree(subtree, names))
   }
 
-  def getElement(file: String, name, tpe: NodeTag.Value): Tree = {
+  def getElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
    if(!save.contains(file)){
     getNewElement(file, name, tpe)
    }else{
-    val (_, bfs, names) = save(file).get
+    val (_, bfs, names) = save(file)
     val index: Int = findIndex(bfs, tpe, names(name))
     if(index == -1)
       throw new Exception(s"Error: ${name} is not defined here")
