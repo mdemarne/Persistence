@@ -4,8 +4,16 @@ class NameCompressor {
   import Enrichments._
   
   def apply(names: Map[String, List[Int]]): List[Byte] = {
-    IntToBytes(names.size) ++ names.flatMap{ n =>
-      n._1.getBytes.toList ++ ('\n'.toByte :: Nil) ++ ShortToBytes(n._2.size.toShort) ++ n._2.map(e => ShortToBytes(e.toShort)).flatten 
-    }
+    val namesOnly = names.keys.toList.sortBy(e => e)
+    val namesIds = namesOnly.zipWithIndex.map(x => x.swap).toMap
+    val maxId = names.values.flatten.max
+    val occs = (0 to maxId).map { i =>
+    	namesIds.get(i) match {
+        case None => -1 
+        case Some(id) => i
+      }}.toList
+    val v1 = namesOnly.mkString("\n").getBytes().toList 
+    val v2 = occs.flatMap(o => ShortToBytes(o.toShort))
+    (IntToBytes(v1.size) ::: v1 ::: IntToBytes(v2.size) ::: v2)
   } 
 }

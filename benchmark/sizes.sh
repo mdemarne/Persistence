@@ -102,16 +102,16 @@ do
 	sed -i 's/Super/R/g' $f
 
 	# Replacing Terms, modifiers and other unstored things
-	#sed -i 's/TermName//g' $f # We don't store names for now, let's remove them for correctness
-	#sed -i 's/TypeName//g' $f # We don't store names for now, let's remove them for correctness
+	sed -i 's/TermName//g' $f # We don't store names for now, let's remove them for correctness
+	sed -i 's/TypeName//g' $f # We don't store names for now, let's remove them for correctness
 	sed -i 's/Modifiers([^"(]*)//g' $f # We don't store modifiers for now, let's remove them for correctness
 	sed -i 's/List/S/g' $f
 	sed -i 's/noSelfType//g' $f # We don't store types for now, let's remove them for correctness
 	sed -i 's/Constant//g' $f # We don't store constants for now, let's remove them for correctness
-	#sed -i 's/typeNames.EMPTY//g' $f # We don't store types for now, let's remove them for correctness
-	#sed -i 's/typeNames.CONSTRUCTOR//g' $f # We don't store types for now, let's remove them for correctness
-	#sed -i 's/termNames.EMPTY//g' $f # We don't store names for now, let's remove them for correctness
-	#sed -i 's/termNames.CONSTRUCTOR//g' $f # We don't store names for now, let's remove them for correctness
+	sed -i 's/typeNames.EMPTY//g' $f # We don't store types for now, let's remove them for correctness
+	sed -i 's/typeNames.CONSTRUCTOR//g' $f # We don't store types for now, let's remove them for correctness
+	sed -i 's/termNames.EMPTY//g' $f # We don't store names for now, let's remove them for correctness
+	sed -i 's/termNames.CONSTRUCTOR//g' $f # We don't store names for now, let's remove them for correctness
 	sed -i 's/.setOriginal/T/g' $f
 
 
