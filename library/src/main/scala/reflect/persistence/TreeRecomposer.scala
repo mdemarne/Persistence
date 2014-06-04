@@ -10,7 +10,7 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
   
   def apply(decTree: DecTree): Tree = {
     var names = decTree.names.unzipWithIdxs
-    @tailrec def loop(trees: List[NodeBFS], dict: Map[Node, Tree]): Map[Node, Tree] = trees match {
+    @tailrec def loop(trees: RevList[NodeBFS], dict: Map[Node, Tree]): Map[Node, Tree] = trees match {
       case Nil => dict
       case NodeBFS(x, idx, parentIdx) :: xs =>
         val res = x.tpe match {
@@ -104,7 +104,7 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
         }
         loop(xs, dict + (x -> res))
     }
-    val flattenTree = decTree.treeBFS.filter(x => x.node.tpe != NodeTag.Separator) 
+    val flattenTree = decTree.treeBFS.filter(x => x.node.tpe != NodeTag.Separator && x.node.tpe != NodeTag.EmptyTree) 
     loop(flattenTree, Map((Node.empty -> EmptyTree)))(decTree.treeBFS.last.node)
   }
 }

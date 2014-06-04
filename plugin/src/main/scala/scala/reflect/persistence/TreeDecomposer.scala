@@ -20,23 +20,23 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case PackageDef(pid, stats) =>
             Node(NodeTag.PackageDef, dict(pid) :: (stats map (dict(_))))
           case ClassDef(mods, name, tparams, impl) =>
-            flatNames :+= name.toString
+            flatNames +:= name.toString
             Node(NodeTag.ClassDef, (tparams ::: List(impl) map (dict(_))))
           case ModuleDef(mods, name, impl) =>
-            flatNames :+= name.toString
+            flatNames +:= name.toString
             Node(NodeTag.ModuleDef, List(dict(impl)))
           case ValDef(mods, name, tpt, rhs) =>
-            flatNames :+= name.toString
+            flatNames +:= name.toString
             Node(NodeTag.ValDef, List(dict(tpt), dict(rhs)))
           case DefDef(mods, name, tparams, vparams, tpt, rhs) =>
-            flatNames :+= name.toString
+            flatNames +:= name.toString
             val vnodes = vparams.map(_.map(dict(_))).flatMap(_ :+ { Node.separator })
             Node(NodeTag.DefDef, (tparams.map(dict(_)) ::: List(Node.separator) ::: vnodes ::: List(dict(tpt), dict(rhs))))
           case TypeDef(mods, name, tparams, rhs) =>
-            flatNames :+= name.toString
+            flatNames +:= name.toString
             Node(NodeTag.TypeDef, (tparams ::: List(rhs)) map (dict(_)))
           case LabelDef(name, params, rhs) =>
-            flatNames :+= name.toString
+            flatNames +:= name.toString
             Node(NodeTag.LabelDef, (params ::: List(rhs)) map (dict(_)))
           case Import(expr, selectors) =>
             Node(NodeTag.Import, List(dict(expr)))
@@ -51,7 +51,7 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case Star(elem) =>
             Node(NodeTag.Star, List(dict(elem)))
           case Bind(name, body) =>
-            flatNames :+= name.toString
+            flatNames +:= name.toString
             Node(NodeTag.Bind, List(dict(body)))
           case UnApply(fun, args) =>
             Node(NodeTag.UnApply, fun :: args map (dict(_)))
@@ -80,13 +80,13 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case Apply(fun, args) =>
             Node(NodeTag.Apply, fun :: args map (dict(_)))
           case This(qual) =>
-            flatNames :+= qual.toString
+            flatNames +:= qual.toString
             Node(NodeTag.This, Nil)
           case Select(qualifier, selector) =>
-            flatNames :+= selector.toString
+            flatNames +:= selector.toString
             Node(NodeTag.Select, List(dict(qualifier)))
           case Ident(name) =>
-            flatNames :+= name.toString
+            flatNames +:= name.toString
             Node(NodeTag.Ident, Nil)
           case Literal(value) =>
             Node(NodeTag.Literal)
@@ -95,7 +95,7 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case SingletonTypeTree(ref) =>
             Node(NodeTag.SingletonTypeTree, List(dict(ref)))
           case SelectFromTypeTree(qualifier, selector) =>
-            flatNames :+= selector.toString
+            flatNames +:= selector.toString
             Node(NodeTag.SelectFromTypeTree, List(dict(qualifier)))
           case CompoundTypeTree(templ) =>
             Node(NodeTag.CompoundTypeTree, List(dict(templ)))
@@ -108,7 +108,7 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case t: TypeTree =>
             Node(NodeTag.TypeTree, Nil)
           case Super(qual, mix) =>
-            flatNames :+= mix.toString
+            flatNames +:= mix.toString
             Node(NodeTag.Super, List(dict(qual)))
           case _ => sys.error(x.getClass().toString) /* Should never happen */
         }
