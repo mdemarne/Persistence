@@ -22,17 +22,21 @@ class NamesAndTreesTest extends FunSuite {
     val nameDecomp: NameDecompressor = new NameDecompressor()
 
     val nameBytes: List[Byte] = nameComp(names)
-    val recupNames: Map[String, List[Int]] = nameDecomp(nameBytes)._1
-    assert(recupNames == names, s"\n${names}\n did not match\n${recupNames}")
+
+    val recupNames: Map[String, List[Int]] = tool.initNames(nameDecomp(nameBytes)._1, recupTree.flattenBFSIdx)
+    assert(bringBackTheFunk(recupNames) == bringBackTheFunk(names), s"\n${names}\n did not match\n${recupNames}")
+    
 
     /*Testing the extraction of one part*/
-    val bfs: RevList[NodeBFS] = recupTree.flattenBFSIdx
+   /* val bfs: RevList[NodeBFS] = recupTree.flattenBFSIdx
     val index: Int = tool.findIndex(bfs, tpe, names(name))
     val subtree: Node = tool.extractSubBFS(bfs.reverse.drop(index)).toTree
     val correction: Node = ParseTestTree.parse(expected).get
-    assert(subtree == correction, s"Extract ${name}")
+    assert(subtree == correction, s"Extract ${name}")*/
 
-
+    def bringBackTheFunk(m: Map[String, List[Int]]): Map[String, List[Int]] = {
+      m.map(x => (x._1, x._2.sorted))
+    }
   }
 
   test("First tree: Basic") {

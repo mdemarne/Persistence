@@ -39,7 +39,15 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val subtree: List[NodeBFS] = extractSubBFS(bfs.reverse.drop(index))
     new TreeRecomposer[u.type](u)(DecTree(subtree, names))
   }
-
+  
+  def initNames(names: Map[String, List[Int]], nbfs: RevList[NodeBFS]) : Map[String, List[Int]] = {
+    val toZip: List[(Int, String)] = names.map(x => x._2.map(y => (y, x._1))).toList.flatten.sortBy(_._1)
+    val interm = nbfs.reverse.filter(x => NodeTag.hasAName(x.node.tpe))
+    val zipped = interm.zip(toZip).map{ x => 
+      (x._1.bfsIdx, x._2._2)
+    }
+    zipped.groupBy(_._2).map(x => (x._1, x._2.map(y => y._1) )).toMap
+  }
   /* Find the bfs index of the element that corresponds to our search */
   def findIndex(nodes: RevList[NodeBFS], tpe: NodeTag.Value, occs: List[Int]): Int = occs match{
     case o::os =>

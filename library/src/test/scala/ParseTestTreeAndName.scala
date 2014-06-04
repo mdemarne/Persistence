@@ -9,8 +9,8 @@ import scala.language.implicitConversions
 object ParseTestTreeAndName  extends StandardTokenParsers {
   lexical.delimiters ++= List("(", ")", "!")
   import Enrichments._ 
-  
-  case class NodeName(tpe: NodeTag.Value, name: Option[String], var children: List[NodeName]) {
+  val emptyName: String = "_empt_"
+  case class NodeName(tpe: NodeTag.Value, name: String, var children: List[NodeName]) {
     def addChild(nd: NodeName) {
       this.children :+= nd
     }
@@ -29,7 +29,8 @@ object ParseTestTreeAndName  extends StandardTokenParsers {
 
   def NodeParse: Parser[NodeName] = (
     tpe ~("!"~> ident <~"!").? ^^ {
-      case e1 ~ e2 => NodeName(e1, e2, Nil)
+      case e1 ~ Some(e2) => NodeName(e1, e2, Nil)
+      case e1~None => NodeName(e1, emptyName, Nil)
     }
   )
 
@@ -77,16 +78,14 @@ object ParseTestTreeAndName  extends StandardTokenParsers {
   }
   
   /*Enables us to update the map of strings*/
-  private def updateMap(m: Map[String, List[Int]], name: Option[String], idx: Int, tpe: NodeTag.Value): Map[String, List[Int]] = name match {
-    case None => m
-    case Some(e) => 
-      if(m.contains(e)){
-        val entries: List[Int] = m(e)
-        val up: List[Int] = if(NodeTag.isADefine(tpe)) idx::entries else entries:::List(idx)
-        m + (e -> up)
-      }else {
-        m + (e -> List(idx))
-      }   
+  private def updateMap(m: Map[String, List[Int]], name: String, idx: Int, tpe: NodeTag.Value): Map[String, List[Int]] = {
+    if(m.contains(name)){
+      val entries: List[Int] = m(name)
+      val up: List[Int] = if(NodeTag.isADefine(tpe)) idx::entries else entries:::List(idx)
+      m + (name -> up)
+    }else {
+      m + (name -> List(idx))
+    }   
   }
 }
 
