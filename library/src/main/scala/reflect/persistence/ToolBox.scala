@@ -31,15 +31,24 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   def getLabelDef(file: String, name: String): Tree = getElement(file, name, NodeTag.LabelDef) 
 
   def getElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
-    val (nodeTree, names) = nameBasedRead(file, name)
+    val (nodeTree, n) = nameBasedRead(file, name)
     val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
+    val names: Map[String, List[Int]] = initNames(n, bfs)
     val index: Int = findIndex(bfs, tpe, names(name))
     if(index == -1)
       throw new Exception(s"Error: ${name} is not defined here")
     val subtree: List[NodeBFS] = extractSubBFS(bfs.reverse.drop(index))
     new TreeRecomposer[u.type](u)(DecTree(subtree, names))
   }
-
+  
+  def initNames(names: Map[String, List[Int]], nbfs: RevList[NodeBFS]) : Map[String, List[Int]] = {
+    val toZip: List[(Int, String)] = names.map(x => x._2.map(y => (y, x._1))).toList.flatten.sortBy(_._1)
+    val interm = nbfs.reverse.filter(x => NodeTag.hasAName(x.node.tpe))
+    val zipped = interm.zip(toZip).map{ x => 
+      (x._1.bfsIdx, x._2._2)
+    }
+    zipped.groupBy(_._2).map(x => (x._1, x._2.map(y => y._1) )).toMap
+  }
   /* Find the bfs index of the element that corresponds to our search */
   def findIndex(nodes: RevList[NodeBFS], tpe: NodeTag.Value, occs: List[Int]): Int = occs match{
     case o::os =>

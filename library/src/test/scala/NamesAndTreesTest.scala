@@ -6,6 +6,9 @@ import scala.reflect.persistence._
 class NamesAndTreesTest extends FunSuite {
   import Enrichments._
   def compressionTest(treeStr: String, name: String, tpe: NodeTag.Value, expected: String) {
+    def bringBackTheFunk(m: Map[String, List[Int]]): Map[String, List[Int]] = {
+      m.map(x => (x._1, x._2.sorted))
+    }
     val (tree, names) = ParseTestTreeAndName.parse(treeStr).get
     val tool: ToolBox = new ToolBox (scala.reflect.runtime.universe)
     
@@ -22,8 +25,10 @@ class NamesAndTreesTest extends FunSuite {
     val nameDecomp: NameDecompressor = new NameDecompressor()
 
     val nameBytes: List[Byte] = nameComp(names)
-    val recupNames: Map[String, List[Int]] = nameDecomp(nameBytes)._1
-    assert(recupNames == names, s"\n${names}\n did not match\n${recupNames}")
+
+    val recupNames: Map[String, List[Int]] = tool.initNames(nameDecomp(nameBytes)._1, recupTree.flattenBFSIdx)
+    assert(bringBackTheFunk(recupNames) == bringBackTheFunk(names), s"\n${names}\n did not match\n${recupNames}")
+    
 
     /*Testing the extraction of one part*/
     val bfs: RevList[NodeBFS] = recupTree.flattenBFSIdx
@@ -32,8 +37,7 @@ class NamesAndTreesTest extends FunSuite {
     val correction: Node = ParseTestTree.parse(expected).get
     assert(subtree == correction, s"Extract ${name}")
 
-
-  }
+     }
 
   test("First tree: Basic") {
     val treeStr = "c !coucou! (m !coucou! v !yo! v !salut!)"

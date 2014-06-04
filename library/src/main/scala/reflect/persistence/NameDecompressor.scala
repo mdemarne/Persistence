@@ -14,7 +14,8 @@ class NameDecompressor {
       rest = zs
       entry.toInt
     }.toList
-    val namesList: List[String] = nameBytes.map(_.toChar).mkString.split("\n").toList
+
+    val namesList: List[String] = nameBytes.map(_.toChar).mkString.split("\n").toList.sorted
     val grouped: List[List[Int]] = occs.zipWithIndex.groupBy(_._1).toList.sortBy(_._1).map{ x => 
       x._2.map(y => y._2)
     }.toList
