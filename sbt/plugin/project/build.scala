@@ -7,10 +7,16 @@ import complete.DefaultParsers._
 
 object build extends Build {
   lazy val sbtPPlugin = Project(
-    id = "sbt-persistence",
+    id = "persistence-sbt",
     base = file(".")
   ) settings (
   	scalaVersion := "2.10.3", // Forced for now due to SBT macro system compilation.
+    crossVersion := CrossVersion.full,
+    version := "0.1.0-SNAPSHOT",
+    organization := "org.scalareflect",
+    description := "AST persistence for Project Palladium",
+    resolvers += Resolver.sonatypeRepo("snapshots"),
+    resolvers += Resolver.sonatypeRepo("releases"),
     scalacOptions ++= Seq("-deprecation", "-feature", "-optimise"),
     // Thanks to https://github.com/gkossakowski/scala-sbt-cross-compile
     // add scala-xml dependency when needed (for Scala 2.11 and newer) in a robust way
