@@ -14,9 +14,10 @@ object NodeTag extends Enumeration {
     (NodeTag.values.toList.sortBy(_.toString).toList)(i)
   }
 
-  def isADefine(s: NodeTag.Value): Boolean = {
+  def isADefine(s: NodeTag.Value): Boolean = 
     (s == ClassDef || s == ModuleDef || s == ValDef || s == DefDef || s == TypeDef || s == LabelDef)
-  }
+  def hasAName(s: NodeTag.Value): Boolean =
+    isADefine(s) || s == Bind || s == This || s == Select || s == Ident || s == SelectFromTypeTree || s == Super
 }
 
 case class NodeBFS(node: Node, bfsIdx: Int, parentBfsIdx: Int) {
