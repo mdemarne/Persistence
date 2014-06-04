@@ -7,8 +7,9 @@ import scala.language.existentials
 class ToolBox(val u: scala.reflect.api.Universe) {
   import u._
   import Enrichments._
-  
-  /* General function returning the whole tree */
+  var save: Map[String, (Node, RevList[NodeBFS], Map[String, List[Int]])] = Map()
+ 
+ /* General function returning the whole tree */
   def getAst(file: String): Tree = {
     
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
@@ -30,15 +31,30 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   def getTypeDef(file: String, name: String): Tree = getElement(file, name, NodeTag.TypeDef)
   def getLabelDef(file: String, name: String): Tree = getElement(file, name, NodeTag.LabelDef) 
 
-  def getElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
+  def getNewElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
     val (nodeTree, n) = nameBasedRead(file, name)
     val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
     val names: Map[String, List[Int]] = initNames(n, bfs)
+    save +=(file -> (nodeTree, bfs, names))
     val index: Int = findIndex(bfs, tpe, names(name))
     if(index == -1)
       throw new Exception(s"Error: ${name} is not defined here")
     val subtree: List[NodeBFS] = extractSubBFS(bfs.reverse.drop(index))
     new TreeRecomposer[u.type](u)(DecTree(subtree, names))
+  }
+
+  def getElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
+   if(!save.contains(file)){
+    getNewElement(file, name, tpe)
+   }else{
+    val (_, bfs, names) = save(file)
+    val index: Int = findIndex(bfs, tpe, names(name))
+    if(index == -1)
+      throw new Exception(s"Error: ${name} is not defined here")
+    val subtree: List[NodeBFS] = extractSubBFS(bfs.reverse.drop(index))
+    new TreeRecomposer[u.type](u)(DecTree(subtree, names))
+
+   }
   }
   
   def initNames(names: Map[String, List[Int]], nbfs: RevList[NodeBFS]) : Map[String, List[Int]] = {
