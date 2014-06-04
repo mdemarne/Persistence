@@ -6,7 +6,7 @@ import Keys._
 import scala.language.existentials
 
 object AstcPlugin extends Plugin {
-  override lazy val projectSettings = Seq(packageAstTask, beforeCompileTask) ++ usePluginSettings ++ newCompile ++ publishSettings
+  override lazy val projectSettings = Seq(packageAstTask, beforeCompileTask) ++ usePluginSettings ++ newCompile ++ publishSettings ++ packageSettings
 
   lazy val usePluginSettings = Seq(
       addCompilerPlugin("org.scalareflect" % "persistence-plugin_2.11.0" % "0.1.0-SNAPSHOT")
@@ -52,8 +52,14 @@ object AstcPlugin extends Plugin {
   res
   })
 
-  lazy val publishSettings =
-    (artifact in (Compile, packageAst) ~= { art =>
+  /* Force publishing the ast artifact */
+  lazy val publishSettings = (artifact in (Compile, packageAst) ~= { art =>
       art.copy(`classifier` = Some("asts"))
     }) ++ addArtifact(artifact in (Compile, packageAst), packageAst).settings
+
+  /* In packageBin, force also packaging the Asts */
+  lazy val packageSettings = packageBin in Compile := {
+    (packageBin in Compile).value
+    (packageAst in Compile).value
+  }
 }
