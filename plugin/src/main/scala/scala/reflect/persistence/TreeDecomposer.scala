@@ -11,33 +11,32 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
   import Enrichments._
   /* Return a simplified tree along with maps of Names / Symbols / Types zipped with occurrences in BFS order */
   def apply(tree: Tree): DecTree = {
+    var flatNames: RevList[String] = List()
     /* Traverse the tree, save names, type, symbols into corresponding list and replace them in the tree by default values*/
-    @tailrec def loop(trees: List[Tree], dict: Map[Tree, Node], nameList: Map[String, List[Node]]): (Map[Tree, Node], Map[String, List[Node]]) = trees match {
-      case Nil => (dict, nameList)
+    @tailrec def loop(trees: List[Tree], dict: Map[Tree, Node]): Map[Tree, Node] = trees match {
+      case Nil => dict
       case x :: xs =>
-        /* Temporary store names for tailrec call. Is set to true if it is a definition. */
-        var foundName: Option[(String, Boolean)] = None
         val res: Node = x match {
           case PackageDef(pid, stats) =>
             Node(NodeTag.PackageDef, dict(pid) :: (stats map (dict(_))))
           case ClassDef(mods, name, tparams, impl) =>
-            foundName = Some(name.toString, true)
+            flatNames :+= name.toString
             Node(NodeTag.ClassDef, (tparams ::: List(impl) map (dict(_))))
           case ModuleDef(mods, name, impl) =>
-            foundName = Some(name.toString, true)
+            flatNames :+= name.toString
             Node(NodeTag.ModuleDef, List(dict(impl)))
           case ValDef(mods, name, tpt, rhs) =>
-            foundName = Some(name.toString, true)
+            flatNames :+= name.toString
             Node(NodeTag.ValDef, List(dict(tpt), dict(rhs)))
           case DefDef(mods, name, tparams, vparams, tpt, rhs) =>
-            foundName = Some(name.toString, true)
+            flatNames :+= name.toString
             val vnodes = vparams.map(_.map(dict(_))).flatMap(_ :+ { Node.separator })
             Node(NodeTag.DefDef, (tparams.map(dict(_)) ::: List(Node.separator) ::: vnodes ::: List(dict(tpt), dict(rhs))))
           case TypeDef(mods, name, tparams, rhs) =>
-            foundName = Some(name.toString, true)
+            flatNames :+= name.toString
             Node(NodeTag.TypeDef, (tparams ::: List(rhs)) map (dict(_)))
           case LabelDef(name, params, rhs) =>
-            foundName = Some(name.toString, true)
+            flatNames :+= name.toString
             Node(NodeTag.LabelDef, (params ::: List(rhs)) map (dict(_)))
           case Import(expr, selectors) =>
             Node(NodeTag.Import, List(dict(expr)))
@@ -52,7 +51,7 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case Star(elem) =>
             Node(NodeTag.Star, List(dict(elem)))
           case Bind(name, body) =>
-            foundName = Some(name.toString, false)
+            flatNames :+= name.toString
             Node(NodeTag.Bind, List(dict(body)))
           case UnApply(fun, args) =>
             Node(NodeTag.UnApply, fun :: args map (dict(_)))
@@ -81,13 +80,13 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case Apply(fun, args) =>
             Node(NodeTag.Apply, fun :: args map (dict(_)))
           case This(qual) =>
-            foundName = Some(qual.toString, false)
+            flatNames :+= qual.toString
             Node(NodeTag.This, Nil)
           case Select(qualifier, selector) =>
-            foundName = Some(selector.toString, false)
+            flatNames :+= selector.toString
             Node(NodeTag.Select, List(dict(qualifier)))
           case Ident(name) =>
-            foundName = Some(name.toString, false)
+            flatNames :+= name.toString
             Node(NodeTag.Ident, Nil)
           case Literal(value) =>
             Node(NodeTag.Literal)
@@ -96,7 +95,7 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case SingletonTypeTree(ref) =>
             Node(NodeTag.SingletonTypeTree, List(dict(ref)))
           case SelectFromTypeTree(qualifier, selector) =>
-            foundName = Some(selector.toString, false)
+            flatNames :+= selector.toString
             Node(NodeTag.SelectFromTypeTree, List(dict(qualifier)))
           case CompoundTypeTree(templ) =>
             Node(NodeTag.CompoundTypeTree, List(dict(templ)))
@@ -109,17 +108,11 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case t: TypeTree =>
             Node(NodeTag.TypeTree, Nil)
           case Super(qual, mix) =>
-            foundName = Some(mix.toString, false)
+            flatNames :+= mix.toString
             Node(NodeTag.Super, List(dict(qual)))
           case _ => sys.error(x.getClass().toString) /* Should never happen */
         }
-        val newNameList = foundName match {
-          case None => nameList /* Nothing to add */
-          case Some((name, isDef)) if isDef && nameList.contains(name) => nameList + (name -> (res :: nameList(name)))
-          case Some((name, _)) if nameList.contains(name) => nameList + (name -> (nameList(name) :+ res))
-          case Some((name, _)) => nameList + (name -> (res :: Nil))
-        }
-        loop(xs, dict + (x -> res), newNameList)
+        loop(xs, dict + (x -> res))
     }
     /* Generate a list of trees in BFS order */
     implicit class TreeToBFS(tree: Tree) {
@@ -132,11 +125,9 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
         loop(tree :: Nil, tree :: Nil)
       }
     }
-    val flattenTree = tree.flattenBFS
-    val decomposed = loop(flattenTree, Map((EmptyTree -> Node.empty)), Map())
-    val flatTree = decomposed._1(tree).flattenBFSIdx
-    /* TODO: check why some names seems to correspond to no node at all */
-    val flatNames = decomposed._2.map(e => e._1 -> e._2.map(x => flatTree.find(_.node eq x).getOrElse(NodeBFS(Node.empty, -1, -1)).bfsIdx).filter(_ != -1))
-    DecTree(flatTree, flatNames)
+    val flatTree = tree.flattenBFS
+    val flatNode = loop(flatTree, Map((EmptyTree -> Node.empty)))(tree).flattenBFSIdx
+    val zipNames = flatNames.zipWithIdxs
+    DecTree(flatNode, zipNames)
   }
 }

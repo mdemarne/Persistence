@@ -20,12 +20,12 @@ object Enrichments {
     /* TODO: this is just there for testing*/
     def testingDict = dict map (x => (x._1.map(y => MetaEntry(y.node.tpe, y.bfsIdx, y.parentBfsIdx)), x._2))
   }
-  /* TODO: remove, is not used by new version of Plugin.scala */
   implicit class RichRevList[T](lst: RevList[T]) {
     /* Generate a map of (T, List[Int]), where the values are the occurrences of T in the tree in BFS order */
     def zipWithIdxs: Map[T, List[Int]] = lst.zipWithIndex.groupBy(v => v._1).map(e => (e._1 -> e._2.map(i => i._2)))
   }
 
+  /* TODO: remove, this is not used for our current version of TreeR/Decomposer.scala */
   implicit class RichMap[T](lst: Map[T, List[Int]]) {
     /* Generate a map of (Int -> T) following the values in the given Map[T, List[Int]] */
     def unzipWithIdxs: Map[Int, T] = lst.flatMap(el => el._2 map (indx => (indx, el._1))).toMap
