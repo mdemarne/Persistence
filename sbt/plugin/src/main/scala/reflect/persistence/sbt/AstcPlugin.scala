@@ -7,13 +7,8 @@ import Keys._
 object AstcPlugin extends Plugin {
   override lazy val projectSettings = Seq(packageAstTask, beforeCompileTask) ++ usePluginSettings ++ newCompile
 
-  /* TODO: later, when the SBT plugin will be published, we will required to add it as 
-   * addCompilerPlugin("..." %% "..." % _).
-   * For now, let's just add it as a path option. */
-  /* Get the path to the plugin jar (should be generated prior to the test) */
-  val astcJar = new File("../../plugin/target/scala-2.11/plugin-assembly-0.1.0-SNAPSHOT.jar")
-  lazy val usePluginSettings = Seq( // TODO: addCompilerPlugin instead, command already made for that purpose
-      scalacOptions ++= Seq("-Xplugin:" + astcJar.getAbsolutePath)
+  lazy val usePluginSettings = Seq(
+      addCompilerPlugin("org.scalareflect" % "persistence-plugin_2.11.0" % "0.1.0-SNAPSHOT")
   )
 
   /* TODO: check what we need as a Manifest(if relevant) */

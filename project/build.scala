@@ -137,7 +137,7 @@ object build extends Build {
   )
 
   lazy val plugin = Project(
-    id   = "plugin",
+    id   = "persistence-plugin",
     base = file("plugin")
   ) settings (
     publishableSettings ++ assemblySettings: _*
@@ -150,10 +150,18 @@ object build extends Build {
     scalacOptions ++= Seq()
   ) settings (
     test in assembly := {}
+  ) settings (
+    artifact in (Compile, assembly) ~= { art =>
+      art.copy(`classifier` = Some(""))
+    }
+  ) settings (
+    addArtifact(artifact in (Compile, assembly), assembly).settings: _*
+  ) settings (
+    publishArtifact in (Compile, packageBin) := false
   )
-  
+
   lazy val library = Project(
-    id   = "library",
+    id   = "persistence-library",
     base = file("library")
   ) settings (
     publishableSettings ++ assemblySettings: _*
@@ -186,7 +194,7 @@ object build extends Build {
   ) configs ( testScalalib, testScalalibNoPlug, testTypers, testTypersNoPlug, testBasic, testBasicNoPlug
   /*) configs ( testSpecificList ++ testSpecificNoPlugList:_**/
   ) settings (
-    sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings ++ Seq(packageAstTask) ++
+    sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings ++
     testScalalibConf ++ testScalalibConfNoPlug ++
     testTypersConf ++ testTypersConfNoPlug ++
     testBasicConf ++ testBasicConfNoPlug /*++ testSpecificConfList ++ testSpecificConfNoPlugList*/: _*
@@ -195,7 +203,6 @@ object build extends Build {
   ) settings (
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
-    libraryDependencies += "org.tukaani" % "xz" % "1.5",
     scalacOptions ++= Seq()
   )
 
@@ -239,19 +246,19 @@ object build extends Build {
   lazy val testSpecificList = for(i <- 0 until nbSources) yield(config(s"testSpecific${i}"))
   lazy val testSpecificNoPlugList = for(i <- 0 until nbSources) yield(config(s"testSpecificNoPlug${i}"))*/
 
-  lazy val testScalalibConf: Seq[Setting[_]] = inConfig(testScalalib)(Defaults.configSettings ++ packageAstTask ++ testPluginConf ++ Seq(
+  lazy val testScalalibConf: Seq[Setting[_]] = inConfig(testScalalib)(Defaults.configSettings ++ testPluginConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))}
   ))
   lazy val testScalalibConfNoPlug: Seq[Setting[_]] = inConfig(testScalalibNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))}
   ))
-  lazy val testTypersConf: Seq[Setting[_]] = inConfig(testTypers)(Defaults.configSettings ++ packageAstTask ++ testPluginConf ++ Seq(
+  lazy val testTypersConf: Seq[Setting[_]] = inConfig(testTypers)(Defaults.configSettings ++ testPluginConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(_.name == "Typers.scala")}
   ))
   lazy val testTypersConfNoPlug: Seq[Setting[_]] = inConfig(testTypersNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(_.name == "Typers.scala")}
   ))
-  lazy val testBasicConf: Seq[Setting[_]] = inConfig(testBasic)(Defaults.configSettings ++ packageAstTask ++ testPluginConf ++ Seq(
+  lazy val testBasicConf: Seq[Setting[_]] = inConfig(testBasic)(Defaults.configSettings ++ testPluginConf ++ Seq(
     unmanagedSources := {unmanagedSources.value.filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")}
   ))
   lazy val testBasicConfNoPlug: Seq[Setting[_]] = inConfig(testBasicNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
@@ -273,23 +280,4 @@ object build extends Build {
         unmanagedSources := {new ArrayBuffer += unmanagedSources.value(src)}
     ))
   })*/
-
-  /* TODO: abstract behind a plugin */
-  /* TODO: check what we need as a Manifest(if relevant) */
-  val packageAst = TaskKey[File]("package-ast", "Produce an artifact containing compressed Scala ASTs.")
-  val packageAstTask = packageAst := {
-    (compile in Compile).value     /* First let's compile everything */
-    val generalPath = new File((classDirectory in Compile).value.getParent).getAbsolutePath
-    val astsPath = generalPath + "/asts/"
-    val outputJar = new File(generalPath + "/" + name.value + "_" + version.value + "-asts.jar")
-    val astsSources = findFiles(new File(astsPath))
-    val log = streams.value.log
-    val manifest = new java.util.jar.Manifest()
-    Package.makeJar(astsSources.map(f => (f, f.getAbsolutePath.replace(astsPath, ""))), outputJar, manifest, log)
-    outputJar
-  }
-  def findFiles(root: File): List[File] = root match {
-      case _ if root.isDirectory => root.listFiles.toList.flatMap(f => findFiles(f))
-      case _ => root :: Nil
-  }
 }
