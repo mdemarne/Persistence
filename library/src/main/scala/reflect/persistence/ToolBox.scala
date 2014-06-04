@@ -9,7 +9,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   import Enrichments._
   
   /* General function returning the whole tree */
-  def getTst(file: String): Tree = {
+  def getAst(file: String): Tree = {
     
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
     val bytes: List[Byte] = new XZReader(src)()
