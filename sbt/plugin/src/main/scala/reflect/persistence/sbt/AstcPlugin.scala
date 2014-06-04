@@ -3,9 +3,10 @@ package scala.reflect.persistence.sbt /* TODO: check for proper package */
 import sbt._
 import Keys._
 
+import scala.language.existentials
 
 object AstcPlugin extends Plugin {
-  override lazy val projectSettings = Seq(packageAstTask, beforeCompileTask) ++ usePluginSettings ++ newCompile
+  override lazy val projectSettings = Seq(packageAstTask, beforeCompileTask) ++ usePluginSettings ++ newCompile ++ publishSettings
 
   lazy val usePluginSettings = Seq(
       addCompilerPlugin("org.scalareflect" % "persistence-plugin_2.11.0" % "0.1.0-SNAPSHOT")
@@ -51,4 +52,8 @@ object AstcPlugin extends Plugin {
   res
   })
 
+  lazy val publishSettings =
+    (artifact in (Compile, packageAst) ~= { art =>
+      art.copy(`classifier` = Some("asts"))
+    }) ++ addArtifact(artifact in (Compile, packageAst), packageAst).settings
 }
