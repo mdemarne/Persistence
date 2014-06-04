@@ -108,11 +108,11 @@ do
 	sed -i 's/List/S/g' $f
 	sed -i 's/noSelfType//g' $f # We don't store types for now, let's remove them for correctness
 	sed -i 's/Constant//g' $f # We don't store constants for now, let's remove them for correctness
-	sed -i 's/typeNames.EMPTY//g' $f # We don't store types for now, let's remove them for correctness
-	sed -i 's/typeNames.CONSTRUCTOR//g' $f # We don't store types for now, let's remove them for correctness
-	sed -i 's/termNames.EMPTY//g' $f # We don't store names for now, let's remove them for correctness
-	sed -i 's/termNames.CONSTRUCTOR//g' $f # We don't store names for now, let's remove them for correctness
-	sed -i 's/.setOriginal/T/g' $f
+	sed -i 's/typeNames.EMPTY/S/g' $f # We don't store types for now, let's remove them for correctness
+	sed -i 's/typeNames.CONSTRUCTOR/T/g' $f # We don't store types for now, let's remove them for correctness
+	sed -i 's/termNames.EMPTY/U/g' $f # We don't store names for now, let's remove them for correctness
+	sed -i 's/termNames.CONSTRUCTOR/V/g' $f # We don't store names for now, let's remove them for correctness
+	sed -i 's/.setOriginal/W/g' $f
 
 
 	# Let's now compute the sizes and ratios ~~~~ #
