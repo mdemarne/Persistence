@@ -12,7 +12,7 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
     var names = decTree.names.unzipWithIdxs
     @tailrec def loop(trees: RevList[NodeBFS], dict: Map[Node, Tree]): Map[Node, Tree] = trees match {
       case Nil => dict
-      case NodeBFS(x, idx, parentIdx) :: xs =>
+      case NodeBFS(x, idx, _) :: xs =>
         val res = x.tpe match {
           case NodeTag.PackageDef =>
             PackageDef(dict(x.children.head).asInstanceOf[RefTree], x.children.tail map (dict(_)))
