@@ -58,8 +58,8 @@ object AstcPlugin extends Plugin {
     }) ++ addArtifact(artifact in (Compile, packageAst), packageAst).settings
 
   /* In packageBin, force also packaging the Asts */
-  lazy val packageSettings = packageBin in Compile := {
-    (packageBin in Compile).value
+  lazy val packageSettings = Keys.`package` in Compile := {
+    (Keys.`package` in Compile).value
     (packageAst in Compile).value
   }
 }
