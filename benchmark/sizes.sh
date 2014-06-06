@@ -5,6 +5,7 @@
 scalaversion='2.11'
 rawfolder="tests/target/scala-$scalaversion/raw/*"
 astfolder="tests/target/scala-$scalaversion/asts"
+sourcefolder="tests/target/scala-$scalaversion/sources"
 
 # data file for plots
 date=$(date +%Y.%m.%d:%H:%M:%S)
@@ -41,6 +42,7 @@ astc_time="$(time (sbt $confCompile) 2>&1 1>/dev/null)" # Time with our plugin
 # Do benchmark for all files compiled
 echo "All sizes are in bytes"
 
+total_source_size=0
 total_raw_size=0
 total_xz_size=0
 total_astc_size=0
@@ -54,7 +56,7 @@ do
 	# For benchmark correctness, we simplify the showRaw as much as possible using simple substitutions ~~~~ #
 
 	# Replacing user-defined names
-	# sed -i 's/"[^"]*"/x/g' $f # We don't store types for now, let's remove them for correctness
+	# sed -i 's/"[^"]*"/x/g' $f 
 
 	# Replacing all the names of ASTs by simple character. Since this is a simple optimization, we do it for correctness
 	sed -i 's/PackageDef/a/g' $f
@@ -102,17 +104,17 @@ do
 	sed -i 's/Super/R/g' $f
 
 	# Replacing Terms, modifiers and other unstored things
-	sed -i 's/TermName//g' $f # We don't store names for now, let's remove them for correctness
-	sed -i 's/TypeName//g' $f # We don't store names for now, let's remove them for correctness
-	sed -i 's/Modifiers([^"(]*)//g' $f # We don't store modifiers for now, let's remove them for correctness
-	sed -i 's/List/S/g' $f
-	sed -i 's/noSelfType//g' $f # We don't store types for now, let's remove them for correctness
-	sed -i 's/Constant//g' $f # We don't store constants for now, let's remove them for correctness
-	sed -i 's/typeNames.EMPTY/S/g' $f # We don't store types for now, let's remove them for correctness
-	sed -i 's/typeNames.CONSTRUCTOR/T/g' $f # We don't store types for now, let's remove them for correctness
-	sed -i 's/termNames.EMPTY/U/g' $f # We don't store names for now, let's remove them for correctness
-	sed -i 's/termNames.CONSTRUCTOR/V/g' $f # We don't store names for now, let's remove them for correctness
-	sed -i 's/.setOriginal/W/g' $f
+	sed -i 's/TermName/S/g' $f 
+	sed -i 's/TypeName/T/g' $f 
+	sed -i 's/Modifiers([^"(]*)//g' $f 
+	sed -i 's/List/U/g' $f
+	sed -i 's/noSelfType//g' $f 
+	sed -i 's/Constant//g' $f 
+	sed -i 's/typeNames.EMPTY/V/g' $f 
+	sed -i 's/typeNames.CONSTRUCTOR/W/g' $f 
+	sed -i 's/termNames.EMPTY/X/g' $f 
+	sed -i 's/termNames.CONSTRUCTOR/Y/g' $f 
+	sed -i 's/.setOriginal/Z/g' $f
 
 
 	# Let's now compute the sizes and ratios ~~~~ #
@@ -128,6 +130,7 @@ do
 	astc_path1=${f%.raw}
 	astc_path2=${astc_path1#*/*/*/*/} # Cleanup the path from raw to get asts
 	astc_size=$(stat -c %s "$astfolder/$astc_path2.ast")
+	source_size=$(stat -c %s "$sourcefolder/$astc_path2.source")
 
 	xz_ratio=$(echo "scale=5; $xz_size / $raw_size" | bc)
 	astc_ratio=$(echo "scale=5; $astc_size / $raw_size" | bc)
@@ -136,10 +139,11 @@ do
 	total_raw_size=$(echo "scale=5; $total_raw_size + $raw_size" | bc)
 	total_xz_size=$(echo "scale=5; $total_xz_size + $xz_size" | bc)
 	total_astc_size=$(echo "scale=5; $total_astc_size + $astc_size" | bc)
+	total_source_size=$(echo "scale=5; $total_source_size + $source_size" | bc)
 
 	# Let's print the results for a single file ~~~~ #
 
-	echo "showRaw: $raw_size, xz: $xz_size ($xz_ratio), astc: $astc_size ($astc_ratio), ratio of ratios (astc/xz): $xz_astc_ratio  for file $astc_path2"
+	echo "source: $source_size, showRaw: $raw_size, xz: $xz_size ($xz_ratio), astc: $astc_size ($astc_ratio), ratio of ratios (astc/xz): $xz_astc_ratio  for file $astc_path2"
 	if [ $xz_size -lt $astc_size ]; then 
 		nb_failed=$(echo "scale=0; $nb_failed + 1" | bc)
 		echo "FAILED: xz better than astc."
@@ -152,15 +156,17 @@ done
 # Print the global statistics ~~~~ #
 
 echo "Global statistics"
-echo "Raw: $total_raw_size, xz: $total_xz_size, astc: $total_astc_size"
+echo "Sources: $total_source_size, Raw: $total_raw_size, xz: $total_xz_size, astc: $total_astc_size"
 total_xz_astc_ratio=$(echo "scale=5; $total_astc_size / $total_xz_size" | bc)
 echo "In general, our compression is smaller than a classic xz of $total_xz_astc_ratio"
+total_source_astc_ratio=$(echo "scale=5; $total_source_size / $total_astc_size" | bc)
 echo "Tests where xz was better: $nb_failed over $nb_tests tests"
+echo "In comparison with the sources, our compression is $total_source_astc_ratio times smaller."
 
-echo "The normal compilation time was of:"
-echo $normal_time
-echo "The time of compilation using the plugin was of:"
-echo $astc_time
+#echo "The normal compilation time was of:"
+#echo $normal_time
+#echo "The time of compilation using the plugin was of:"
+#echo $astc_time
 
 
 # Let's now plot everything

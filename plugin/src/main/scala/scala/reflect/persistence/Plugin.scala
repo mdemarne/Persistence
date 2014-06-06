@@ -3,14 +3,9 @@ package scala.reflect.persistence
 /* TODO: clean imports */
 import scala.tools.nsc.{ Global, Phase, SubComponent }
 import scala.tools.nsc.plugins.{ Plugin => NscPlugin, PluginComponent => NscPluginComponent }
-import scala.language.postfixOps
-import scala.annotation.tailrec
 import java.io.DataOutputStream
 import java.io.FileOutputStream
 import java.io.File
-import org.tukaani.xz.LZMA2InputStream
-import java.io.{ File, FileInputStream, FileOutputStream }
-import org.tukaani.xz.{ XZOutputStream, LZMA2Options }
 
 class Plugin(val global: Global) extends NscPlugin {
   import global._
