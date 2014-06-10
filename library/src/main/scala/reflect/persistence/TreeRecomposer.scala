@@ -8,9 +8,18 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
   import u._
   import Enrichments._
   
+  class NodeWrapper(nd: Node) {
+    def nodeEquals(that: Node) = nd eq that
+  }
+  implicit class RichNodeWrapperDict(dict : Map[NodeWrapper, Tree]) {
+    def apply(k: Node) = dict.find(x => x._1.nodeEquals(k)) match {
+      case Some((k,n)) => n
+      case None => EmptyTree
+    }
+  }
   def apply(decTree: DecTree): Tree = {
     var names = decTree.names.unzipWithIdxs
-    @tailrec def loop(trees: RevList[NodeBFS], dict: Map[Node, Tree]): Map[Node, Tree] = trees match {
+    @tailrec def loop(trees: RevList[NodeBFS], dict: Map[NodeWrapper, Tree]): Map[NodeWrapper, Tree] = trees match {
       case Nil => dict
       case NodeBFS(x, idx, _) :: xs =>
         val res = x.tpe match {
@@ -80,7 +89,7 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case NodeTag.ReferenceToBoxed =>
             ReferenceToBoxed(dict(x.children.head).asInstanceOf[Ident])
           case NodeTag.Literal =>
-            Literal(Constant(0))
+            Literal(Constant(()))
           case NodeTag.Annotated =>
             Annotated(dict(x.children.head), dict(x.children.last))
           case NodeTag.SingletonTypeTree =>
@@ -102,9 +111,9 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case NodeTag.EmptyTree => EmptyTree
           case _ => sys.error(x.getClass().toString()) /* Should never happen */
         }
-        loop(xs, dict + (x -> res))
+        loop(xs, dict + (new NodeWrapper(x) -> res))
     }
     val flattenTree = decTree.treeBFS.filter(x => x.node.tpe != NodeTag.Separator && x.node.tpe != NodeTag.EmptyTree) 
-    loop(flattenTree, Map((Node.empty -> EmptyTree)))(decTree.treeBFS.last.node)
+    loop(flattenTree, Map())(decTree.treeBFS.last.node)
   }
 }

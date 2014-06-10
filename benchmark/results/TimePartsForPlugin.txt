@@ -1,0 +1,13 @@
+#Plugin part ~~~~~~~~~~ Time (seconds)
+Start of the plugin     0
+Parsed into Nodes       1.02
+End of ComputeFreqs     0.21
+End of SplitTree        0.22
+End of Huffman gen      0.0
+End of encodeOccs       0.52
+End of outputOccs       0.0
+End of outputEdges      0.32
+End of outputDic        0.02
+End of plugin           0.00
+
+Compilation times for Typers.scala (5500 lines of code) on an Intel I5 @ 2.67 Gz
