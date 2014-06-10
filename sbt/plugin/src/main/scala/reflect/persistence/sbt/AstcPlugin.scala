@@ -34,19 +34,23 @@ object AstcPlugin extends Plugin {
   val beforeCompile = TaskKey[Unit]("before-compile")
   val beforeCompileTask = beforeCompile := {
     val generalPath = new File((classDirectory in Compile).value.getParent).getAbsolutePath
-    (new File(generalPath + "/asts/")).renameTo(new File(generalPath + "/asts.bak"))
+    (new File(generalPath + "/asts")).renameTo(new File(generalPath + "/asts.bak"))
   }
   /* If the compilation was successful, then we remove the old .asts. Otherwise we restore them. */
   val newCompile = compile in Compile := ({
+    def deleteAll(f: File): Boolean = {
+      if (f.isDirectory) f.listFiles.foreach(deleteAll(_))
+      f.delete
+    }
     beforeCompile.value /* Save the .asts */
     val generalPath = new File((classDirectory in Compile).value.getParent).getAbsolutePath
     var res = (compile in Compile).result.value match {
     case Inc(inc: Incomplete) =>
-    (new File(generalPath + "/asts.bak/")).renameTo(new File(generalPath + "/asts"))
+    (new File(generalPath + "/asts.bak")).renameTo(new File(generalPath + "/asts"))
       throw inc
     case Value(analysis) =>
-    if (new File(generalPath + "asts/").exists) (new File(generalPath + "/asts.bak/")).delete
-    else (new File(generalPath + "/asts.bak/")).renameTo(new File(generalPath + "/asts"))
+    if (new File(generalPath + "/asts").exists) deleteAll(new File(generalPath + "/asts.bak"))
+    else (new File(generalPath + "/asts.bak")).renameTo(new File(generalPath + "/asts"))
       analysis
   }
   res
