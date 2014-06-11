@@ -156,4 +156,19 @@ class TreeRecomposerTest extends FunSuite {
   test("subtree extraction3") {
     testAndPrintSubtree(lzwExample, 121)
   }
+  
+  /* Let's then test recomposing with literals */
+  test("Constant Reconstruction1") {
+    val t1 = reify {
+      val bool: Boolean = false
+      val byte: Byte = 4
+      val short: Short = 44
+      val char: Char = 8
+      val int: Int = 67534
+      val long: Long = 23325632L
+      val double: Double = 44.232
+      val string: String = "Change the spoon for dessert"
+    }.tree
+    testAndPrint(t1)
+  }
 }

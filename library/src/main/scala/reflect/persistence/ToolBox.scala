@@ -9,7 +9,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   import Enrichments._
 
   type NameDict = Map[String, List[Int]]
-  type ConstantDict = Map[String, List[Int]]
+  type ConstantDict = Map[Any, List[Int]]
 
   var saved: Map[String, (Node, RevList[NodeBFS], NameDict, ConstantDict)] = Map()
 
@@ -41,7 +41,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     src.close()
     val (nodeTree, rest1) = new AstDecompressor()(bytes.tail)
     val (names, rest2) = new NameDecompressor()(rest1)
-    val constants = new ConstantDecompressor()(rest2)
+    val constants = new ConstantDecompressor[u.type](u)(rest2)
 
     /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
     new TreeRecomposer[u.type](u)(DecTree(nodeTree.flattenBFSIdx, names, constants))
@@ -83,8 +83,8 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     zipped.groupBy(_._2).map(x => (x._1, x._2.map(y => y._1))).toMap
   }
   /* Initialize the positions of the constants in BFS order */
-  def initConstants(constants: Map[String, List[Int]], nbfs: RevList[NodeBFS]): ConstantDict = {
-    val toZip: List[(Int, String)] = constants.map(x => x._2.map(y => (y, x._1))).toList.flatten.sortBy(_._1)
+  def initConstants(constants: ConstantDict, nbfs: RevList[NodeBFS]): ConstantDict = {
+    val toZip = constants.map(x => x._2.map(y => (y, x._1))).toList.flatten.sortBy(_._1)
     val interm = nbfs.reverse.filter(x => x.node.tpe == NodeTag.Literal)
     val zipped = interm.zip(toZip).map { x =>
       (x._1.bfsIdx, x._2._2)
@@ -133,7 +133,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val bytes: List[Byte] = new XZReader(src)()
     val (nodeTree, rest1) = new AstDecompressor()(bytes.tail)
     val (names, rest2) = new NameDecompressor()(rest1)
-    val constants = new ConstantDecompressor()(rest2)
+    val constants = new ConstantDecompressor[u.type](u)(rest2)
     if (!names.contains(name))
       throw new Exception("Error: specified name doesn't exist")
     src.close()
