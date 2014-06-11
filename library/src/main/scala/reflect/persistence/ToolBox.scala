@@ -101,7 +101,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   }
 
   /*TODO find a name + a return type appropriated*/
-  def findFamily(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS]) = {
+  def findFamily(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS]): RevList[NodeBFS] = {
     
     val withDefs: Map[String, List[Int]] = fullPath.map{ x => 
       val filtered: List[Int] = names(x).filter(y => NodeTag.isADefine(tree.find(z => z.bfsIdx == y).get.node.tpe))
@@ -118,13 +118,15 @@ class ToolBox(val u: scala.reflect.api.Universe) {
         extractSubBFS(tree.drop(i))
     }.toList
 
-    rootTrees.filter{ t => 
+    val candidates: List[RevList[NodeBFS]] = rootTrees.filter{ t => 
       val (max, min) = (t.head.bfsIdx, t.last.bfsIdx)
       fullPath.tail.forall{n =>
         val indexes = withDefs(n)
         t.exists(no => indexes.contains(no.bfsIdx))
       }
     }
+    /*TODO handle case not found => list is empty*/
+    candidates.head
   }
   /* Helper function that reads all the elements we need to reconstruct the tree */
   def nameBasedRead(file: String, name: String): (Node, Map[String, List[Int]]) = {
