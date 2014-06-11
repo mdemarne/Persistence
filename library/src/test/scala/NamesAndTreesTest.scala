@@ -66,4 +66,5 @@ class NamesAndTreesTest extends FunSuite {
     compressionTest(treeStr, "youpla", NodeTag.ClassDef, "c")
   
   }
+
 }
