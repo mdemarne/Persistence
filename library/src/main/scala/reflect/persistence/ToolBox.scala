@@ -2,13 +2,29 @@ package scala.reflect.persistence
 
 import java.io._
 import scala.language.existentials
-
+/*TODO transform most of the functions into private ones*/
 /* Fetch trees and subtrees from the decompressed AST. */
 class ToolBox(val u: scala.reflect.api.Universe) {
   import u._
   import Enrichments._
   var save: Map[String, (Node, RevList[NodeBFS], Map[String, List[Int]])] = Map()
- 
+  
+  def getSource(s: Symbol): Tree = {
+    val fullName: List[String] = s.fullName.split(".").toList
+    val path = fullName.init.mkString("/")
+    val name = fullName.last
+    
+    def inner(ss: Symbol, file: String, n: String): Tree = ss.info match {
+      case ModuleDef => getMethodDef(file, n)
+      case ClassDef => getClassDef(file, n)
+      case TypeDef => getTypeDef(file, n)
+      case LabelDef => getLabelDef(file, n)
+      case DefDef =>  getMethodDef(file, n)
+      case ValDef => getValDef(file, n)
+      case _ => throw new Exception(s"Error: Type of symbol not supported, ${n} in ${file}")
+    }
+    inner(s, path, name) 
+  }
  /* General function returning the whole tree */
   def getAst(file: String): Tree = {
     
