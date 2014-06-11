@@ -199,14 +199,14 @@ object build extends Build {
     testTypersConf ++ testTypersConfNoPlug ++
     testBasicConf ++ testBasicConfNoPlug ++ testToolboxConf /*++ testSpecificConfList ++ testSpecificConfNoPlugList*/: _*
   ) settings (
-    sources in Compile <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala"))
+    sources in Compile <<= (sources in Compile).map(_ filter(f => f.getAbsolutePath.contains(testAstLibraryFile)))
   ) settings (
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
     /* Forcing dependencies on ASTs publish from our SBT test, to test the decompression library */
     libraryDependencies += "default" % "tests_2.11" % "0.1-SNAPSHOT" classifier "asts",
     scalacOptions ++= Seq()
-  )
+  ) dependsOn (library % "test->test;compile->compile")
 
   /* Custom configurations for compilation tests */
 

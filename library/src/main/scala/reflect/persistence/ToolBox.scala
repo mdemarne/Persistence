@@ -35,7 +35,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   }
   /* General function returning the whole tree */
   def getAst(file: String): Tree = {
-
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
     val bytes: List[Byte] = new XZReader(src)()
     src.close()
@@ -176,5 +175,10 @@ class ToolBox(val u: scala.reflect.api.Universe) {
         loop(ns, acc)
     }
     loop(nodes.tail, nodes.head :: Nil)
+  }
+  
+  /* Implicit wrapper to get a definition from a symbol */
+  implicit class RichSymbol(s: Symbol) {
+    def source = getSource(s)
   }
 }
