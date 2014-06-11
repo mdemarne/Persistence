@@ -22,7 +22,7 @@ class TreeRecomposerTest extends FunSuite {
     println(decTree.treeBFS.map(x => (x.node.tpe, x.bfsIdx, x.parentBfsIdx)))
     println("name list:" + decTree.names)
     println("Original tree:\n" + t1)
-    val t2 = recomposer(decTree.copy(names = toolbox.initNames(decTree.names, decTree.treeBFS)))
+    val t2 = recomposer(decTree.copy(names = toolbox.initNames(decTree.names, decTree.treeBFS), constants = toolbox.initConstants(decTree.constants, decTree.treeBFS)))
     println("Recomposed tree:\n" + t2)
     /* Visual debugging */
   }
@@ -32,7 +32,7 @@ class TreeRecomposerTest extends FunSuite {
     println("Original tree:\n" + t1)
     val newBFS = toolbox.extractSubBFS(decTree.treeBFS.reverse.drop(idx))
     println("subtree:" + newBFS.toTree)
-    val t2 = recomposer(DecTree(newBFS, toolbox.initNames(decTree.names, decTree.treeBFS)))
+    val t2 = recomposer(DecTree(newBFS, toolbox.initNames(decTree.names, decTree.treeBFS), toolbox.initConstants(decTree.constants, decTree.treeBFS)))
     println("Recomposed subtree:\n" + t2)
     /* Visual debugging */
   }

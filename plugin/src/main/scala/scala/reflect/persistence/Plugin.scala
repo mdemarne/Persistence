@@ -29,7 +29,8 @@ class Plugin(val global: Global) extends NscPlugin {
         val decTree = new TreeDecomposer[global.type](global)(unit.body)
         val compAsts = new AstCompressor()(decTree.treeBFS.toTree)
         val compNames = new NameCompressor()(decTree.names)
-        new XZWriter(new DataOutputStream(new FileOutputStream(path)))(compAsts ++ compNames)
+        val compConstants = new ConstantCompressor()(decTree.constants.map(v => (v._1.toString, v._2)))
+        new XZWriter(new DataOutputStream(new FileOutputStream(path)))(compAsts ++ compNames ++ compConstants)
       }
     }
 

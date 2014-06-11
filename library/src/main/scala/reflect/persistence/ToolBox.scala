@@ -7,108 +7,114 @@ import scala.language.existentials
 class ToolBox(val u: scala.reflect.api.Universe) {
   import u._
   import Enrichments._
-  var save: Map[String, (Node, RevList[NodeBFS], Map[String, List[Int]])] = Map()
- 
- /*TODO this version doesn't support fullName specification yet*/
+
+  type NameDict = Map[String, List[Int]]
+  type ConstantDict = Map[String, List[Int]]
+
+  var saved: Map[String, (Node, RevList[NodeBFS], NameDict, ConstantDict)] = Map()
+
+  /*TODO this version doesn't support fullName specification yet*/
   def getSource(s: Symbol): Tree = {
     val fullPath: List[String] = s.fullName.split(".").toList
     /*TODO check that this is correct*/
-    val path = s.pos.source.file.path 
+    val path = s.pos.source.file.path
     val name = fullPath.last
     /*Fully specified name for what we're looking for*/
-    val fullName: List[String] = fullPath.drop(path.split("/").size).toList 
-    assert(fullName.last == name) 
-    
+    val fullName: List[String] = fullPath.drop(path.split("/").size).toList
+    assert(fullName.last == name)
     def inner(ss: Symbol, file: String): Tree = ss.info match {
       case ModuleDef => getMethodDef(file, fullName)
       case ClassDef => getClassDef(file, fullName)
       case TypeDef => getTypeDef(file, fullName)
       case LabelDef => getLabelDef(file, fullName)
-      case DefDef =>  getMethodDef(file, fullName)
+      case DefDef => getMethodDef(file, fullName)
       case ValDef => getValDef(file, fullName)
       case _ => throw new Exception(s"Error: Type of symbol not supported, ${fullName.last} in ${file}")
     }
-    inner(s, path) 
+    inner(s, path)
   }
- /* General function returning the whole tree */
+  /* General function returning the whole tree */
   def getAst(file: String): Tree = {
-    
+
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
     val bytes: List[Byte] = new XZReader(src)()
     src.close()
-    val decompressor: AstDecompressor = new AstDecompressor()
-    val nodeTree = decompressor(bytes.tail)
-    val toRead: List[Byte] = decompressor.getToRead 
-    val names = (new NameDecompressor()(toRead))._1
-    
-    /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
-    new TreeRecomposer[u.type](u)(DecTree(nodeTree.flattenBFSIdx, names))
-  }
+    val (nodeTree, rest1) = new AstDecompressor()(bytes.tail)
+    val (names, rest2) = new NameDecompressor()(rest1)
+    val constants = new ConstantDecompressor()(rest2)
 
-  def getMethodDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.DefDef) 
-  def getValDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ValDef)  
+    /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
+    new TreeRecomposer[u.type](u)(DecTree(nodeTree.flattenBFSIdx, names, constants))
+  }
+  def getMethodDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.DefDef)
+  def getValDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ValDef)
   def getModuleDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ModuleDef)
-  def getClassDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ClassDef)  
+  def getClassDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ClassDef)
   def getTypeDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.TypeDef)
-  def getLabelDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.LabelDef) 
+  def getLabelDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.LabelDef)
 
   /*TODO here: The file value might be wrong here*/
   def getNewElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
-    val (nodeTree, n) = nameBasedRead(file, fullName.last)
+    val (nodeTree, flatNames, flatConstants) = nameBasedRead(file, fullName.last)
     val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
-    val names: Map[String, List[Int]] = initNames(n, bfs)
-    save +=(file -> (nodeTree, bfs, names))
-    val subtree: RevList[NodeBFS] = findWithFullPath(fullName, names, bfs.reverse)
-    new TreeRecomposer[u.type](u)(DecTree(subtree, names))
+    val names: Map[String, List[Int]] = initNames(flatNames, bfs)
+    val constants = initConstants(flatConstants, bfs)
+    saved += (file -> (nodeTree, bfs, names, constants))
+    val subtree: RevList[NodeBFS] = findWithFullPath(fullName, names, bfs.reverse, tpe)
+    new TreeRecomposer[u.type](u)(DecTree(subtree, names, constants))
   }
-
   def getElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
-   if(!save.contains(file)){
-    getNewElement(file, fullName, tpe)
-   }else{
-    val (_, bfs, names) = save(file)
-    /*TODO replace here the call*/
-    val subtree: RevList[NodeBFS] = findWithFullPath(fullName, names, bfs.reverse)
-    new TreeRecomposer[u.type](u)(DecTree(subtree, names))
-
-   }
+    if (!saved.contains(file)) {
+      getNewElement(file, fullName, tpe)
+    } else {
+      val (_, bfs, names, constants) = saved(file)
+      /*TODO replace here the call*/
+      val subtree: RevList[NodeBFS] = findWithFullPath(fullName, names, bfs.reverse, tpe)
+      new TreeRecomposer[u.type](u)(DecTree(subtree, names, constants))
+    }
   }
-  
-  def initNames(names: Map[String, List[Int]], nbfs: RevList[NodeBFS]) : Map[String, List[Int]] = {
+  /* Initialize the positions of the names in BFS order */
+  def initNames(names: Map[String, List[Int]], nbfs: RevList[NodeBFS]): NameDict = {
     val toZip: List[(Int, String)] = names.map(x => x._2.map(y => (y, x._1))).toList.flatten.sortBy(_._1)
     val interm = nbfs.reverse.filter(x => NodeTag.hasAName(x.node.tpe))
-    val zipped = interm.zip(toZip).map{ x => 
+    val zipped = interm.zip(toZip).map { x =>
       (x._1.bfsIdx, x._2._2)
     }
-    zipped.groupBy(_._2).map(x => (x._1, x._2.map(y => y._1) )).toMap
+    zipped.groupBy(_._2).map(x => (x._1, x._2.map(y => y._1))).toMap
+  }
+  /* Initialize the positions of the constants in BFS order */
+  def initConstants(constants: Map[String, List[Int]], nbfs: RevList[NodeBFS]): ConstantDict = {
+    val toZip: List[(Int, String)] = constants.map(x => x._2.map(y => (y, x._1))).toList.flatten.sortBy(_._1)
+    val interm = nbfs.reverse.filter(x => x.node.tpe == NodeTag.Literal)
+    val zipped = interm.zip(toZip).map { x =>
+      (x._1.bfsIdx, x._2._2)
+    }
+    zipped.groupBy(_._2).map(x => (x._1, x._2.map(y => y._1))).toMap
   }
 
-  /* Find the bfs index of the element that corresponds to our search 
-     @deprecated: Have no use for it anymore*/
-  def findIndex(nodes: RevList[NodeBFS], tpe: NodeTag.Value, occs: List[Int]): Int = occs match{
-    case o::os =>
+  /* Find the bfs index of the element that corresponds to our search */
+  def findIndex(nodes: RevList[NodeBFS], tpe: NodeTag.Value, occs: List[Int]): Int = occs match {
+    case o :: os =>
       val node: NodeBFS = nodes.find(_.bfsIdx == occs.head).get
-      if(node.node.tpe == tpe){
+      if (node.node.tpe == tpe) {
         o
-      }
-      else 
+      } else
         findIndex(nodes, tpe, os)
-    case _ => 
+    case _ =>
       -1
   }
-
   /*Finds the correct tree to reconstruct given a fullName specification*/
   /*TODO handle all the corner cases correctly with exceptions and all*/
   /*Maybe problem with the type ... should test for it too*/
-  def findWithFullPath(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS]): RevList[NodeBFS] = {
+  def findWithFullPath(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS], tpe: NodeTag.Value): RevList[NodeBFS] = {
    /*Keeps only entries in the names that are defines and contained in fullPath*/
     val withDefs: Map[String, List[Int]] = fullPath.map{ x => 
       val filtered: List[Int] = names(x).filter(y => NodeTag.isADefine(tree.find(z => z.bfsIdx == y).get.node.tpe))
       (x, filtered)
     }.toMap
     /*Gets the trees foreach of the defines of the start of fullPath*/
-    val rootTrees: List[RevList[NodeBFS]] = withDefs(fullPath.head).map{ i => 
-        extractSubBFS(tree.drop(i))
+    val rootTrees: List[RevList[NodeBFS]] = withDefs(fullPath.head).map { i =>
+      extractSubBFS(tree.drop(i))
     }.toList
     /*Finds the correct one*/
     val candidate: RevList[NodeBFS] = rootTrees.filter{ t => 
@@ -116,8 +122,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
         val indexes = withDefs(n)
         t.exists(no => indexes.contains(no.bfsIdx))
       }
-    }.head
-   
+    }.find(t => t.exists(node => withDefs(fullPath.last).contains(node.bfsIdx) && node.node.tpe == tpe)).get 
     def loop(full: List[String], tree: List[NodeBFS]): List[NodeBFS] = full match {
       case n:: Nil =>
         tree
@@ -130,11 +135,11 @@ class ToolBox(val u: scala.reflect.api.Universe) {
           extractSubBFS(subtree).reverse
         }
         /*Find the correct child among all*/
-        val good: List[NodeBFS] = childTrees.find{ t =>
+        val good: List[NodeBFS] = childTrees.filter{ t =>
           ns.forall{ name => 
             t.exists(node => withDefs(name).contains(node.bfsIdx))
           }
-        }.get
+        }.find(t => t.exists(node => withDefs(full.last).contains(node.bfsIdx) && node.node.tpe == tpe)).get
         loop(ns, good)
       case Nil => 
         throw new Exception("Error: inside findWithFullPath")
@@ -144,17 +149,16 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   }
 
   /* Helper function that reads all the elements we need to reconstruct the tree */
-  def nameBasedRead(file: String, name: String): (Node, Map[String, List[Int]]) = {
+  def nameBasedRead(file: String, name: String): (Node, NameDict, ConstantDict) = {
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
     val bytes: List[Byte] = new XZReader(src)()
-    val decompressor: AstDecompressor = new AstDecompressor()
-    val nodeTree: Node = decompressor(bytes.tail)
-    val toRead: List[Byte] = decompressor.getToRead
-    val names = (new NameDecompressor()(toRead))._1
-    if(!names.contains(name))
+    val (nodeTree, rest1) = new AstDecompressor()(bytes.tail)
+    val (names, rest2) = new NameDecompressor()(rest1)
+    val constants = new ConstantDecompressor()(rest2)
+    if (!names.contains(name))
       throw new Exception("Error: specified name doesn't exist")
     src.close()
-    (nodeTree, names)
+    (nodeTree, names, constants)
   }
   
   /* @warning must give the list of nodes in normal BFS and head is the node we need */
@@ -171,6 +175,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
       case n::ns => 
         loop(ns, acc)
     }
-    loop(nodes.tail, nodes.head::Nil)
+    loop(nodes.tail, nodes.head :: Nil)
   }
 }

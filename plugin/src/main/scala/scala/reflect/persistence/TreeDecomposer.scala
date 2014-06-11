@@ -12,6 +12,7 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
   /* Return a simplified tree along with maps of Names / Symbols / Types zipped with occurrences in BFS order */
   def apply(tree: Tree): DecTree = {
     var flatNames: List[String] = List()
+    var flatConstants: List[String] = List()
     /* Traverse the tree, save names, type, symbols into corresponding list and replace them in the tree by default values*/
     @tailrec def loop(trees: List[Tree], dict: Map[Tree, Node]): Map[Tree, Node] = trees match {
       case Nil => dict
@@ -89,6 +90,7 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
             flatNames +:= name.toString
             Node(NodeTag.Ident, Nil)
           case Literal(value) =>
+            flatConstants +:= value.value.toString
             Node(NodeTag.Literal)
           case Annotated(annot, arg) =>
             Node(NodeTag.Annotated, List(annot, arg) map (dict(_)))
@@ -128,6 +130,7 @@ class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
     val flatTree = tree.flattenBFS
     val flatNode = loop(flatTree, Map((EmptyTree -> Node.empty)))(tree).flattenBFSIdx
     val zipNames = flatNames.zipWithIdxs
-    DecTree(flatNode, zipNames)
+    val zipConstant = flatConstants.zipWithIdxs
+    DecTree(flatNode, zipNames, zipConstant)
   }
 }

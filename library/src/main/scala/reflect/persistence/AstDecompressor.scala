@@ -32,7 +32,6 @@ class AstDecompressor {
   
   /*Extracts the occurrences from the input*/
   def inputOccs: List[Byte] = readBytes(readShort)
-  
   /*Extracts the inputDict from the input*/
   def inputDict: RevHufDict = {
     var dict: RevHufDict = Map()
@@ -48,15 +47,6 @@ class AstDecompressor {
     }
     dict
   }
-
-  /* Decompresses the byte into a list of 8 bytes */
-  def decompressBytes(byte: Byte): List[Byte] = {
-    (0 to 7).map{ i => 
-      if((byte & (1 << i)) != 0) 1.toByte
-      else 0.toByte
-    }.toList.reverse
-  } 
-  
   /*Extracts the edges encoded in the input*/
   def inputEdges: List[(Int, Int)] = {
    val size: Int = readInt
@@ -67,7 +57,6 @@ class AstDecompressor {
     l1 :+= (readByte.toInt, readShort.toInt)
     sum += l1.last._2
    }
-
   /* Decompress the first list */
    val l1f: List[Int] = l1.zipWithIndex.map{ e => 
     val value = l1.zipWithIndex.filter(x => x._2 <= e._2).map(_._1._1).sum
@@ -80,13 +69,20 @@ class AstDecompressor {
     l2 :+= (readShort.toInt, readShort.toInt)
     sum += l2.last._2
    } 
-  
   /* Decompress the second list */
    val l2f: List[Int] = l2.map{e => (for(i <- 1 to e._2) yield e._1).toList}.flatten
    assert(l1f.size == l2f.size, s"l1f has ${l1f.size} l2f has ${l2f.size}")
    l1f.zip(l2f)
   }
-
+    
+  /* Decompresses the byte into a list of 8 bytes */
+  def decompressBytes(byte: Byte): List[Byte] = {
+    (0 to 7).map{ i => 
+      if((byte & (1 << i)) != 0) 1.toByte
+      else 0.toByte
+    }.toList.reverse
+  } 
+  
   /*These methods are here to simplify the reading from the input list of bytes*/
   def readInt: Int = toRead match {
     case w::x::y::z::xs => 
@@ -95,7 +91,6 @@ class AstDecompressor {
     case x => 
       throw new Exception("Error: Decompressor cannot read an Int from ${x}")
   }
-
   def readShort: Short = toRead match {
     case x::y::xs => 
       toRead = xs
@@ -103,7 +98,6 @@ class AstDecompressor {
     case x =>
       throw new Exception(s"Error: Decompressor cannot read Short from ${x}")
   }
-
   def readByte: Byte = toRead match {
     case x::xs => 
       toRead = xs
@@ -111,7 +105,6 @@ class AstDecompressor {
     case x => 
       throw new Exception("Error: Decompressor cannot read Byte ${x}")
   }
- 
  /*Read size bytes and unflatten them*/
   def readBytes(size: Int): List[Byte] = {
     var bytes: List[Byte] = Nil
@@ -120,15 +113,13 @@ class AstDecompressor {
     }
     bytes.map(decompressBytes(_)).reverse.flatten.drop((8 - (size % 8)) % 8)
   }
-
-  def getToRead: List[Byte] = toRead
-
-  def apply(bytes: List[Byte]): Node = {
+  
+  def apply(bytes: List[Byte]): (Node, List[Byte]) = {
     toRead = bytes
     val dOccs = inputOccs
     val dEdges = inputEdges
     val dDict = inputDict
     val decodedOccs = decodeOccs(dOccs, dDict)
-    rebuiltTree(decodedOccs, dEdges)
+    (rebuiltTree(decodedOccs, dEdges), toRead)
   }
 }
