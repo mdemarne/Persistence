@@ -11,7 +11,7 @@ class AstPersistenceTest extends FunSuite {
     val compressor = new AstCompressor()
     val decompressor = new AstDecompressor()
     val bytes: List[Byte] = compressor(tree)
-    val recupTree = decompressor(bytes)
+    val recupTree = decompressor(bytes)._1
     
     assert(tree == recupTree, s"${tree} \nDid not match\n${recupTree}")
   }

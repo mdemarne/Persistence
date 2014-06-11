@@ -19,6 +19,7 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
   }
   def apply(decTree: DecTree): Tree = {
     var names = decTree.names.unzipWithIdxs
+    var constants = decTree.constants.unzipWithIdxs
     @tailrec def loop(trees: RevList[NodeBFS], dict: Map[NodeWrapper, Tree]): Map[NodeWrapper, Tree] = trees match {
       case Nil => dict
       case NodeBFS(x, idx, _) :: xs =>
@@ -89,7 +90,7 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case NodeTag.ReferenceToBoxed =>
             ReferenceToBoxed(dict(x.children.head).asInstanceOf[Ident])
           case NodeTag.Literal =>
-            Literal(Constant(()))
+            Literal(Constant(constants(idx)))
           case NodeTag.Annotated =>
             Annotated(dict(x.children.head), dict(x.children.last))
           case NodeTag.SingletonTypeTree =>

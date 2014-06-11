@@ -109,7 +109,7 @@ object Enrichments {
     List((s & 0xff).toByte, ((s >> 8)& 0xff).toByte)
   }
 
-/*Returns an Int and the rest of the input*/
+  /*Returns an Int and the rest of the input*/
   def readInt(toRead: List[Byte]): (Int, List[Byte]) = toRead match {
     case w::x::y::z::xs => 
       (((w) + (x << 8) + (y << 16) + (z << 24)).toInt, xs)
