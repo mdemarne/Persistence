@@ -99,6 +99,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
 
   /*Finds the correct tree to reconstruct given a fullName specification*/
   /*TODO handle all the corner cases correctly with exceptions and all*/
+  /*Maybe problem with the type ... should test for it too*/
   def findWithFullPath(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS]): RevList[NodeBFS] = {
    /*Keeps only entries in the names that are defines and contained in fullPath*/
     val withDefs: Map[String, List[Int]] = fullPath.map{ x => 
@@ -117,36 +118,28 @@ class ToolBox(val u: scala.reflect.api.Universe) {
       }
     }.head
    
-   /*TODO really messy to do maybe simplify at some point*/
     def loop(full: List[String], tree: List[NodeBFS]): List[NodeBFS] = full match {
-      case n::Nil => 
-       val index: Int = withDefs(n).find(i => tree.exists(t => t.bfsIdx == i)).get
-       extractSubBFS(tree.dropWhile(_.bfsIdx != index)).reverse
+      case n:: Nil =>
+        tree
       case n::ns =>
-        println(s"Indexes: ${tree.map(t => t.bfsIdx)}")
-        /*Take potential children*/
-        val children: List[NodeBFS] = tree.filter{no => 
-        no.parentBfsIdx == tree.head.bfsIdx}
-        
-        println(s"Children size ${children.size} for names ${full}")
-        /*TODO doesn't seem to extract just a tree...*/
-        val childTrees: List[List[NodeBFS]] = children.map{c => 
-          extractSubBFS(tree.dropWhile(_.bfsIdx != c.bfsIdx)).reverse
+        /*First we isolate the children*/
+        val children: List[NodeBFS] = tree.tail.filter(_.parentBfsIdx == tree.head.bfsIdx)
+        /*Then foreach of them we extract the subtree*/
+        val childTrees: List[List[NodeBFS]] = children.map{ c => 
+          val subtree: List[NodeBFS] = tree.dropWhile(_.bfsIdx != c.bfsIdx)
+          extractSubBFS(subtree).reverse
         }
-        
-        println("Printing the trees")
-        childTrees.foreach{ t => 
-           println(s"A tree:\n${t}\n")
-        }
-        /*TODO Problem with this line*/
-        val good = childTrees.find(t => ns.forall(na => t.exists(no => withDefs(na).contains(no.bfsIdx)))).get
-
-        println(s"The good: ${good}")
+        /*Find the correct child among all*/
+        val good: List[NodeBFS] = childTrees.find{ t =>
+          ns.forall{ name => 
+            t.exists(node => withDefs(name).contains(node.bfsIdx))
+          }
+        }.get
         loop(ns, good)
-     case Nil => 
-        throw new Exception("Error: Missed the good tree")
+      case Nil => 
+        throw new Exception("Error: inside findWithFullPath")
     }
-    loop(fullPath, candidate.reverse)
+    loop(fullPath, candidate.reverse).reverse
     
   }
 
@@ -163,16 +156,20 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     src.close()
     (nodeTree, names)
   }
-
+  
   /* @warning must give the list of nodes in normal BFS and head is the node we need */
   def extractSubBFS(nodes: List[NodeBFS]): RevList[NodeBFS] = {
     assert(!nodes.isEmpty)
     def loop(nds: List[NodeBFS], acc: RevList[NodeBFS]): RevList[NodeBFS] = nds match {
-      case Nil => acc
+      case Nil =>
+        //acc.filter(x => acc.exists(y => y.bfsIdx == x.parentBfsIdx)):::List(acc.last)
+        acc
       case n::ns if(acc.head.bfsIdx > n.bfsIdx && !acc.exists(_.bfsIdx == n.parentBfsIdx)) => 
         acc
-      case n::ns => 
+      case n::ns if(acc.exists(x => x.bfsIdx == n.parentBfsIdx))=> 
         loop(ns, n::acc)
+      case n::ns => 
+        loop(ns, acc)
     }
     loop(nodes.tail, nodes.head::Nil)
   }
