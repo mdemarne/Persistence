@@ -111,15 +111,43 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     }.toList
     /*Finds the correct one*/
     val candidate: RevList[NodeBFS] = rootTrees.filter{ t => 
-      val (max, min) = (t.head.bfsIdx, t.last.bfsIdx)
       fullPath.tail.forall{n =>
         val indexes = withDefs(n)
         t.exists(no => indexes.contains(no.bfsIdx))
       }
     }.head
-    val index: Int = withDefs(fullPath.last).find(i => candidate.exists(y => y.bfsIdx == i)).get
+   
+   /*TODO really messy to do maybe simplify at some point*/
+    def loop(full: List[String], tree: List[NodeBFS]): List[NodeBFS] = full match {
+      case n::Nil => 
+       val index: Int = withDefs(n).find(i => tree.exists(t => t.bfsIdx == i)).get
+       extractSubBFS(tree.dropWhile(_.bfsIdx != index)).reverse
+      case n::ns =>
+        println(s"Indexes: ${tree.map(t => t.bfsIdx)}")
+        /*Take potential children*/
+        val children: List[NodeBFS] = tree.filter{no => 
+        no.parentBfsIdx == tree.head.bfsIdx}
+        
+        println(s"Children size ${children.size} for names ${full}")
+        /*TODO doesn't seem to extract just a tree...*/
+        val childTrees: List[List[NodeBFS]] = children.map{c => 
+          extractSubBFS(tree.dropWhile(_.bfsIdx != c.bfsIdx)).reverse
+        }
+        
+        println("Printing the trees")
+        childTrees.foreach{ t => 
+           println(s"A tree:\n${t}\n")
+        }
+        /*TODO Problem with this line*/
+        val good = childTrees.find(t => ns.forall(na => t.exists(no => withDefs(na).contains(no.bfsIdx)))).get
 
-    extractSubBFS(tree.drop(index))
+        println(s"The good: ${good}")
+        loop(ns, good)
+     case Nil => 
+        throw new Exception("Error: Missed the good tree")
+    }
+    loop(fullPath, candidate.reverse)
+    
   }
 
   /* Helper function that reads all the elements we need to reconstruct the tree */
