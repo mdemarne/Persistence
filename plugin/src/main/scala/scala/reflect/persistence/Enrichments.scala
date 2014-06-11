@@ -1,6 +1,7 @@
 package scala.reflect.persistence
 
 import scala.annotation.tailrec
+import java.nio.ByteBuffer
 
 object Enrichments {
 
@@ -102,29 +103,19 @@ object Enrichments {
       loop(in.head :: Nil, in.tail)
     }
   }
-  def IntToBytes(i: Int): List[Byte] = {
-    List((i & 0xff).toByte, ((i >> 8)& 0xff).toByte, ((i >> 16)& 0xff).toByte, ((i >> 24)& 0xff).toByte)
-  }
-  def ShortToBytes(s: Short): List[Byte] = {
-    List((s & 0xff).toByte, ((s >> 8)& 0xff).toByte)
-  }
-
-  /*Returns an Int and the rest of the input*/
-  def readInt(toRead: List[Byte]): (Int, List[Byte]) = toRead match {
-    case w::x::y::z::xs => 
-      (((w) + (x << 8) + (y << 16) + (z << 24)).toInt, xs)
-    case x => 
-      throw new Exception("Error: Decompressor cannot read an Int from ${x}")
-  }
   
-  /*Returns a Short and the rest of the input*/
-  def readShort(toRead: List[Byte]): (Short, List[Byte]) = toRead match {
-    case x::y::xs => 
-      (((x) + (y << 8)).toShort, xs)
-    case x =>
-      throw new Exception(s"Error: Decompressor cannot read Short from ${x}")
-  }
+  def IntToBytes(i: Int): List[Byte] = ByteBuffer.allocate(4).putInt(i).array.toList
+  def ShortToBytes(s: Short): List[Byte] = ByteBuffer.allocate(2).putShort(s).array.toList
+  def LongToBytes(l: Long): List[Byte] = ByteBuffer.allocate(8).putLong(l).array.toList
+  def FloatToBytes(f: Float): List[Byte] = ByteBuffer.allocate(4).putFloat(f).array.toList
+  def DoubleToBytes(d: Double): List[Byte] = ByteBuffer.allocate(8).putDouble(d).array.toList
 
+  def readInt(toRead: List[Byte]): (Int, List[Byte]) = (ByteBuffer.wrap(toRead.take(4).toArray).getInt, toRead.drop(4))
+  def readShort(toRead: List[Byte]): (Short, List[Byte]) = (ByteBuffer.wrap(toRead.take(2).toArray).getShort, toRead.drop(2))
+  def readLong(toRead: List[Byte]): (Long, List[Byte]) = (ByteBuffer.wrap(toRead.take(8).toArray).getLong, toRead.drop(8))
+  def readFloat(toRead: List[Byte]): (Float, List[Byte]) = (ByteBuffer.wrap(toRead.take(4).toArray).getFloat, toRead.drop(4))
+  def readDouble(toRead: List[Byte]): (Double, List[Byte]) = (ByteBuffer.wrap(toRead.take(8).toArray).getDouble, toRead.drop(8))
+  
  /* Decompresses the byte into a list of 8 bytes */
   def decompressBytes(byte: Byte): List[Byte] = {
     (0 to 7).map{ i => 
