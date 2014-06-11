@@ -108,8 +108,8 @@ do
 	sed -i 's/TypeName/T/g' $f 
 	sed -i 's/Modifiers([^"(]*)//g' $f 
 	sed -i 's/List/U/g' $f
-	sed -i 's/noSelfType//g' $f 
-	sed -i 's/Constant//g' $f 
+	sed -i 's/noSelfType/bb/g' $f 
+	sed -i 's/Constant/aa/g' $f 
 	sed -i 's/typeNames.EMPTY/V/g' $f 
 	sed -i 's/typeNames.CONSTRUCTOR/W/g' $f 
 	sed -i 's/termNames.EMPTY/X/g' $f 

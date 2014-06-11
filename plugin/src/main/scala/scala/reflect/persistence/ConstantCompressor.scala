@@ -5,7 +5,8 @@ class ConstantCompressor[U <: scala.reflect.api.Universe](val u: U) {
   import u._
   
   def apply(constants: Map[Any, List[Int]]): List[Byte] = {
-    val zipped = constants.toList.sortBy(_._1.toString).zipWithIndex
+    val constantsAsList = constants.toList
+    val zipped = (constantsAsList.filter(_._1 != null).sortBy(_._1.toString) ++ constantsAsList.filter(_._1 == null)).zipWithIndex
     val constOnly = zipped.map(_._1._1)
     val occurrences: List[(Int, Int)] = zipped.map{ x =>
       x._1._2.map(y => (y, x._2))
@@ -20,7 +21,7 @@ class ConstantCompressor[U <: scala.reflect.api.Universe](val u: U) {
         case v: Float => 'f'.toByte :: FloatToBytes(v)
         case v: Double => 'd'.toByte :: DoubleToBytes(v)
         case v: String => 'g'.toByte :: ShortToBytes(v.size.toShort) ++ v.getBytes /* For strings, the size is written as a short */
-        case v: Type =>
+        case v: Type => /* TODO: 	For now, Types and Symbols are simply transformed into String, due to the difference with Palladium Trees */
           val str = v.toString
           'T'.toByte :: ShortToBytes(str.size.toShort) ++ str.getBytes
         case v: Symbol =>
