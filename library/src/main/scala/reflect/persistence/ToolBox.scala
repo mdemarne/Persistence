@@ -7,31 +7,31 @@ import scala.language.existentials
 class ToolBox(val u: scala.reflect.api.Universe) {
   import u._
   import Enrichments._
-  
+
   type NameDict = Map[String, List[Int]]
   type ConstantDict = Map[String, List[Int]]
-  
+
   var saved: Map[String, (Node, RevList[NodeBFS], NameDict, ConstantDict)] = Map()
- 
- /*TODO this version doesn't support fullName specification yet*/
+
+  /*TODO this version doesn't support fullName specification yet*/
   def getSource(s: Symbol): Tree = {
     val fullPath: List[String] = s.fullName.split(".").toList
     /*TODO check that this is correct*/
-    val path = s.pos.source.file.path 
+    val path = s.pos.source.file.path
     val name = fullPath.last
     /*Fully specified name for what we're looking for*/
-    val fullName: List[String] = fullPath.drop(path.split("/").size).toList 
-    assert(fullName.last == name) 
-    def inner(ss: Symbol, file: String, n: String): Tree = ss.info match {
-      case ModuleDef => getMethodDef(file, n)
-      case ClassDef => getClassDef(file, n)
-      case TypeDef => getTypeDef(file, n)
-      case LabelDef => getLabelDef(file, n)
-      case DefDef => getMethodDef(file, n)
-      case ValDef => getValDef(file, n)
-      case _ => throw new Exception(s"Error: Type of symbol not supported, ${n} in ${file}")
+    val fullName: List[String] = fullPath.drop(path.split("/").size).toList
+    assert(fullName.last == name)
+    def inner(ss: Symbol, file: String): Tree = ss.info match {
+      case ModuleDef => getMethodDef(file, fullName)
+      case ClassDef => getClassDef(file, fullName)
+      case TypeDef => getTypeDef(file, fullName)
+      case LabelDef => getLabelDef(file, fullName)
+      case DefDef => getMethodDef(file, fullName)
+      case ValDef => getValDef(file, fullName)
+      case _ => throw new Exception(s"Error: Type of symbol not supported, ${fullName.last} in ${file}")
     }
-    inner(s, path, name)
+    inner(s, path)
   }
   /* General function returning the whole tree */
   def getAst(file: String): Tree = {
@@ -46,39 +46,31 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
     new TreeRecomposer[u.type](u)(DecTree(nodeTree.flattenBFSIdx, names, constants))
   }
-
-  def getMethodDef(file: String, name: String): Tree = getElement(file, name, NodeTag.DefDef)
-  def getValDef(file: String, name: String): Tree = getElement(file, name, NodeTag.ValDef)
-  def getModuleDef(file: String, name: String): Tree = getElement(file, name, NodeTag.ModuleDef)
-  def getClassDef(file: String, name: String): Tree = getElement(file, name, NodeTag.ClassDef)
-  def getTypeDef(file: String, name: String): Tree = getElement(file, name, NodeTag.TypeDef)
-  def getLabelDef(file: String, name: String): Tree = getElement(file, name, NodeTag.LabelDef)
+  def getMethodDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.DefDef)
+  def getValDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ValDef)
+  def getModuleDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ModuleDef)
+  def getClassDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ClassDef)
+  def getTypeDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.TypeDef)
+  def getLabelDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.LabelDef)
 
   /*TODO here: The file value might be wrong here*/
-  def getNewElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
-    val (nodeTree, flatNames, flatConstants) = nameBasedRead(file, name)
+  def getNewElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
+    val (nodeTree, flatNames, flatConstants) = nameBasedRead(file, fullName.last)
     val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
     val names: Map[String, List[Int]] = initNames(flatNames, bfs)
     val constants = initConstants(flatConstants, bfs)
     saved += (file -> (nodeTree, bfs, names, constants))
-    val index: Int = findIndex(bfs, tpe, names(name))
-    if (index == -1)
-      throw new Exception(s"Error: ${name} is not defined here")
-    val subtree: List[NodeBFS] = extractSubBFS(bfs.reverse.drop(index))
+    val subtree: RevList[NodeBFS] = findWithFullPath(fullName, names, bfs.reverse)
     new TreeRecomposer[u.type](u)(DecTree(subtree, names, constants))
   }
-
-  def getElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
+  def getElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
     if (!saved.contains(file)) {
-      getNewElement(file, name, tpe)
+      getNewElement(file, fullName, tpe)
     } else {
       val (_, bfs, names, constants) = saved(file)
-      val index: Int = findIndex(bfs, tpe, names(name))
-      if (index == -1)
-        throw new Exception(s"Error: ${name} is not defined here")
-      val subtree: List[NodeBFS] = extractSubBFS(bfs.reverse.drop(index))
+      /*TODO replace here the call*/
+      val subtree: RevList[NodeBFS] = findWithFullPath(fullName, names, bfs.reverse)
       new TreeRecomposer[u.type](u)(DecTree(subtree, names, constants))
-
     }
   }
   /* Initialize the positions of the names in BFS order */
@@ -110,24 +102,23 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     case _ =>
       -1
   }
-
   /*Finds the correct tree to reconstruct given a fullName specification*/
   /*TODO handle all the corner cases correctly with exceptions and all*/
   def findWithFullPath(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS]): RevList[NodeBFS] = {
-   
-   /*Keeps only entries in the names that are defines and contained in fullPath*/
-    val withDefs: Map[String, List[Int]] = fullPath.map{ x => 
+
+    /*Keeps only entries in the names that are defines and contained in fullPath*/
+    val withDefs: Map[String, List[Int]] = fullPath.map { x =>
       val filtered: List[Int] = names(x).filter(y => NodeTag.isADefine(tree.find(z => z.bfsIdx == y).get.node.tpe))
       (x, filtered)
     }.toMap
     /*Gets the trees foreach of the defines of the start of fullPath*/
-    val rootTrees: List[RevList[NodeBFS]] = withDefs(fullPath.head).map{ i => 
-        extractSubBFS(tree.drop(i))
+    val rootTrees: List[RevList[NodeBFS]] = withDefs(fullPath.head).map { i =>
+      extractSubBFS(tree.drop(i))
     }.toList
     /*Finds the correct one*/
-    val candidate: RevList[NodeBFS] = rootTrees.filter{ t => 
+    val candidate: RevList[NodeBFS] = rootTrees.filter { t =>
       val (max, min) = (t.head.bfsIdx, t.last.bfsIdx)
-      fullPath.tail.forall{n =>
+      fullPath.tail.forall { n =>
         val indexes = withDefs(n)
         t.exists(no => indexes.contains(no.bfsIdx))
       }
