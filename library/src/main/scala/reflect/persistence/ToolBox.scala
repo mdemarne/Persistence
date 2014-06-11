@@ -100,33 +100,30 @@ class ToolBox(val u: scala.reflect.api.Universe) {
       -1
   }
 
-  /*TODO find a name + a return type appropriated*/
-  def findFamily(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS]): RevList[NodeBFS] = {
-    
+  /*Finds the correct tree to reconstruct given a fullName specification*/
+  /*TODO handle all the corner cases correctly with exceptions and all*/
+  def findWithFullPath(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS]): RevList[NodeBFS] = {
+   
+   /*Keeps only entries in the names that are defines and contained in fullPath*/
     val withDefs: Map[String, List[Int]] = fullPath.map{ x => 
       val filtered: List[Int] = names(x).filter(y => NodeTag.isADefine(tree.find(z => z.bfsIdx == y).get.node.tpe))
       (x, filtered)
     }.toMap
-    
-    /*TODO start from fullPath instead of filter on names for efficiency => solved, keep this v just in case*/
-    /*val withDefs: Map[String, List[Int]] = names.filter(fullPath.contains(_)).map{ x => 
-      val filtered = x._2.filter(y => NodeTag.isADefine(tree.find(z => z.bfsIdx == y).get.node.tpe))
-      (x._1, filtered)
-    }.toMap */
-    
+    /*Gets the trees foreach of the defines of the start of fullPath*/
     val rootTrees: List[RevList[NodeBFS]] = withDefs(fullPath.head).map{ i => 
         extractSubBFS(tree.drop(i))
     }.toList
-
-    val candidates: List[RevList[NodeBFS]] = rootTrees.filter{ t => 
+    /*Finds the correct one*/
+    val candidate: RevList[NodeBFS] = rootTrees.filter{ t => 
       val (max, min) = (t.head.bfsIdx, t.last.bfsIdx)
       fullPath.tail.forall{n =>
         val indexes = withDefs(n)
         t.exists(no => indexes.contains(no.bfsIdx))
       }
-    }
-    /*TODO handle case not found => list is empty*/
-    candidates.head
+    }.head
+    val index: Int = withDefs(fullPath.last).find(i => candidate.exists(y => y.bfsIdx == i)).get
+
+    extractSubBFS(tree.drop(index))
   }
   /* Helper function that reads all the elements we need to reconstruct the tree */
   def nameBasedRead(file: String, name: String): (Node, Map[String, List[Int]]) = {
