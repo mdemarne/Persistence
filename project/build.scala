@@ -191,18 +191,20 @@ object build extends Build {
   lazy val tests = Project(
     id   = "tests",
     base = file("tests")
-  ) configs ( testScalalib, testScalalibNoPlug, testTypers, testTypersNoPlug, testBasic, testBasicNoPlug
+  ) configs ( testScalalib, testScalalibNoPlug, testTypers, testTypersNoPlug, testBasic, testBasicNoPlug, testToolbox
   /*) configs ( testSpecificList ++ testSpecificNoPlugList:_**/
   ) settings (
     sharedSettings ++ useShowRawPluginSettings ++ usePluginSettings ++
     testScalalibConf ++ testScalalibConfNoPlug ++
     testTypersConf ++ testTypersConfNoPlug ++
-    testBasicConf ++ testBasicConfNoPlug /*++ testSpecificConfList ++ testSpecificConfNoPlugList*/: _*
+    testBasicConf ++ testBasicConfNoPlug ++ testToolboxConf /*++ testSpecificConfList ++ testSpecificConfNoPlugList*/: _*
   ) settings (
     sources in Compile <<= (sources in Compile).map(_ filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala"))
   ) settings (
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
+    /* Forcing dependencies on ASTs publish from our SBT test, to test the decompression library */
+    libraryDependencies += "default" % "tests_2.11" % "0.1-SNAPSHOT" classifier "asts",
     scalacOptions ++= Seq()
   )
 
@@ -241,28 +243,36 @@ object build extends Build {
   lazy val testBasic = config("testBasic")
   lazy val testBasicNoPlug = config("testBasicNoPlug")
 
+  /* Config to use artifact packaged and published */
+  lazy val testToolbox = config("testToolbox")
+
+  val testAstLibraryFile = "TestAstLibrary.scala"
+  lazy val testToolboxConf: Seq[Setting[_]] = inConfig(testToolbox)(Defaults.configSettings ++ testPluginConf ++ Seq(
+    unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains(testAstLibraryFile))}  
+  ))
+
   /* Generating specific configs for compiling file by file */
   /*val nbSources: Int = findFiles(new File("tests/src/")).size
   lazy val testSpecificList = for(i <- 0 until nbSources) yield(config(s"testSpecific${i}"))
   lazy val testSpecificNoPlugList = for(i <- 0 until nbSources) yield(config(s"testSpecificNoPlug${i}"))*/
 
   lazy val testScalalibConf: Seq[Setting[_]] = inConfig(testScalalib)(Defaults.configSettings ++ testPluginConf ++ Seq(
-    unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))}
+    unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/") && f.name != testAstLibraryFile)}
   ))
   lazy val testScalalibConfNoPlug: Seq[Setting[_]] = inConfig(testScalalibNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
-    unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/"))}
+    unmanagedSources := {unmanagedSources.value.filter(f => f.getAbsolutePath.contains("scalalibrary/") && f.name != testAstLibraryFile)}
   ))
   lazy val testTypersConf: Seq[Setting[_]] = inConfig(testTypers)(Defaults.configSettings ++ testPluginConf ++ Seq(
-    unmanagedSources := {unmanagedSources.value.filter(_.name == "Typers.scala")}
+    unmanagedSources := {unmanagedSources.value.filter(f => f.name == "Typers.scala" && f.name != testAstLibraryFile)}
   ))
   lazy val testTypersConfNoPlug: Seq[Setting[_]] = inConfig(testTypersNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
-    unmanagedSources := {unmanagedSources.value.filter(_.name == "Typers.scala")}
+    unmanagedSources := {unmanagedSources.value.filter(f => f.name == "Typers.scala" && f.name != testAstLibraryFile)}
   ))
   lazy val testBasicConf: Seq[Setting[_]] = inConfig(testBasic)(Defaults.configSettings ++ testPluginConf ++ Seq(
-    unmanagedSources := {unmanagedSources.value.filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")}
+    unmanagedSources := {unmanagedSources.value.filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala" && f.name != testAstLibraryFile)}
   ))
   lazy val testBasicConfNoPlug: Seq[Setting[_]] = inConfig(testBasicNoPlug)(Defaults.configSettings ++ testNoPlugConf ++ Seq(
-    unmanagedSources := {unmanagedSources.value.filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala")}
+    unmanagedSources := {unmanagedSources.value.filter(f => !f.getAbsolutePath.contains("scalalibrary/") && f.name != "Typers.scala" && f.name != testAstLibraryFile)}
   ))
 
   /* Generating specific settings for compiling file by file */
