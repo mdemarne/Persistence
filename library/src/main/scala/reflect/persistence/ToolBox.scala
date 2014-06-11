@@ -82,7 +82,9 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     }
     zipped.groupBy(_._2).map(x => (x._1, x._2.map(y => y._1) )).toMap
   }
-  /* Find the bfs index of the element that corresponds to our search */
+
+  /* Find the bfs index of the element that corresponds to our search 
+     @deprecated: Have no use for it anymore*/
   def findIndex(nodes: RevList[NodeBFS], tpe: NodeTag.Value, occs: List[Int]): Int = occs match{
     case o::os =>
       val node: NodeBFS = nodes.find(_.bfsIdx == occs.head).get
@@ -98,7 +100,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   /*Finds the correct tree to reconstruct given a fullName specification*/
   /*TODO handle all the corner cases correctly with exceptions and all*/
   def findWithFullPath(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS]): RevList[NodeBFS] = {
-   
    /*Keeps only entries in the names that are defines and contained in fullPath*/
     val withDefs: Map[String, List[Int]] = fullPath.map{ x => 
       val filtered: List[Int] = names(x).filter(y => NodeTag.isADefine(tree.find(z => z.bfsIdx == y).get.node.tpe))
@@ -120,6 +121,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
 
     extractSubBFS(tree.drop(index))
   }
+
   /* Helper function that reads all the elements we need to reconstruct the tree */
   def nameBasedRead(file: String, name: String): (Node, Map[String, List[Int]]) = {
     val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
