@@ -19,16 +19,16 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val fullName: List[String] = fullPath.drop(path.split("/").size).toList 
     assert(fullName.last == name) 
     
-    def inner(ss: Symbol, file: String, n: String): Tree = ss.info match {
-      case ModuleDef => getMethodDef(file, n)
-      case ClassDef => getClassDef(file, n)
-      case TypeDef => getTypeDef(file, n)
-      case LabelDef => getLabelDef(file, n)
-      case DefDef =>  getMethodDef(file, n)
-      case ValDef => getValDef(file, n)
-      case _ => throw new Exception(s"Error: Type of symbol not supported, ${n} in ${file}")
+    def inner(ss: Symbol, file: String): Tree = ss.info match {
+      case ModuleDef => getMethodDef(file, fullName)
+      case ClassDef => getClassDef(file, fullName)
+      case TypeDef => getTypeDef(file, fullName)
+      case LabelDef => getLabelDef(file, fullName)
+      case DefDef =>  getMethodDef(file, fullName)
+      case ValDef => getValDef(file, fullName)
+      case _ => throw new Exception(s"Error: Type of symbol not supported, ${fullName.last} in ${file}")
     }
-    inner(s, path, name) 
+    inner(s, path) 
   }
  /* General function returning the whole tree */
   def getAst(file: String): Tree = {
@@ -45,35 +45,30 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     new TreeRecomposer[u.type](u)(DecTree(nodeTree.flattenBFSIdx, names))
   }
 
-  def getMethodDef(file: String, name: String): Tree = getElement(file, name, NodeTag.DefDef) 
-  def getValDef(file: String, name: String): Tree = getElement(file, name, NodeTag.ValDef)  
-  def getModuleDef(file: String, name: String): Tree = getElement(file, name, NodeTag.ModuleDef)
-  def getClassDef(file: String, name: String): Tree = getElement(file, name, NodeTag.ClassDef)  
-  def getTypeDef(file: String, name: String): Tree = getElement(file, name, NodeTag.TypeDef)
-  def getLabelDef(file: String, name: String): Tree = getElement(file, name, NodeTag.LabelDef) 
+  def getMethodDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.DefDef) 
+  def getValDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ValDef)  
+  def getModuleDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ModuleDef)
+  def getClassDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ClassDef)  
+  def getTypeDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.TypeDef)
+  def getLabelDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.LabelDef) 
 
   /*TODO here: The file value might be wrong here*/
-  def getNewElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
-    val (nodeTree, n) = nameBasedRead(file, name)
+  def getNewElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
+    val (nodeTree, n) = nameBasedRead(file, fullName.last)
     val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
     val names: Map[String, List[Int]] = initNames(n, bfs)
     save +=(file -> (nodeTree, bfs, names))
-    val index: Int = findIndex(bfs, tpe, names(name))
-    if(index == -1)
-      throw new Exception(s"Error: ${name} is not defined here")
-    val subtree: List[NodeBFS] = extractSubBFS(bfs.reverse.drop(index))
+    val subtree: RevList[NodeBFS] = findWithFullPath(fullName, names, bfs.reverse)
     new TreeRecomposer[u.type](u)(DecTree(subtree, names))
   }
 
-  def getElement(file: String, name: String, tpe: NodeTag.Value): Tree = {
+  def getElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
    if(!save.contains(file)){
-    getNewElement(file, name, tpe)
+    getNewElement(file, fullName, tpe)
    }else{
     val (_, bfs, names) = save(file)
-    val index: Int = findIndex(bfs, tpe, names(name))
-    if(index == -1)
-      throw new Exception(s"Error: ${name} is not defined here")
-    val subtree: List[NodeBFS] = extractSubBFS(bfs.reverse.drop(index))
+    /*TODO replace here the call*/
+    val subtree: RevList[NodeBFS] = findWithFullPath(fullName, names, bfs.reverse)
     new TreeRecomposer[u.type](u)(DecTree(subtree, names))
 
    }
