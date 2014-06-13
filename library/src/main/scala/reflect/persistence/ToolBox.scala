@@ -35,15 +35,16 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   }
   /* General function returning the whole tree */
   def getAst(file: String): Tree = {
-    val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
+    val src: java.io.DataInputStream = new DataInputStream(this.getClass.getResourceAsStream("/" + file))
     val bytes: List[Byte] = new XZReader(src)()
     src.close()
-    val (nodeTree, rest1) = new AstDecompressor()(bytes.tail)
+    val (nodeTree, rest1) = new AstDecompressor()(bytes)
     val (names, rest2) = new NameDecompressor()(rest1)
     val constants = new ConstantDecompressor[u.type](u)(rest2)
 
     /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
-    new TreeRecomposer[u.type](u)(DecTree(nodeTree.flattenBFSIdx, names, constants))
+    val flatTree = nodeTree.flattenBFSIdx
+    new TreeRecomposer[u.type](u)(DecTree(flatTree, initNames(names,flatTree), initConstants(constants,flatTree)))
   }
   def getMethodDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.DefDef)
   def getValDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ValDef)
@@ -149,9 +150,9 @@ class ToolBox(val u: scala.reflect.api.Universe) {
 
   /* Helper function that reads all the elements we need to reconstruct the tree */
   def nameBasedRead(file: String, name: String): (Node, NameDict, ConstantDict) = {
-    val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream(file))
+    val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream("/" + file))
     val bytes: List[Byte] = new XZReader(src)()
-    val (nodeTree, rest1) = new AstDecompressor()(bytes.tail)
+    val (nodeTree, rest1) = new AstDecompressor()(bytes)
     val (names, rest2) = new NameDecompressor()(rest1)
     val constants = new ConstantDecompressor[u.type](u)(rest2)
     if (!names.contains(name))

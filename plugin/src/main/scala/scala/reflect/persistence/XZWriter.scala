@@ -13,6 +13,7 @@ class XZWriter(dest: DataOutputStream) {
       dest.writeLong(buffer.size)
       val comp: XZOutputStream = new XZOutputStream(dest, new LZMA2Options())
       buffer.foreach { comp.write(_) }
-      comp.close()
+      comp.flush
+      comp.close
     }
 }

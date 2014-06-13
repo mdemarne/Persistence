@@ -78,7 +78,8 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case NodeTag.Typed =>
             Typed(dict(x.children.head), dict(x.children.last))
           case NodeTag.TypeApply =>
-            TypeApply(dict(x.children.head), x.children.tail map (dict(_)))
+            /* TODO: clean that, it is a disgusting hack */
+            TypeApply(Ident(TermName(dict(x.children.head).toString)), x.children.tail map (dict(_)))
           case NodeTag.Apply =>
             Apply(dict(x.children.head), x.children.tail map (dict(_)))
           case NodeTag.This =>

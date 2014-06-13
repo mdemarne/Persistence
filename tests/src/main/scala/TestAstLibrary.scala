@@ -8,8 +8,9 @@ object TestAstLibrary {
 
   def main(args: Array[String]) {
     /* The resource should exist: let's try to fetch it. */
-    assert(this.getClass.getResourceAsStream("Basic.scala.ast").toString != null, "The resource should exist in the classpath")
-
-    /* TODO: actually extract something */
+    assert(this.getClass.getResource("/Basic.scala.ast") != null, "The resource should exist in the classpath")
+    
+    val tt = getAst("Basic.scala.ast")
+    println(tt)
   }
 }
