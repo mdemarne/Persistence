@@ -78,8 +78,18 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
           case NodeTag.Typed =>
             Typed(dict(x.children.head), dict(x.children.last))
           case NodeTag.TypeApply =>
-            /* TODO: clean that, it is a disgusting hack */
-            TypeApply(Ident(TermName(dict(x.children.head).toString)), x.children.tail map (dict(_)))
+            def replaceTerm(tree: Tree): Tree = tree match {
+		      case t: TermTree => t 
+		      case b @ Bind(_: TermName, _) => b
+		      case Bind(TypeName(name), rest) => Bind(TermName(name), rest)
+		      case s @ Select(_, _: TermName) => s
+		      case Select(start, TypeName(name)) => Select(start, TermName(name))
+		      case i @ Ident(_: TermName) => i 
+		      case Ident(TypeName(name)) => Ident(TermName(name))
+		      case Annotated(start, arg) => Annotated(start, replaceTerm(arg))
+		      case _ => sys.error("Cannot replace name from Type to Term name for TypeApply")
+		    }
+            TypeApply(replaceTerm(dict(x.children.head)), x.children.tail map (dict(_)))
           case NodeTag.Apply =>
             Apply(dict(x.children.head), x.children.tail map (dict(_)))
           case NodeTag.This =>

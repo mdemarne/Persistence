@@ -10,7 +10,7 @@ object TestAstLibrary {
     /* The resource should exist: let's try to fetch it. */
     assert(this.getClass.getResource("/Basic.scala.ast") != null, "The resource should exist in the classpath")
     
-    val tt = getAst("Basic.scala.ast")
-    println(tt)
+    val decTree = getAst("Basic.scala.ast")
+    println(decTree)
   }
 }
