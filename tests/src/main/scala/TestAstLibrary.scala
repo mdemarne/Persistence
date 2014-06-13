@@ -10,12 +10,19 @@ object TestAstLibrary {
     /* The resource should exist: let's try to fetch it. */
     assert(this.getClass.getResource("/Basic.scala.ast") != null, "The resource should exist in the classpath")
     
-    val decTree = getAst("Basic2.scala.ast")
-    println(decTree)
+    val file = "Basic2.scala.ast"
+    val decTree = getAst(file)
+    println(showRaw(decTree))
     
-    println("\nJust parts\n")
+    println("test1:")
     val names = "Basic2.test2".split('.').toList
-    val dec = getMethodDef("Basic2.scala.ast", names)
+    val dec = getMethodDef(file, names)
     println(dec)
+
+    println("test2:")
+    val names2 = "Basic2.test2".split('.').toList
+    val dec2 = getMethodDef(file, names2)
+    println(dec2)
+
   }
 }

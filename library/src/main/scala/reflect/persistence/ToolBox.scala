@@ -61,7 +61,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val names: Map[String, List[Int]] = initNames(flatNames, bfs)
     val constants = initConstants(flatConstants, bfs)
     saved += (file -> (nodeTree, bfs, names, constants))
-    val subtree: RevList[NodeBFS] = findWithFullPath(fullName, names, bfs.reverse, tpe)
+    val subtree: RevList[NodeBFS] = findDefinition(fullName, names, bfs.reverse, tpe)
     new TreeRecomposer[u.type](u)(DecTree(subtree, names, constants))
   }
   def getElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
@@ -70,7 +70,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     } else {
       val (_, bfs, names, constants) = saved(file)
       /*TODO replace here the call*/
-      val subtree: RevList[NodeBFS] = findWithFullPath(fullName, names, bfs.reverse, tpe)
+      val subtree: RevList[NodeBFS] = findDefinition(fullName, names, bfs.reverse, tpe)
       new TreeRecomposer[u.type](u)(DecTree(subtree, names, constants))
     }
   }
@@ -104,52 +104,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     case _ =>
       -1
   }
-  /*Finds the correct tree to reconstruct given a fullName specification*/
-  /*TODO handle all the corner cases correctly with exceptions and all*/
-  /*Maybe problem with the type ... should test for it too*/
-  def findWithFullPath(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS], tpe: NodeTag.Value): RevList[NodeBFS] = {
-    println(s"Find with full path params\n${fullPath}\n${names}\n${tree}\n${tpe}")
-   /*Keeps only entries in the names that are defines and contained in fullPath*/
-    val withDefs: Map[String, List[Int]] = fullPath.map{ x => 
-      val filtered: List[Int] = names(x).filter(y => NodeTag.isADefine(tree.find(z => z.bfsIdx == y).get.node.tpe))
-      (x, filtered)
-    }.toMap
-    /*Gets the trees foreach of the defines of the start of fullPath*/
-    val rootTrees: List[RevList[NodeBFS]] = withDefs(fullPath.head).map { i =>
-      extractSubBFS(tree.drop(i))
-    }.toList
-    /*Finds the correct one*/
-    val candidate: RevList[NodeBFS] = rootTrees.filter{ t => 
-      fullPath.tail.forall{n =>
-        val indexes = withDefs(n)
-        t.exists(no => indexes.contains(no.bfsIdx))
-      }
-    }.find(t => t.exists(node => withDefs(fullPath.last).contains(node.bfsIdx) && node.node.tpe == tpe)).get 
-    
-    def loop(full: List[String], tree: List[NodeBFS]): List[NodeBFS] = full match {
-      case n:: Nil =>
-        tree
-      case n::ns =>
-        /*First we isolate the children*/
-        val children: List[NodeBFS] = tree.tail.filter(_.parentBfsIdx == tree.head.bfsIdx)
-        /*Then foreach of them we extract the subtree*/
-        val childTrees: List[List[NodeBFS]] = children.map{ c => 
-          val subtree: List[NodeBFS] = tree.dropWhile(_.bfsIdx != c.bfsIdx)
-          extractSubBFS(subtree).reverse
-        }
-        /*Find the correct child among all*/
-        val good: List[NodeBFS] = childTrees.filter{ t =>
-          ns.forall{ name => 
-            t.exists(node => withDefs(name).contains(node.bfsIdx))
-          }
-        }.find(t => t.exists(node => withDefs(full.last).contains(node.bfsIdx) && node.node.tpe == tpe)).get
-        loop(ns, good)
-      case Nil => 
-        throw new Exception("Error: inside findWithFullPath")
-    }
-    loop(fullPath, candidate.reverse).reverse
-    
-  }
   
   /*Finds the correct definition for a specified Fully named element*/
   /*TODO Optimize by putting defs as a parameter that is filtered*/
@@ -161,7 +115,8 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     }.toMap
     /*Extracts the correct tree by going through the whole path*/
     def loop(stackName: List[String], tree: List[NodeBFS]): List[NodeBFS] = stackName match {
-      case n::ns => 
+      case n::ns =>
+        println(s"Step ${n}")
         /*Trees that have the correct name*/
         val roots: List[List[NodeBFS]] = defs(n).filter(i => tree.exists(nd => nd.bfsIdx == i)).map{ i => 
           extractSubBFS(tree.dropWhile(_.bfsIdx != i)).reverse
