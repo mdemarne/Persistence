@@ -20,7 +20,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val path = s.pos.source.file.path
     val name = fullPath.last
     /*Fully specified name for what we're looking for*/
-    val fullName: List[String] = fullPath.drop(path.split("/").size).toList
+    val fullName: List[String] = fullPath.drop(path.split('/').size).toList
     assert(fullName.last == name)
     def inner(ss: Symbol, file: String): Tree = ss.info match {
       case ModuleDef => getMethodDef(file, fullName)
@@ -55,6 +55,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
 
   /*TODO here: The file value might be wrong here*/
   def getNewElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
+    println(s"The fullname ${fullName}")
     val (nodeTree, flatNames, flatConstants) = nameBasedRead(file, fullName.last)
     val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
     val names: Map[String, List[Int]] = initNames(flatNames, bfs)
@@ -107,6 +108,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   /*TODO handle all the corner cases correctly with exceptions and all*/
   /*Maybe problem with the type ... should test for it too*/
   def findWithFullPath(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS], tpe: NodeTag.Value): RevList[NodeBFS] = {
+    println(s"Find with full path params\n${fullPath}\n${names}\n${tree}\n${tpe}")
    /*Keeps only entries in the names that are defines and contained in fullPath*/
     val withDefs: Map[String, List[Int]] = fullPath.map{ x => 
       val filtered: List[Int] = names(x).filter(y => NodeTag.isADefine(tree.find(z => z.bfsIdx == y).get.node.tpe))
@@ -123,6 +125,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
         t.exists(no => indexes.contains(no.bfsIdx))
       }
     }.find(t => t.exists(node => withDefs(fullPath.last).contains(node.bfsIdx) && node.node.tpe == tpe)).get 
+    
     def loop(full: List[String], tree: List[NodeBFS]): List[NodeBFS] = full match {
       case n:: Nil =>
         tree
@@ -146,6 +149,36 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     }
     loop(fullPath, candidate.reverse).reverse
     
+  }
+  
+  /*Finds the correct definition for a specified Fully named element*/
+  /*TODO Optimize by putting defs as a parameter that is filtered*/
+  def findDefinition(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS], tpe: NodeTag.Value): RevList[NodeBFS] = {
+   /*Keeps only the entries in names that correspond to some definition required in the fullpath*/ 
+    val defs: Map[String, List[Int]] = fullPath.map{ x => 
+      val filtered: List[Int] = names(x).filter(y => NodeTag.isADefine(tree.find(z => z.bfsIdx == y).get.node.tpe))
+      (x, filtered)
+    }.toMap
+    /*Extracts the correct tree by going through the whole path*/
+    def loop(stackName: List[String], tree: List[NodeBFS]): List[NodeBFS] = stackName match {
+      case n::ns => 
+        /*Trees that have the correct name*/
+        val roots: List[List[NodeBFS]] = defs(n).filter(i => tree.exists(nd => nd.bfsIdx == i)).map{ i => 
+          extractSubBFS(tree.dropWhile(_.bfsIdx != i)).reverse
+        }.toList
+        /*The only one containing the total path and so the correct definition*/
+        val correct: List[NodeBFS] = roots.find{ t => 
+          val allDefs: Boolean = ns.forall(name => t.exists(node => defs(name).contains(node.bfsIdx)))
+          /*TODO Quick hack */
+          val name: String = if (ns.isEmpty) n else ns.last 
+          val correctType: Boolean = t.exists(node => defs(name).contains(node.bfsIdx) && node.node.tpe == tpe)
+          allDefs && correctType
+        }.getOrElse(throw new Exception(s"Error: findDefinition couldn't find a tree at name step ${n}"))
+        loop(ns, correct)    
+      case Nil => 
+        tree
+    }
+    loop(fullPath, tree).reverse
   }
 
   /* Helper function that reads all the elements we need to reconstruct the tree */

@@ -20,7 +20,7 @@ class MultiDefTest extends FunSuite {
 
     /*Check the extraction of subtrees*/
     val bfs: RevList[NodeBFS] = recupTree.flattenBFSIdx
-    val subtree: Node = tool.findWithFullPath(fullName, names, bfs.reverse, tpe).toTree
+    val subtree: Node = tool.findDefinition(fullName, names, bfs.reverse, tpe).toTree
     val correction: Node = ParseTestTree.parse(expected).get
     assert(subtree == correction)
   }
