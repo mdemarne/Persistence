@@ -3,16 +3,15 @@ package scala.reflect.persistence.test
 import org.scalatest.FunSuite
 import scala.reflect.persistence._
 
-
 class AstPersistenceTest extends FunSuite {
- 
+
   def compWriteReadDecomp(treeStr: String) {
     val tree = ParseTestTree.parse(treeStr).get
     val compressor = new AstCompressor()
     val decompressor = new AstDecompressor()
     val bytes: List[Byte] = compressor(tree)
     val recupTree = decompressor(bytes)._1
-    
+
     assert(tree == recupTree, s"${tree} \nDid not match\n${recupTree}")
   }
 

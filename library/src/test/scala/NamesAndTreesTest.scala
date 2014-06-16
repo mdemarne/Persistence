@@ -10,8 +10,8 @@ class NamesAndTreesTest extends FunSuite {
       m.map(x => (x._1, x._2.sorted))
     }
     val (tree, names) = ParseTestTreeAndName.parse(treeStr).get
-    val tool: ToolBox = new ToolBox (scala.reflect.runtime.universe)
-    
+    val tool: ToolBox = new ToolBox(scala.reflect.runtime.universe)
+
     /*Testing Ast compression*/
     val compressor = new AstCompressor()
     val decompressor = new AstDecompressor()
@@ -19,7 +19,7 @@ class NamesAndTreesTest extends FunSuite {
     val recupTree = decompressor(bytes)._1
 
     assert(tree == recupTree, s"${tree}\n did not match\n${recupTree}")
-    
+
     /*Testing the names*/
     val nameComp: NameCompressor = new NameCompressor()
     val nameDecomp: NameDecompressor = new NameDecompressor()
@@ -28,16 +28,14 @@ class NamesAndTreesTest extends FunSuite {
 
     val recupNames: Map[String, List[Int]] = tool.initNames(nameDecomp(nameBytes)._1, recupTree.flattenBFSIdx)
     assert(bringBackTheFunk(recupNames) == bringBackTheFunk(names), s"\n${names}\n did not match\n${recupNames}")
-    
 
     /*Testing the extraction of one part*/
     val bfs: RevList[NodeBFS] = recupTree.flattenBFSIdx
-    val index: Int = tool.findIndex(bfs, tpe, names(name))
-    val subtree: Node = tool.extractSubBFS(bfs.reverse.drop(index)).toTree
+    val subtree: Node = tool.findDefinition(name :: Nil, names, bfs.reverse, tpe).toTree
     val correction: Node = ParseTestTree.parse(expected).get
     assert(subtree == correction, s"Extract ${name}")
 
-     }
+  }
 
   test("First tree: Basic") {
     val treeStr = "c !coucou! (m !coucou! v !yo! v !salut!)"
@@ -64,7 +62,7 @@ class NamesAndTreesTest extends FunSuite {
     compressionTest(treeStr, "hello", NodeTag.ClassDef, "c")
     compressionTest(treeStr, "coucou", NodeTag.ClassDef, "c (m (v (m m) v (c)) v (m (c c)))")
     compressionTest(treeStr, "youpla", NodeTag.ClassDef, "c")
-  
+
   }
 
 }

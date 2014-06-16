@@ -1,3 +1,9 @@
+/**
+ * This class is responsible for Decompressing the encoded
+ * constants from the input bytes.
+ *
+ *  @author Mahtieu Demarne, Adrien Ghosn
+ */
 package scala.reflect.persistence
 
 class ConstantDecompressor[U <: scala.reflect.api.Universe](val u: U) {

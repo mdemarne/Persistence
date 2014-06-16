@@ -1,22 +1,28 @@
+/**
+ * Recomposes the tree by translating our internal representation
+ * as a DecTree (Node, names, constants) to a valid Scala Ast
+ *
+ * @author Mathieu Demarne, Adrien Ghosn
+ */
 package scala.reflect.persistence
 
 import scala.annotation.tailrec
 import scala.language.postfixOps
 
-/* TODO: test and adapt */
 class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
   import u._
   import Enrichments._
-  
+
   class NodeWrapper(nd: Node) {
     def nodeEquals(that: Node) = nd eq that
   }
-  implicit class RichNodeWrapperDict(dict : Map[NodeWrapper, Tree]) {
+  implicit class RichNodeWrapperDict(dict: Map[NodeWrapper, Tree]) {
     def apply(k: Node) = dict.find(x => x._1.nodeEquals(k)) match {
-      case Some((k,n)) => n
+      case Some((k, n)) => n
       case None => EmptyTree
     }
   }
+
   def apply(decTree: DecTree): Tree = {
     var names = decTree.names.unzipWithIdxs
     var constants = decTree.constants.unzipWithIdxs
@@ -79,16 +85,16 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
             Typed(dict(x.children.head), dict(x.children.last))
           case NodeTag.TypeApply =>
             def replaceTerm(tree: Tree): Tree = tree match {
-		      case t: TermTree => t 
-		      case b @ Bind(_: TermName, _) => b
-		      case Bind(TypeName(name), rest) => Bind(TermName(name), rest)
-		      case s @ Select(_, _: TermName) => s
-		      case Select(start, TypeName(name)) => Select(start, TermName(name))
-		      case i @ Ident(_: TermName) => i 
-		      case Ident(TypeName(name)) => Ident(TermName(name))
-		      case Annotated(start, arg) => Annotated(start, replaceTerm(arg))
-		      case _ => sys.error("Cannot replace name from Type to Term name for TypeApply")
-		    }
+              case t: TermTree => t
+              case b @ Bind(_: TermName, _) => b
+              case Bind(TypeName(name), rest) => Bind(TermName(name), rest)
+              case s @ Select(_, _: TermName) => s
+              case Select(start, TypeName(name)) => Select(start, TermName(name))
+              case i @ Ident(_: TermName) => i
+              case Ident(TypeName(name)) => Ident(TermName(name))
+              case Annotated(start, arg) => Annotated(start, replaceTerm(arg))
+              case _ => sys.error("Cannot replace name from Type to Term name for TypeApply")
+            }
             TypeApply(replaceTerm(dict(x.children.head)), x.children.tail map (dict(_)))
           case NodeTag.Apply =>
             Apply(dict(x.children.head), x.children.tail map (dict(_)))
@@ -125,7 +131,7 @@ class TreeRecomposer[U <: scala.reflect.api.Universe](val u: U) {
         }
         loop(xs, dict + (new NodeWrapper(x) -> res))
     }
-    val flattenTree = decTree.treeBFS.filter(x => x.node.tpe != NodeTag.Separator && x.node.tpe != NodeTag.EmptyTree) 
+    val flattenTree = decTree.treeBFS.filter(x => x.node.tpe != NodeTag.Separator && x.node.tpe != NodeTag.EmptyTree)
     loop(flattenTree, Map())(decTree.treeBFS.last.node)
   }
 }

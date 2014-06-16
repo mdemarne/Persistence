@@ -28,22 +28,22 @@ class XZWriterReaderTest extends FunSuite {
     testFile.delete
   }
   test("test compressing on real trees") {
-    
+
     val testFile = new File("hello.ast")
     val tree = reify { def test = "simple test" }.tree
-    
+
     /* Let's just put all of that into a file as if it was the plugin executing */
     val decTree = new TreeDecomposer[u.type](u)(tree)
     val compAsts = new AstCompressor()(decTree.treeBFS.toTree)
     val compNames = new NameCompressor()(decTree.names)
     val compConstants = new ConstantCompressor[u.type](u)(decTree.constants.map(v => (v._1, v._2)))
     new XZWriter(new DataOutputStream(new FileOutputStream(testFile.toString)))(compAsts ++ compNames ++ compConstants)
-    
+
     /* Now let's read it */
     val src: java.io.DataInputStream = new DataInputStream(new FileInputStream(testFile))
     val bytes: List[Byte] = new XZReader(src)()
     src.close()
-    
+
     val (nodeTree, rest1) = new AstDecompressor()(bytes)
     val (names, rest2) = new NameDecompressor()(rest1)
     val constants = new ConstantDecompressor[u.type](u)(rest2)
@@ -56,11 +56,11 @@ class XZWriterReaderTest extends FunSuite {
     assert(decTree.names == names, "Compressed/decompressed Names does not match")
     /* Check if the decompressed constants match the ones compressed */
     assert(decTree.constants == constants, "Compressed/decompressed constants do not match")
-    
+
     val toolbox = new ToolBox(u)
     val flatNode = nodeTree.flattenBFSIdx
     val treeDec = new TreeRecomposer[u.type](u)(DecTree(flatNode, toolbox.initNames(names, flatNode), toolbox.initConstants(constants, flatNode)))
-    
+
     /* Check that the two tree do match */
     assert(showRaw(tree) == showRaw(treeDec), "The two tree should match")
   }

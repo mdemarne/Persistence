@@ -39,14 +39,14 @@ class AstDecompressorTest extends FunSuite {
     val treeRec = decompressor.rebuiltTree(originOccsRec, edges.tail)
     assert(tree == treeRec, "The decompressed tree do not match the oroginal one.")
   }
-  
+
   test("Rebuilding a tree once compressed 3") {
     val (tree, hufOccs, originOccs, dict, edges) = splitTreeForTest("m (v v (m c c c c c c c c c c c) )")
     val originOccsRec = decompressor.decodeOccs(hufOccs, dict.map(_.swap))
     val treeRec = decompressor.rebuiltTree(originOccsRec, edges.tail)
     assert(tree == treeRec, "The decompressed tree do not match the oroginal one.")
   }
-  
+
   test("Rebuilding a tree once compressed 4") {
     val (tree, hufOccs, originOccs, dict, edges) = splitTreeForTest("m (c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) c (v v) )")
     val originOccsRec = decompressor.decodeOccs(hufOccs, dict.map(_.swap))

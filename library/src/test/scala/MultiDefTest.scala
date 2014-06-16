@@ -5,7 +5,7 @@ import scala.reflect.persistence._
 
 class MultiDefTest extends FunSuite {
   import Enrichments._
-  
+
   def compressionTest(treeStr: String, fullName: List[String], expected: String, tpe: NodeTag.Value) {
     val (tree, names) = ParseTestTreeAndName.parse(treeStr).get
     val tool: ToolBox = new ToolBox(scala.reflect.runtime.universe)
@@ -25,7 +25,6 @@ class MultiDefTest extends FunSuite {
     assert(subtree == correction)
   }
 
-
   test("First Tree: Simple multi definition") {
     val str: String = "c !one! (m !two! ( v !three!) m !four! (v !three! ( m !five!)))"
     val fullName1: List[String] = List("one", "two", "three")
@@ -42,7 +41,7 @@ class MultiDefTest extends FunSuite {
     compressionTest(str, fullName1, "c", NodeTag.ClassDef)
     compressionTest(str, fullName2, "m", NodeTag.ModuleDef)
     compressionTest(str, fullName3, "v", NodeTag.ValDef)
-  
+
   }
 
   test("Third Tree: Same path name, different types") {
@@ -52,5 +51,5 @@ class MultiDefTest extends FunSuite {
     compressionTest(str, fullName, "c", NodeTag.ClassDef)
     compressionTest(str, fullName, "m", NodeTag.ModuleDef)
   }
-  
+
 }

@@ -1,6 +1,12 @@
+/**
+ * The AST decompressor decompresses the Occurrences, the edges, the encoded
+ * tree and dictionnary and use these to reconstruct the original tree,
+ * represented as a Node
+ *
+ * @author Mathieu Demarne, Adrien Ghosn
+ */
 package scala.reflect.persistence
 
-/* TODO: make some functions private. Here public for tests */
 class AstDecompressor {
   import Enrichments._
 
@@ -8,7 +14,8 @@ class AstDecompressor {
 
   def rebuiltTree(occs: List[List[NodeBFS]], edges: List[(Int, Int)]): Node = {
     def loop(revOccs: RevList[List[NodeBFS]], revEdges: RevList[(Int, Int)]): List[NodeBFS] = (revOccs, revEdges) match {
-      case (x :: Nil, Nil) => x /* We have recomposed all the tree. NB: (-1, -1) for the root should not be there. */
+      /* We have recomposed all the tree. NB: (-1, -1) for the root should not be there. */
+      case (x :: Nil, Nil) => x
       case (x :: xs, (idx, parentBFS) :: ys) =>
         val (bef :+ parent, aft) = xs.splitAt(xs.size - idx)
         loop(bef ++ (parent.append(x, parentBFS) :: aft), ys)
@@ -29,9 +36,10 @@ class AstDecompressor {
     loop(occs)
   }
 
-  /*Extracts the occurrences from the input*/
+  /* Extracts the occurrences from the input */
   def inputOccs: List[Byte] = readBytes(readShort)
-  /*Extracts the inputDict from the input*/
+
+  /* Extracts the inputDict from the input */
   def inputDict: RevHufDict = {
     var dict: RevHufDict = Map()
     val nbEntries = readInt
@@ -46,10 +54,11 @@ class AstDecompressor {
     }
     dict
   }
-  /*Extracts the edges encoded in the input*/
+
+  /* Extracts the edges encoded in the input */
   def inputEdges: List[(Int, Int)] = {
     val size: Int = readInt
-    //Read the first list
+    /* Read the first list */
     var l1: List[(Int, Int)] = (readShort.toInt, readShort.toInt) :: Nil
     var sum: Int = l1.head._2
     while (sum < size) {
@@ -61,7 +70,7 @@ class AstDecompressor {
       val value = l1.zipWithIndex.filter(x => x._2 <= e._2).map(_._1._1).sum
       (for (i <- 1 to e._1._2) yield (value)).toList
     }.flatten
-    //Read the second list
+    /* Read the second list */
     var l2: List[(Int, Int)] = (readShort.toInt, readShort.toInt) :: Nil
     sum = l2.head._2
     while (sum < size) {
@@ -82,7 +91,7 @@ class AstDecompressor {
     }.toList.reverse
   }
 
-  /*These methods are here to simplify the reading from the input list of bytes*/
+  /* These methods are here to simplify the reading from the input list of bytes */
   def readInt: Int = {
     val (int, rest) = Enrichments.readInt(toRead)
     toRead = rest
@@ -99,7 +108,8 @@ class AstDecompressor {
       x
     case x => throw new Exception(s"Error: Decompressor cannot read Byte ${x}")
   }
-  /*Read size bytes and unflatten them*/
+
+  /* Read size bytes and unflatten them */
   def readBytes(size: Int): List[Byte] = {
     var bytes: List[Byte] = Nil
     for (i <- (0 until Math.ceil(size.toDouble / 8).toInt)) {

@@ -5,10 +5,10 @@ import scala.reflect.persistence._
 import scala.annotation.tailrec
 import scala.reflect.persistence.Enrichments._
 
-/* TODO: won't pass, need to be update following the new mapping for names */
 class TreeRecomposerTest extends FunSuite {
   val u = scala.reflect.runtime.universe
   import u._
+  import Enrichments._
 
   val decomposer = new TreeDecomposer[u.type](u)
   val recomposer = new TreeRecomposer[u.type](u)
@@ -30,7 +30,7 @@ class TreeRecomposerTest extends FunSuite {
     val decTree = decomposer(t1)
     println("name list:" + decTree.names)
     println("Original tree:\n" + t1)
-    val newBFS = toolbox.extractSubBFS(decTree.treeBFS.reverse.drop(idx))
+    val newBFS = extractSubBFS(decTree.treeBFS.reverse.drop(idx))
     println("subtree:" + newBFS.toTree)
     val t2 = recomposer(DecTree(newBFS, toolbox.initNames(decTree.names, decTree.treeBFS), toolbox.initConstants(decTree.constants, decTree.treeBFS)))
     println("Recomposed subtree:\n" + t2)
@@ -156,7 +156,7 @@ class TreeRecomposerTest extends FunSuite {
   test("subtree extraction3") {
     testAndPrintSubtree(lzwExample, 121)
   }
-  
+
   /* Let's then test recomposing with literals */
   test("Constant Reconstruction1") {
     val t1 = reify {
