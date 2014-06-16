@@ -1,0 +1,1 @@
+addSbtPlugin("org.scalareflect" % "persistence-sbt" % "0.1.0-SNAPSHOT")
