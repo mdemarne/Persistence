@@ -2,7 +2,6 @@ package scala.reflect.persistence
 
 import java.io._
 import scala.language.existentials
-/*TODO transform most of the functions into private ones*/
 /* Fetch trees and subtrees from the decompressed AST. */
 class ToolBox(val u: scala.reflect.api.Universe) {
   import u._
@@ -13,10 +12,9 @@ class ToolBox(val u: scala.reflect.api.Universe) {
 
   var saved: Map[String, (Node, RevList[NodeBFS], NameDict, ConstantDict)] = Map()
 
-  /*TODO this version doesn't support fullName specification yet*/
+  /*TODO: Not sure that this function works yet, need to test it with some symbol*/ 
   def getSource(s: Symbol): Tree = {
     val fullPath: List[String] = s.fullName.split(".").toList
-    /*TODO check that this is correct*/
     val path = s.pos.source.file.path
     val name = fullPath.last
     /*Fully specified name for what we're looking for*/
@@ -33,6 +31,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     }
     inner(s, path)
   }
+  
   /* General function returning the whole tree */
   def getAst(file: String): Tree = {
     val src: java.io.DataInputStream = new DataInputStream(this.getClass.getResourceAsStream("/" + file))
@@ -42,10 +41,12 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val (names, rest2) = new NameDecompressor()(rest1)
     val constants = new ConstantDecompressor[u.type](u)(rest2)
 
-    /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
+    /* Rebuilt the tree from each part, ASTs, Symbols, etc. */
     val flatTree = nodeTree.flattenBFSIdx
     new TreeRecomposer[u.type](u)(DecTree(flatTree, initNames(names,flatTree), initConstants(constants,flatTree)))
   }
+  
+  /*Different specified methods to get different elements from the AST*/
   def getMethodDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.DefDef)
   def getValDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ValDef)
   def getModuleDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ModuleDef)
@@ -53,7 +54,8 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   def getTypeDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.TypeDef)
   def getLabelDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.LabelDef)
 
-  /*TODO here: The file value might be wrong here*/
+  
+  /*Method responsible for getting the AST from a new file*/
   def getNewElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
     val (nodeTree, flatNames, flatConstants) = nameBasedRead(file, fullName.last)
     val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
@@ -63,16 +65,18 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val subtree: RevList[NodeBFS] = findDefinition(fullName, names, bfs.reverse, tpe)
     new TreeRecomposer[u.type](u)(DecTree(subtree, names, constants))
   }
+
+  /*This method looks for the specified element, if the file has not been decompressed yet, calls getNewElement*/
   def getElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
     if (!saved.contains(file)) {
       getNewElement(file, fullName, tpe)
     } else {
       val (_, bfs, names, constants) = saved(file)
-      /*TODO replace here the call*/
       val subtree: RevList[NodeBFS] = findDefinition(fullName, names, bfs.reverse, tpe)
       new TreeRecomposer[u.type](u)(DecTree(subtree, names, constants))
     }
   }
+
   /* Initialize the positions of the names in BFS order */
   def initNames(names: Map[String, List[Int]], nbfs: RevList[NodeBFS]): NameDict = {
     val toZip: List[(Int, String)] = names.map(x => x._2.map(y => (y, x._1))).toList.flatten.sortBy(_._1)
@@ -82,6 +86,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     }
     zipped.groupBy(_._2).map(x => (x._1, x._2.map(y => y._1))).toMap
   }
+
   /* Initialize the positions of the constants in BFS order */
   def initConstants(constants: ConstantDict, nbfs: RevList[NodeBFS]): ConstantDict = {
     val toZip = constants.map(x => x._2.map(y => (y, x._1))).toList.flatten.sortBy(_._1)
@@ -90,18 +95,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
       (x._1.bfsIdx, x._2._2)
     }
     zipped.groupBy(_._2).map(x => (x._1, x._2.map(y => y._1))).toMap
-  }
-
-  /* Find the bfs index of the element that corresponds to our search */
-  def findIndex(nodes: RevList[NodeBFS], tpe: NodeTag.Value, occs: List[Int]): Int = occs match {
-    case o :: os =>
-      val node: NodeBFS = nodes.find(_.bfsIdx == occs.head).get
-      if (node.node.tpe == tpe) {
-        o
-      } else
-        findIndex(nodes, tpe, os)
-    case _ =>
-      -1
   }
   
   /*Finds the correct definition for a specified Fully named element*/

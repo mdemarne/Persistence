@@ -32,8 +32,9 @@ class NamesAndTreesTest extends FunSuite {
 
     /*Testing the extraction of one part*/
     val bfs: RevList[NodeBFS] = recupTree.flattenBFSIdx
-    val index: Int = tool.findIndex(bfs, tpe, names(name))
-    val subtree: Node = tool.extractSubBFS(bfs.reverse.drop(index)).toTree
+    /*val index: Int = tool.findIndex(bfs, tpe, names(name))
+    val subtree: Node = tool.extractSubBFS(bfs.reverse.drop(index)).toTree*/
+    val subtree: Node = tool.findDefinition(name::Nil, names, bfs.reverse, tpe).toTree
     val correction: Node = ParseTestTree.parse(expected).get
     assert(subtree == correction, s"Extract ${name}")
 
