@@ -1,3 +1,8 @@
+/**
+ * General enrichments for lists, Nodes, dictionaries.
+ *
+ * @author Mathieu Demarne, Adrien Ghosn
+ */
 package scala.reflect.persistence
 
 import scala.annotation.tailrec
@@ -6,9 +11,7 @@ import java.nio.ByteBuffer
 object Enrichments {
 
   type RevList[A] = List[A] /* leaves first */
-
   type NodeDict = Map[List[NodeBFS], Int] /* Represent a compression dictionary for trees of nodes with frequencies */
-
   type HufDict = Map[List[NodeBFS], List[Byte]]
   type RevHufDict = Map[List[Byte], List[NodeBFS]]
 
@@ -18,9 +21,10 @@ object Enrichments {
   }
 
   implicit class RichNodeDict(dict: NodeDict) {
-    /* TODO: this is just there for testing*/
+    /* Print a dictionary as MetaEntries. Used for testing */
     def testingDict = dict map (x => (x._1.map(y => MetaEntry(y.node.tpe, y.bfsIdx, y.parentBfsIdx)), x._2))
   }
+
   implicit class RichRevList[T](lst: RevList[T]) {
     /* Generate a map of (T, List[Int]), where the values are the occurrences of T in the tree in BFS order */
     def zipWithIdxs: Map[T, List[Int]] = lst.zipWithIndex.groupBy(v => v._1).map(e => (e._1 -> e._2.map(i => i._2)))
@@ -32,6 +36,7 @@ object Enrichments {
   }
 
   implicit class RichRevListNodeBFS(lst: RevList[NodeBFS]) {
+
     /* Return a common subtree of this and n if exists, with the size of the subtree in BFS order */
     def intersectBFS(nds: RevList[NodeBFS]): RevList[NodeBFS] = {
       def loop(nds1: RevList[NodeBFS], nds2: RevList[NodeBFS]): RevList[NodeBFS] = (nds1, nds2) match {
@@ -40,8 +45,10 @@ object Enrichments {
       }
       loop(lst.reverse, nds.reverse).reverse
     }
+
     /* true if lst match perfecly nds */
     def matchBFS(nds: RevList[NodeBFS]) = intersectBFS(nds).size == lst.size
+
     /* Return all the subroots of a tree represented as a List[NodeBFS], as a RevList[Node], along with the node ID in BFS order from which it was linked */
     def subRoots: RevList[(Node, Int)] = {
       val bfsz = lst.map(x => (x, lst.count(z => z.parentBfsIdx == x.bfsIdx)))
@@ -63,26 +70,28 @@ object Enrichments {
       }
       loop(lst, lst.map(n => n.copy(node = n.node.cleanCopy))).last.node
     }
+
+    /* Append that to this at position parentBFSIdx in this */
     def append(that: RevList[NodeBFS], parentBFSIdx: Int): RevList[NodeBFS] = {
       val tree = lst.toTree
       val oldParent = tree.flattenBFSIdx.reverse(parentBFSIdx).node
       /* add the subtree to its parent */
       val newParent = oldParent.copy(children = oldParent.children :+ that.toTree)
       /* Recursively copy it back in the tree */
-      def addChildren(subtree: Node): Node = 
+      def addChildren(subtree: Node): Node = {
         if (oldParent eq subtree) newParent /* Use of eq to compare by reference */
         else if (subtree.children.isEmpty) subtree
         else subtree.copy(children = subtree.children.map(c => addChildren(c)))
-
+      }
       addChildren(tree).flattenBFSIdx
     }
-    def asPrintable: List[(Byte, Short, Short)]= {
-      lst.map{ e =>
-        (NodeTag.getIndex(e.node.tpe).toByte, e.bfsIdx.toShort, e.parentBfsIdx.toShort)}.toList
-    }
+
+    /* Used for testing */
+    def asPrintable: List[(Byte, Short, Short)] = lst.map { e => (NodeTag.getIndex(e.node.tpe).toByte, e.bfsIdx.toShort, e.parentBfsIdx.toShort) }.toList
   }
 
   implicit class RichList[T](lst: List[T]) {
+    /* Split the list in sublists on p while removing T corresponding to p */
     def splitOn(p: T => Boolean): List[List[T]] = {
       def loop(xss: List[T]): List[List[T]] = xss match {
         case Nil => Nil
@@ -95,6 +104,7 @@ object Enrichments {
   }
 
   implicit class RichRevHufDict(dict: RevHufDict) {
+    /* Find the matching entry in the dictionary from bytes to List[NodeBFS] based on the prefix of bytes. The rest is returned as well */
     def getMatch(in: List[Byte]): (List[NodeBFS], List[Byte]) = {
       @tailrec def loop(x: List[Byte], xs: List[Byte]): (List[NodeBFS], List[Byte]) = dict.get(x) match {
         case Some(entry) => (entry, xs)
@@ -103,24 +113,19 @@ object Enrichments {
       loop(in.head :: Nil, in.tail)
     }
   }
-  
+
+  /* Conversion functions used for compression and decompression */
   def IntToBytes(i: Int): List[Byte] = ByteBuffer.allocate(4).putInt(i).array.toList
   def ShortToBytes(s: Short): List[Byte] = ByteBuffer.allocate(2).putShort(s).array.toList
   def LongToBytes(l: Long): List[Byte] = ByteBuffer.allocate(8).putLong(l).array.toList
   def FloatToBytes(f: Float): List[Byte] = ByteBuffer.allocate(4).putFloat(f).array.toList
   def DoubleToBytes(d: Double): List[Byte] = ByteBuffer.allocate(8).putDouble(d).array.toList
-
   def readInt(toRead: List[Byte]): (Int, List[Byte]) = (ByteBuffer.wrap(toRead.take(4).toArray).getInt, toRead.drop(4))
   def readShort(toRead: List[Byte]): (Short, List[Byte]) = (ByteBuffer.wrap(toRead.take(2).toArray).getShort, toRead.drop(2))
   def readLong(toRead: List[Byte]): (Long, List[Byte]) = (ByteBuffer.wrap(toRead.take(8).toArray).getLong, toRead.drop(8))
   def readFloat(toRead: List[Byte]): (Float, List[Byte]) = (ByteBuffer.wrap(toRead.take(4).toArray).getFloat, toRead.drop(4))
   def readDouble(toRead: List[Byte]): (Double, List[Byte]) = (ByteBuffer.wrap(toRead.take(8).toArray).getDouble, toRead.drop(8))
-  
- /* Decompresses the byte into a list of 8 bytes */
-  def decompressBytes(byte: Byte): List[Byte] = {
-    (0 to 7).map{ i => 
-      if((byte & (1 << i)) != 0) 1.toByte
-      else 0.toByte
-    }.toList.reverse
-  } 
+
+  /* Decompresses the byte into a list of 8 bytes */
+  def decompressBytes(byte: Byte): List[Byte] = (0 to 7).map { i => if ((byte & (1 << i)) != 0) 1.toByte else 0.toByte }.toList.reverse
 }

@@ -1,19 +1,20 @@
+/**
+ * Low-level compression: From bytes, uses the XZ library to compress them
+ * into an outputstream.
+ *
+ *  @author Mathieu Demarne, Adrien Ghosn
+ */
 package scala.reflect.persistence
 
-/* TODO: clean imports */
 import java.io.DataOutputStream
-import java.io.FileOutputStream
-import java.io.File
-import org.tukaani.xz.LZMA2InputStream
-import java.io.{ File, FileInputStream, FileOutputStream }
-import org.tukaani.xz.{ XZOutputStream, LZMA2Options }
+import org.tukaani.xz.{ XZOutputStream, LZMA2Options, LZMA2InputStream }
 
 class XZWriter(dest: DataOutputStream) {
-    def apply(buffer: List[Byte]) {
-      dest.writeLong(buffer.size)
-      val comp: XZOutputStream = new XZOutputStream(dest, new LZMA2Options())
-      buffer.foreach { comp.write(_) }
-      comp.flush
-      comp.close
-    }
+  def apply(buffer: List[Byte]) {
+    dest.writeLong(buffer.size)
+    val comp: XZOutputStream = new XZOutputStream(dest, new LZMA2Options())
+    buffer.foreach { comp.write(_) }
+    comp.flush
+    comp.close
+  }
 }

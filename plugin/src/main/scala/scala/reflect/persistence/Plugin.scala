@@ -1,6 +1,11 @@
+/**
+ * Main component of the compiler plugin. Apply the whole compression piteline
+ * and generate the good path for storing ASTs.
+ *
+ * @author Mathieu Demarne, Adrien Ghosn
+ */
 package scala.reflect.persistence
 
-/* TODO: clean imports */
 import scala.tools.nsc.{ Global, Phase, SubComponent }
 import scala.tools.nsc.plugins.{ Plugin => NscPlugin, PluginComponent => NscPluginComponent }
 import java.io.DataOutputStream
@@ -14,9 +19,9 @@ class Plugin(val global: Global) extends NscPlugin {
   val name = "persistence"
   val description = """Persists typed ASTs of the entire program.
   For more information visit https://github.com/scalareflect/persistence"""
-  val components = List[NscPluginComponent](PluginComponent) // Might change name
+  val components = List[NscPluginComponent](AstcPluginComponent)
 
-  private object PluginComponent extends NscPluginComponent {
+  private object AstcPluginComponent extends NscPluginComponent {
     import global._
     val global = Plugin.this.global
 

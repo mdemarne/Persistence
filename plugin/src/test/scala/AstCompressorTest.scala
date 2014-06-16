@@ -1,17 +1,14 @@
 package scala.reflect.persistence.test
 
 import org.scalatest.FunSuite
-import scala.reflect.persistence._
-import scala.reflect.persistence.Enrichments._
-import java.io.DataOutputStream
-import java.io.FileOutputStream
-import java.io.File
 
 class AstCompressorTest extends FunSuite {
-
-  /* Tests concerning computeFreqs */
+  import scala.reflect.persistence._
+  import scala.reflect.persistence.Enrichments._
 
   val compressor = new AstCompressor()
+
+  /* Tests concerning computeFreqs */
 
   test("parseTreeTest1") {
     val tree = ParseTestTree.parse("n ( n ( n n ) n )").get

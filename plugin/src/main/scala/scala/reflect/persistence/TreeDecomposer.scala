@@ -1,14 +1,17 @@
+/**
+ * Decompose a tree into a DecTree (Asts, Names and Constants separately).
+ *
+ * @author Mathieu Demarne, Adrien Ghosn
+ */
 package scala.reflect.persistence
 
-/* TODO: clean imports */
-import scala.tools.nsc.{ Global, Phase, SubComponent }
-import scala.tools.nsc.plugins.{ Plugin => NscPlugin, PluginComponent => NscPluginComponent }
 import scala.language.postfixOps
 import scala.annotation.tailrec
 
 class TreeDecomposer[U <: scala.reflect.api.Universe](val u: U) {
   import u._
   import Enrichments._
+  
   /* Return a simplified tree along with maps of Names / Symbols / Types zipped with occurrences in BFS order */
   def apply(tree: Tree): DecTree = {
     var flatNames: List[String] = List()

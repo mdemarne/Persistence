@@ -1,7 +1,15 @@
+/**
+ * Source file regrouping various data representations:
+ * 	1. NodeTag, tag specifying the original AST type of the node
+ *  2. Node, internal data representation of AST used for compression
+ *  3. NodeBFS, representing a Node along with its BFS index and the BFS index
+ *  	of its parent
+ *
+ * @author Mathieu Demarne, Adrien Ghosn
+ */
 package scala.reflect.persistence
 
 import scala.annotation.tailrec
-import scala.reflect.internal.util.Position
 
 object NodeTag extends Enumeration {
   val PackageDef, ClassDef, ModuleDef, ValDef, DefDef, TypeDef, LabelDef, Import, Template, Block, CaseDef, Alternative, Star, Bind, UnApply, ArrayValue, Function, Assign, AssignOrNamedArg, If, Match, Return, Try, Throw, New, Typed, TypeApply, Apply, ApplyDynamic, This, Select, Ident, ReferenceToBoxed, Literal, Annotated, SingletonTypeTree, SelectFromTypeTree, CompoundTypeTree, AppliedTypeTree, TypeBoundsTree, ExistentialTypeTree, TypeTree, Super, EmptyTree, Separator = Value
@@ -14,15 +22,13 @@ object NodeTag extends Enumeration {
     (NodeTag.values.toList.sortBy(_.toString).toList)(i)
   }
 
-  def isADefine(s: NodeTag.Value): Boolean = 
+  /* True if the NodeTag corresponds to a definition */
+  def isADefine(s: NodeTag.Value): Boolean =
     (s == ClassDef || s == ModuleDef || s == ValDef || s == DefDef || s == TypeDef || s == LabelDef)
+
+  /* True is the NodeTag corresponds to an AST with name */
   def hasAName(s: NodeTag.Value): Boolean =
     isADefine(s) || s == Bind || s == This || s == Select || s == Ident || s == SelectFromTypeTree || s == Super
-}
-
-case class NodeBFS(node: Node, bfsIdx: Int, parentBfsIdx: Int) {
-  def addChild(nd: Node) = this.copy(node = this.node.copy(children = nd :: this.node.children))
-  def equalsStructure(that: NodeBFS): Boolean = (this.node.tpe == that.node.tpe && this.bfsIdx == that.bfsIdx && this.parentBfsIdx == that.parentBfsIdx)
 }
 
 case class Node(tpe: NodeTag.Value, children: List[Node]) {
@@ -30,10 +36,11 @@ case class Node(tpe: NodeTag.Value, children: List[Node]) {
 
   val childrenBFS: RevList[Node] = this.flattenBFS
   val childrenBFSIdx: RevList[NodeBFS] = this.flattenBFSIdx
-  
+
   def addChildren(nd: List[Node]) = this.copy(children = nd ++ this.children)
   def getSubBFS(i: Int) = childrenBFSIdx.takeRight(i)
   def cleanCopy: Node = this.copy(children = Nil)
+
   def flattenBFS = {
     @tailrec def loop(queue: List[Node], acc: RevList[Node]): RevList[Node] = queue match {
       case n :: ns => loop(ns ::: n.children, n.children.reverse ::: acc)
@@ -41,6 +48,7 @@ case class Node(tpe: NodeTag.Value, children: List[Node]) {
     }
     loop(this :: Nil, this :: Nil)
   }
+
   /* Flatten the tree in BFS order, with nodes zipped with their indexes and their parent's indexes in BFS order */
   def flattenBFSIdx = {
     var count = 0
@@ -53,8 +61,7 @@ case class Node(tpe: NodeTag.Value, children: List[Node]) {
     }
     loop((this, 0) :: Nil, NodeBFS(this, 0, -1) :: Nil)
   }
-  
-  /* TODO: perhaps dict can be a val passed to loop */
+
   /* Compute a dictionary for the compression algorithm, based on LZW and the tree in BFS order */
   def computeFreqs = {
     var dict: NodeDict = Map(this.getSubBFS(1) -> 0)
@@ -75,10 +82,10 @@ case class Node(tpe: NodeTag.Value, children: List[Node]) {
             val nwst = bfs.takeSubtree(sz + 1)
             val nwnd = nwst.head.copy(bfsIdx = 0, parentBfsIdx = -1)
             dict += (nwst -> 1) /* add max + one more node */
-            dict.keys.find(k => k.size == 1 && k.head.equalsStructure(nwnd)) match{
+            dict.keys.find(k => k.size == 1 && k.head.equalsStructure(nwnd)) match {
               case None => dict += ((nwnd :: Nil) -> 1) /* Add the node to dict */
-              case Some(ent) => dict+= (ent -> (dict(ent) + 1))
-            } 
+              case Some(ent) => dict += (ent -> (dict(ent) + 1))
+            }
             candidates foreach (cdt => dict += (cdt -> (dict(cdt) + 1))) /* update counter for all prefix trees */
             loop(nds ++ nwst.subRoots.map(_._1)) /* add children of bfs.take(max.size + 1) to que */
         }
@@ -96,3 +103,7 @@ object Node {
   def separator = new Node(NodeTag.Separator, Nil)
 }
 
+case class NodeBFS(node: Node, bfsIdx: Int, parentBfsIdx: Int) {
+  def addChild(nd: Node) = this.copy(node = this.node.copy(children = nd :: this.node.children))
+  def equalsStructure(that: NodeBFS): Boolean = (this.node.tpe == that.node.tpe && this.bfsIdx == that.bfsIdx && this.parentBfsIdx == that.parentBfsIdx)
+}

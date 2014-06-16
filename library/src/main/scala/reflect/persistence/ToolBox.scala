@@ -16,7 +16,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   /*TODO this version doesn't support fullName specification yet*/
   def getSource(s: Symbol): Tree = {
     val fullPath: List[String] = s.fullName.split(".").toList
-    /*TODO check that this is correct*/
+    /* TODO check that this is correct */
     val path = s.pos.source.file.path
     val name = fullPath.last
     /*Fully specified name for what we're looking for*/
@@ -33,19 +33,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     }
     inner(s, path)
   }
-  /* General function returning the whole tree */
-  def getAst(file: String): Tree = {
-    val src: java.io.DataInputStream = new DataInputStream(this.getClass.getResourceAsStream("/" + file))
-    val bytes: List[Byte] = new XZReader(src)()
-    src.close()
-    val (nodeTree, rest1) = new AstDecompressor()(bytes)
-    val (names, rest2) = new NameDecompressor()(rest1)
-    val constants = new ConstantDecompressor[u.type](u)(rest2)
-
-    /* TODO: rebuilt the tree from each part, ASTs, Symbols, etc. */
-    val flatTree = nodeTree.flattenBFSIdx
-    new TreeRecomposer[u.type](u)(DecTree(flatTree, initNames(names,flatTree), initConstants(constants,flatTree)))
-  }
   def getMethodDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.DefDef)
   def getValDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ValDef)
   def getModuleDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ModuleDef)
@@ -56,7 +43,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   /*TODO here: The file value might be wrong here*/
   def getNewElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
     println(s"The fullname ${fullName}")
-    val (nodeTree, flatNames, flatConstants) = nameBasedRead(file, fullName.last)
+    val (nodeTree, flatNames, flatConstants) = readAstFile(file, fullName.last)
     val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
     val names: Map[String, List[Int]] = initNames(flatNames, bfs)
     val constants = initConstants(flatConstants, bfs)
@@ -137,8 +124,10 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   }
 
   /* Helper function that reads all the elements we need to reconstruct the tree */
-  def nameBasedRead(file: String, name: String): (Node, NameDict, ConstantDict) = {
-    val src: java.io.DataInputStream = new DataInputStream(this.getClass().getResourceAsStream("/" + file))
+  def readAstFile(file: String, name: String): (Node, NameDict, ConstantDict) = {
+    val stream = this.getClass().getResourceAsStream("/" + file)
+    if (stream == null) throw new FileNotFoundException("AST file does not exist: " + file)
+    val src = new DataInputStream(stream)
     val bytes: List[Byte] = new XZReader(src)()
     val (nodeTree, rest1) = new AstDecompressor()(bytes)
     val (names, rest2) = new NameDecompressor()(rest1)
@@ -149,7 +138,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     (nodeTree, names, constants)
   }
   
-  /* @warning must give the list of nodes in normal BFS and head is the node we need */
+  /* Must give the list of nodes in normal BFS and head is the node we need */
   def extractSubBFS(nodes: List[NodeBFS]): RevList[NodeBFS] = {
     assert(!nodes.isEmpty)
     def loop(nds: List[NodeBFS], acc: RevList[NodeBFS]): RevList[NodeBFS] = nds match {
