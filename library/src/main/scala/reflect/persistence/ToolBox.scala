@@ -29,7 +29,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
       case LabelDef => getLabelDef(file, fullName)
       case DefDef => getMethodDef(file, fullName)
       case ValDef => getValDef(file, fullName)
-      case _ => throw new Exception(s"Error: Type of symbol not supported, ${fullName.last} in ${file}")
+      case _ => throw new PersistenceException(s"Error: Type of symbol not supported, ${fullName.last} in ${file}")
     }
     inner(s, path)
   }
@@ -55,7 +55,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
 
   /*TODO here: The file value might be wrong here*/
   def getNewElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
-    println(s"The fullname ${fullName}")
     val (nodeTree, flatNames, flatConstants) = nameBasedRead(file, fullName.last)
     val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
     val names: Map[String, List[Int]] = initNames(flatNames, bfs)
@@ -116,7 +115,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     /*Extracts the correct tree by going through the whole path*/
     def loop(stackName: List[String], tree: List[NodeBFS]): List[NodeBFS] = stackName match {
       case n::ns =>
-        println(s"Step ${n}")
         /*Trees that have the correct name*/
         val roots: List[List[NodeBFS]] = defs(n).filter(i => tree.exists(nd => nd.bfsIdx == i)).map{ i => 
           extractSubBFS(tree.dropWhile(_.bfsIdx != i)).reverse
@@ -128,7 +126,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
           val name: String = if (ns.isEmpty) n else ns.last 
           val correctType: Boolean = t.exists(node => defs(name).contains(node.bfsIdx) && node.node.tpe == tpe)
           allDefs && correctType
-        }.getOrElse(throw new Exception(s"Error: findDefinition couldn't find a tree at name step ${n}"))
+        }.getOrElse(throw new PersistenceException(s"Error: findDefinition couldn't find a tree at name step ${n}"))
         loop(ns, correct)    
       case Nil => 
         tree
@@ -144,7 +142,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     val (names, rest2) = new NameDecompressor()(rest1)
     val constants = new ConstantDecompressor[u.type](u)(rest2)
     if (!names.contains(name))
-      throw new Exception("Error: specified name doesn't exist")
+      throw new PersistenceException("Error: specified name doesn't exist")
     src.close()
     (nodeTree, names, constants)
   }
