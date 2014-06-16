@@ -1,3 +1,7 @@
+/** Reads the Names from the compressed bytes 
+  * 
+  * @author Adrien Ghosn, Mathieu Demarne
+  */
 package scala.reflect.persistence
 
 class NameDecompressor {

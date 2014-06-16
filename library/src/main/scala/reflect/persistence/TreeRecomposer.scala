@@ -1,3 +1,8 @@
+/** Recomposes the tree by translating our internal representation 
+  * as a DecTree (Node, names, constants) to a valid Scala Ast
+  *
+  * @author Mathieu Demarne, Adrien Ghosn
+  */
 package scala.reflect.persistence
 
 import scala.annotation.tailrec

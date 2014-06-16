@@ -5,7 +5,6 @@ import scala.reflect.persistence._
 import scala.annotation.tailrec
 import scala.reflect.persistence.Enrichments._
 
-/* TODO: won't pass, need to be update following the new mapping for names */
 class TreeRecomposerTest extends FunSuite {
   val u = scala.reflect.runtime.universe
   import u._

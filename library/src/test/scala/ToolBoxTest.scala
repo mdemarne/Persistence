@@ -80,5 +80,4 @@ class ToolBoxTest extends FunSuite {
 	  /* Visual debugging */
   }
   
-  /* TODO: more tests */
 }

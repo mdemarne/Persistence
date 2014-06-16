@@ -1,3 +1,8 @@
+/** Simply reads from the given InputStream and gets
+  * the decompressed bytes that will be used to reconstruct the tree
+  *
+  * @author Adrien Ghosn, Mathieu Demarne
+  */
 package scala.reflect.persistence
 
 import java.io.DataInputStream

@@ -1,3 +1,8 @@
+/** The ToolBox is the interface with the user and is responsible 
+  * for getting the correct AST, for a given Symbol. 
+  *
+  * @auhtor Adrien Ghosn, Mathieu Demarne
+  */
 package scala.reflect.persistence
 
 import java.io._
