@@ -1,3 +1,3 @@
 package scala.reflect.persistence
 
-class PersistenceException(msg: String) extends Exception 
+class PersistenceException(msg: String) extends Exception(msg)
