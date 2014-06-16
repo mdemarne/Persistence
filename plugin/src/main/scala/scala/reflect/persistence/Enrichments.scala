@@ -103,7 +103,23 @@ object Enrichments {
       loop(in.head :: Nil, in.tail)
     }
   }
-  
+ 
+ /* @warning must give the list of nodes in normal BFS and head is the node we need */
+  def extractSubBFS(nodes: List[NodeBFS]): RevList[NodeBFS] = {
+    assert(!nodes.isEmpty)
+    def loop(nds: List[NodeBFS], acc: RevList[NodeBFS]): RevList[NodeBFS] = nds match {
+      case Nil =>
+        //acc.filter(x => acc.exists(y => y.bfsIdx == x.parentBfsIdx)):::List(acc.last)
+        acc
+      case n::ns if(acc.head.bfsIdx > n.bfsIdx && !acc.exists(_.bfsIdx == n.parentBfsIdx)) => 
+        acc
+      case n::ns if(acc.exists(x => x.bfsIdx == n.parentBfsIdx))=> 
+        loop(ns, n::acc)
+      case n::ns => 
+        loop(ns, acc)
+    }
+    loop(nodes.tail, nodes.head :: Nil)
+  }
   def IntToBytes(i: Int): List[Byte] = ByteBuffer.allocate(4).putInt(i).array.toList
   def ShortToBytes(s: Short): List[Byte] = ByteBuffer.allocate(2).putShort(s).array.toList
   def LongToBytes(l: Long): List[Byte] = ByteBuffer.allocate(8).putLong(l).array.toList
