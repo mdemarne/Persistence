@@ -1,3 +1,9 @@
+/**
+ * SBT plugin for AST persistence. Provides various packaging and publishing
+ * functionalities. Also add the compiler plugin from the repositories.
+ *
+ * @author Mathieu Demarne, Adrien Ghosn
+ */
 package scala.reflect.persistence.sbt
 
 import sbt._
@@ -7,8 +13,10 @@ import scala.language.existentials
 
 object AstcPlugin extends Plugin {
   override lazy val projectSettings = Seq(packageAstTask, beforeCompileTask) ++ usePluginSettings ++ newCompile ++ publishSettings ++ packageSettings
+
   lazy val usePluginSettings = Seq(addCompilerPlugin("org.scalareflect" % "persistence-plugin_2.11.0" % "0.1.0-SNAPSHOT"))
   val packageAst = TaskKey[File]("package-ast", "Produce an artifact containing compressed Scala ASTs.")
+
   val packageAstTask = packageAst := {
     def findFiles(root: File): List[File] = root match {
       case _ if root.isDirectory => root.listFiles.toList.flatMap(f => findFiles(f))
@@ -29,6 +37,7 @@ object AstcPlugin extends Plugin {
     }
     res
   }
+
   /* Save the previously generated .ast files */
   val beforeCompile = TaskKey[Unit]("before-compile")
   val beforeCompileTask = beforeCompile := {
@@ -54,13 +63,14 @@ object AstcPlugin extends Plugin {
     }
     res
   })
-  /* Force publishing the ast artifact */
-  lazy val publishSettings = (artifact in (Compile, packageAst) ~= { art =>
-    art.copy(`classifier` = Some("asts"))
-  }) ++ addArtifact(artifact in (Compile, packageAst), packageAst).settings
   /* In package, force also packaging the Asts */
   lazy val packageSettings = Keys.`package` in Compile := {
     (Keys.`package` in Compile).value
     (packageAst in Compile).value
   }
+
+  /* Force publishing the ast artifact */
+  lazy val publishSettings = (artifact in (Compile, packageAst) ~= { art =>
+    art.copy(`classifier` = Some("asts"))
+  }) ++ addArtifact(artifact in (Compile, packageAst), packageAst).settings
 }

@@ -1,4 +1,7 @@
 #!/bin/bash
+# AST Persistence Benchmark
+# Authors: Mathieu Demarne & Adrien Ghosn
+# ~~~~
 
 # NB: should be launched from the project's root
 
@@ -6,6 +9,7 @@ scalaversion='2.11'
 rawfolder="tests/target/scala-$scalaversion/raw/*"
 astfolder="tests/target/scala-$scalaversion/asts"
 sourcefolder="tests/target/scala-$scalaversion/sources"
+codefolder="tests/target/scala-$scalaversion/codes"
 
 # data file for plots
 date=$(date +%Y.%m.%d:%H:%M:%S)
@@ -46,6 +50,7 @@ total_source_size=0
 total_raw_size=0
 total_xz_size=0
 total_astc_size=0
+total_code_size=0
 nb_tests=0
 nb_failed=0
 
@@ -131,6 +136,7 @@ do
 	astc_path2=${astc_path1#*/*/*/*/} # Cleanup the path from raw to get asts
 	astc_size=$(stat -c %s "$astfolder/$astc_path2.ast")
 	source_size=$(stat -c %s "$sourcefolder/$astc_path2.source")
+	code_size=$(stat -c %s "$codefolder/$astc_path2.code")
 
 	xz_ratio=$(echo "scale=5; $xz_size / $raw_size" | bc)
 	astc_ratio=$(echo "scale=5; $astc_size / $raw_size" | bc)
@@ -140,10 +146,11 @@ do
 	total_xz_size=$(echo "scale=5; $total_xz_size + $xz_size" | bc)
 	total_astc_size=$(echo "scale=5; $total_astc_size + $astc_size" | bc)
 	total_source_size=$(echo "scale=5; $total_source_size + $source_size" | bc)
+	total_code_size=$(echo "scale=5; $total_code_size + $code_size" | bc)
 
 	# Let's print the results for a single file ~~~~ #
 
-	echo "source: $source_size, showRaw: $raw_size, xz: $xz_size ($xz_ratio), astc: $astc_size ($astc_ratio), ratio of ratios (astc/xz): $xz_astc_ratio  for file $astc_path2"
+	echo "source: $source_size (showCode: $code_size), showRaw: $raw_size, xz: $xz_size ($xz_ratio), astc: $astc_size ($astc_ratio), ratio of ratios (astc/xz): $xz_astc_ratio  for file $astc_path2"
 	if [ $xz_size -lt $astc_size ]; then 
 		nb_failed=$(echo "scale=0; $nb_failed + 1" | bc)
 		echo "FAILED: xz better than astc."
@@ -160,8 +167,10 @@ echo "Sources: $total_source_size, Raw: $total_raw_size, xz: $total_xz_size, ast
 total_xz_astc_ratio=$(echo "scale=5; $total_astc_size / $total_xz_size" | bc)
 echo "In general, our compression is smaller than a classic xz of $total_xz_astc_ratio"
 total_source_astc_ratio=$(echo "scale=5; $total_source_size / $total_astc_size" | bc)
+total_code_astc_ratio=$(echo "scale=5; $total_code_size / $total_astc_size" | bc)
 echo "Tests where xz was better: $nb_failed over $nb_tests tests"
 echo "In comparison with the sources, our compression is $total_source_astc_ratio times smaller."
+echo "In comparison with the output of showCode (desugaring), our compression is $total_code_astc_ratio times smaller."
 
 #echo "The normal compilation time was of:"
 #echo $normal_time

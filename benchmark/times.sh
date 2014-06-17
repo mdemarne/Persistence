@@ -1,4 +1,7 @@
 #!/bin/bash
+# AST Persistence Benchmark
+# Authors: Mathieu Demarne & Adrien Ghosn
+# ~~~~
 
 # NB: should be launched from the project's root
 

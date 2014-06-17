@@ -104,7 +104,6 @@ class ToolBox(val u: scala.reflect.api.Universe) {
         /*The only one containing the total path and so the correct definition*/
         val correct: List[NodeBFS] = roots.find { t =>
           val allDefs: Boolean = ns.forall(name => t.exists(node => defs(name).contains(node.bfsIdx)))
-          /*TODO Quick hack */
           val name: String = if (ns.isEmpty) n else ns.last
           val correctType: Boolean = t.exists(node => defs(name).contains(node.bfsIdx) && node.node.tpe == tpe)
           allDefs && correctType
