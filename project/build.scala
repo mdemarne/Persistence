@@ -204,7 +204,7 @@ object build extends Build {
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
     /* Forcing dependencies on ASTs publish from our SBT test, to test the decompression library */
-    libraryDependencies += "default" % "tests_2.11" % "0.1-SNAPSHOT" classifier "asts",
+    //libraryDependencies += "default" % "tests_2.11" % "0.1-SNAPSHOT" classifier "asts", //TODO: uncomment for tests of the Toolbox
     scalacOptions ++= Seq()
   ) dependsOn (library % "test->test;compile->compile")
 

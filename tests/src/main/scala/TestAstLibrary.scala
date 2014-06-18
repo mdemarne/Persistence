@@ -1,5 +1,9 @@
 import scala.reflect.persistence.ToolBox
 
+/**
+  * TODO: This object will fail unless the sbt/tests/ project is published locally and the corresponding library dependency added to the build,
+  * see line 207 of the tests project definition in the root project build (project/build.scala).
+  */
 object TestAstLibrary {
   val u = scala.reflect.runtime.universe
   import u._
