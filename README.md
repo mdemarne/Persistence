@@ -5,7 +5,7 @@ AST persistence for [Project Palladium](http://scalamacros.org/news/2014/03/02/p
 ### How to use
 
 The project is in a very early stage, so it's not supposed to be useful just yet. However, if you're brave enough, we have a nightly build that publishes artifacts to Sonatype.
-To use the compiler plugin in order to generate the AST files add the following SBT plugin:  `"addSbtPlugin("org.scalareflect" % "persistence-sbt" % "0.1.0-SNAPSHOT")"`. To use the AST library add the following dependency: `"org.scalareflect" % "persistence-library_2.11.0" % "0.1.0-SNAPSHOT"`.
+To use the compiler plugin in order to generate the AST files add the following SBT plugin:  `"org.scalareflect" % "persistence-sbt" % "0.1.0-SNAPSHOT"`. To use the AST library add the following dependency: `"org.scalareflect" % "persistence-library_2.11.0" % "0.1.0-SNAPSHOT"`.
 
 
 
