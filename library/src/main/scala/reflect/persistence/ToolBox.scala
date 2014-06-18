@@ -9,7 +9,7 @@ package scala.reflect.persistence
 import java.io.{ DataInputStream, FileNotFoundException }
 import scala.language.existentials
 /* Fetch trees and subtrees from the decompressed AST. */
-class ToolBox(val u: scala.reflect.api.Universe) {
+class ToolBox[U <: scala.reflect.api.Universe](val u: U) {
   import u._
   import Enrichments._
 
@@ -18,24 +18,17 @@ class ToolBox(val u: scala.reflect.api.Universe) {
 
   var saved: Map[String, (Node, RevList[NodeBFS], NameDict, ConstantDict)] = Map()
 
-  /*TODO: Not sure that this function works yet, need to test it with some symbol*/
   def getSource(s: Symbol): Tree = {
-    val fullPath: List[String] = s.fullName.split(".").toList
-    val path = s.pos.source.file.path
-    val name = fullPath.last
-    /*Fully specified name for what we're looking for*/
-    val fullName: List[String] = fullPath.drop(path.split('/').size).toList
-    assert(fullName.last == name)
-    def inner(ss: Symbol, file: String): Tree = ss.info match {
-      case ModuleDef => getMethodDef(file, fullName)
-      case ClassDef => getClassDef(file, fullName)
-      case TypeDef => getTypeDef(file, fullName)
-      case LabelDef => getLabelDef(file, fullName)
-      case DefDef => getMethodDef(file, fullName)
-      case ValDef => getValDef(file, fullName)
-      case _ => throw new PersistenceException(s"Error: Type of symbol not supported, ${fullName.last} in ${file}")
+    val fullName: List[String] = s.fullName.split('.').toList
+    val path = "Basic.scala.ast"
+    s match {
+      case _ if s.isModule => getModuleDef(path, fullName)
+      case _ if s.isClass => getClassDef(path, fullName)
+      case _ if s.isType => getTypeDef(path, fullName)
+      case _ if s.isMethod => getMethodDef(path, fullName)
+      case _ if s.isTerm => getValDef(path, fullName)
+      case _ => throw new PersistenceException(s"Error: Type of symbol not supported, ${fullName.last} in ${path}")
     }
-    inner(s, path)
   }
 
   def getMethodDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.DefDef)
@@ -43,9 +36,8 @@ class ToolBox(val u: scala.reflect.api.Universe) {
   def getModuleDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ModuleDef)
   def getClassDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.ClassDef)
   def getTypeDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.TypeDef)
-  def getLabelDef(file: String, name: List[String]): Tree = getElement(file, name, NodeTag.LabelDef)
 
-  /*Method responsible for getting the AST from a new file*/
+  /* Method responsible for getting the AST from a new file */
   def getNewElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
     val (nodeTree, flatNames, flatConstants) = readAstFile(file, fullName.last)
     val bfs: RevList[NodeBFS] = nodeTree.flattenBFSIdx
@@ -56,7 +48,7 @@ class ToolBox(val u: scala.reflect.api.Universe) {
     new TreeRecomposer[u.type](u)(DecTree(subtree, names, constants))
   }
 
-  /*This method looks for the specified element, if the file has not been decompressed yet, calls getNewElement*/
+  /* This method looks for the specified element, if the file has not been decompressed yet, calls getNewElement */
   def getElement(file: String, fullName: List[String], tpe: NodeTag.Value): Tree = {
     if (!saved.contains(file)) {
       getNewElement(file, fullName, tpe)
@@ -89,25 +81,25 @@ class ToolBox(val u: scala.reflect.api.Universe) {
 
   /*Finds the correct definition for a specified Fully named element*/
   def findDefinition(fullPath: List[String], names: Map[String, List[Int]], tree: List[NodeBFS], tpe: NodeTag.Value): RevList[NodeBFS] = {
-    /*Keeps only the entries in names that correspond to some definition required in the fullpath*/
+    /* Keeps only the entries in names that correspond to some definition required in the fullpath */
     val defs: Map[String, List[Int]] = fullPath.map { x =>
       val filtered: List[Int] = names(x).filter(y => NodeTag.isADefine(tree.find(z => z.bfsIdx == y).get.node.tpe))
       (x, filtered)
     }.toMap
-    /*Extracts the correct tree by going through the whole path*/
+    /* Extracts the correct tree by going through the whole path */
     def loop(stackName: List[String], tree: List[NodeBFS]): List[NodeBFS] = stackName match {
       case n :: ns =>
         /*Trees that have the correct name*/
         val roots: List[List[NodeBFS]] = defs(n).filter(i => tree.exists(nd => nd.bfsIdx == i)).map { i =>
           extractSubBFS(tree.dropWhile(_.bfsIdx != i)).reverse
         }.toList
-        /*The only one containing the total path and so the correct definition*/
+        /* The only one containing the total path and so the correct definition */
         val correct: List[NodeBFS] = roots.find { t =>
           val allDefs: Boolean = ns.forall(name => t.exists(node => defs(name).contains(node.bfsIdx)))
           val name: String = if (ns.isEmpty) n else ns.last
           val correctType: Boolean = t.exists(node => defs(name).contains(node.bfsIdx) && node.node.tpe == tpe)
           allDefs && correctType
-        }.getOrElse(throw new PersistenceException(s"Error: findDefinition couldn't find a tree at name step ${n}"))
+        }.getOrElse(throw new PersistenceException(s"Error: findDefinition couldn't find a tree at name step: ${n}"))
         loop(ns, correct)
       case Nil =>
         tree

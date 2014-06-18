@@ -10,7 +10,7 @@ class NamesAndTreesTest extends FunSuite {
       m.map(x => (x._1, x._2.sorted))
     }
     val (tree, names) = ParseTestTreeAndName.parse(treeStr).get
-    val tool: ToolBox = new ToolBox(scala.reflect.runtime.universe)
+    val tool = new ToolBox[scala.reflect.runtime.universe.type](scala.reflect.runtime.universe)
 
     /*Testing Ast compression*/
     val compressor = new AstCompressor()

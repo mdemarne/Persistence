@@ -8,7 +8,7 @@ class MultiDefTest extends FunSuite {
 
   def compressionTest(treeStr: String, fullName: List[String], expected: String, tpe: NodeTag.Value) {
     val (tree, names) = ParseTestTreeAndName.parse(treeStr).get
-    val tool: ToolBox = new ToolBox(scala.reflect.runtime.universe)
+    val tool = new ToolBox[scala.reflect.runtime.universe.type](scala.reflect.runtime.universe)
 
     /*We compress the tree*/
     val compressor = new AstCompressor()
