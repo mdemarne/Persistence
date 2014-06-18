@@ -11,8 +11,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     /* Can we fetch asts? */
 	val symbol = m.staticModule("Basic").info.decl(TermName("foo")).asMethod
-	println(symbol.associatedFile)
-	println(symbol.pos.source)
-    println(show(symbol.source))
+	/* For now, we use sourceFrom instead of just source, since the associated file is empty and need to be fixed */
+    println(show(symbol.sourceFrom("Basic.scala.ast")))
   }
 }

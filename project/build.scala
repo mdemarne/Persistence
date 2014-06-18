@@ -136,7 +136,7 @@ object build extends Build {
     }
   )
 
-  lazy val root = (project in file(".")).aggregate(plugin, library, sbtPPlugin)
+  lazy val root = plugin.aggregate(library, sbtPPlugin)
 
   lazy val plugin = Project(
     id   = "persistence-plugin",

@@ -18,9 +18,15 @@ class ToolBox[U <: scala.reflect.api.Universe](val u: U) {
 
   var saved: Map[String, (Node, RevList[NodeBFS], NameDict, ConstantDict)] = Map()
 
-  def getSource(s: Symbol): Tree = {
+  def getSource(s: Symbol, file: Option[String]): Tree = {
     val fullName: List[String] = s.fullName.split('.').toList
-    val path = "Basic.scala.ast"
+    val path = file match {
+      case Some(sourcePath) =>
+        sourcePath
+      case None =>
+        throw new PersistenceException("Getting ASTs back from associated file to symbol is not yet implemented. Its implementation should be fixed first.")
+      /* TODO: once associated files are fixed in Symbols,  */
+    }
     s match {
       case _ if s.isModule => getModuleDef(path, fullName)
       case _ if s.isClass => getClassDef(path, fullName)
@@ -124,6 +130,7 @@ class ToolBox[U <: scala.reflect.api.Universe](val u: U) {
 
   /* Implicit wrapper to get a definition from a symbol */
   implicit class RichSymbol(s: Symbol) {
-    def source = getSource(s)
+    def source = getSource(s, None)
+    def sourceFrom(file: String) = getSource(s, Some(file))
   }
 }
