@@ -10,7 +10,6 @@ import complete.DefaultParsers._
 
 object build extends Build {
   lazy val sharedSettings = Defaults.defaultSettings ++ Seq(
-    scalaVersion := "2.11.0",
     crossVersion := CrossVersion.full,
     version := "0.1.0-SNAPSHOT",
     organization := "org.scalareflect",
@@ -144,6 +143,7 @@ object build extends Build {
   ) settings (
     publishableSettings ++ assemblySettings: _*
   ) settings (
+    scalaVersion := "2.11.0",
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
     libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test",
@@ -168,6 +168,7 @@ object build extends Build {
   ) settings (
     publishableSettings ++ assemblySettings: _*
   ) settings (
+    scalaVersion := "2.11.0",
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
     libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test",
@@ -184,7 +185,7 @@ object build extends Build {
   ) settings (
       publishableSettings:_*
   ) settings (
-    scalaVersion := "2.10.3", // Forced for now due to SBT macro system compilation.
+    scalaVersion := "2.10.3", // Forced for now due to SBT macro previous compilation.
     crossVersion := CrossVersion.full,
     version := "0.1.0-SNAPSHOT",
     organization := "org.scalareflect",
@@ -217,6 +218,7 @@ object build extends Build {
   ) settings (
     sharedSettings: _*
   ) settings (
+    scalaVersion := "2.11.0",
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
     libraryDependencies += "org.tukaani" % "xz" % "1.5",
@@ -234,12 +236,13 @@ object build extends Build {
     testTypersConf ++ testTypersConfNoPlug ++
     testBasicConf ++ testBasicConfNoPlug ++ testToolboxConf /*++ testSpecificConfList ++ testSpecificConfNoPlugList*/: _*
   ) settings (
+    scalaVersion := "2.11.0",
     sources in Compile <<= (sources in Compile).map(_ filter(f => f.getAbsolutePath.contains(testAstLibraryFile)))
   ) settings (
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
     /* Forcing dependencies on ASTs publish from our SBT test, to test the decompression library */
-    //libraryDependencies += "default" % "tests_2.11" % "0.1-SNAPSHOT" classifier "asts", //TODO: uncomment for tests of the Toolbox
+    /* libraryDependencies += "default" % "tests_2.11" % "0.1-SNAPSHOT" classifier "asts", //TODO: uncomment for tests of the Toolbox */
     scalacOptions ++= Seq()
   ) dependsOn (library % "test->test;compile->compile")
 
