@@ -1,3 +1,5 @@
+package scala.reflect.persistence.test
+
 import scala.reflect.persistence._
 import scala.util.parsing.combinator.syntactical.StandardTokenParsers
 import scala.util.parsing.input._
@@ -8,8 +10,7 @@ object ParseTestTree extends StandardTokenParsers {
   lexical.delimiters ++= List("(", ")")
 
   /* Map for the tpe */
-  val strTpeMap: Map[String, NodeTag.Value] = Map(("v" -> NodeTag.ValDef),
-    ("c" -> NodeTag.ClassDef), ("m" -> NodeTag.ModuleDef), ("t" -> NodeTag.Try))
+  val strTpeMap: Map[String, NodeTag.Value] = Map(("v" -> NodeTag.ValDef), ("c" -> NodeTag.ClassDef), ("m" -> NodeTag.ModuleDef), ("t" -> NodeTag.Try), ("s" -> NodeTag.Star), ("e" -> NodeTag.ExistentialTypeTree))
 
   /* Helper function to get type in parser */
   implicit def strToTpe(str: String): NodeTag.Value = strTpeMap.getOrElse(str, NodeTag.EmptyTree)
@@ -36,14 +37,5 @@ object ParseTestTree extends StandardTokenParsers {
         return Some(trees)
       case e => println(e); None
     }
-  }
-
-  case class dictEntry(tpe: NodeTag.Value, idx: Int, parentIdx: Int) {
-    override def toString = s"(${tpe}, ${idx}, ${parentIdx})"
-  }
-  /* return an exploitable version of the dictionary from AstCompressor.parse() */
-  def dictForTest(dict: Map[List[NodeBFS], Int]) = {
-    var idx = 0
-    dict map (x => (x._1.map(y => dictEntry(y.node.tpe, y.bfsIdx, y.parentBfsIdx)), x._2))
   }
 }

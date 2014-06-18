@@ -1,0 +1,7 @@
+drwxr-xr-x  5 mdemarne mdemarne     4096 Jun  6 10:38 api
+drwxr-xr-x 16 mdemarne mdemarne     4096 Jun  6 10:37 asts
+drwxr-xr-x  3 mdemarne mdemarne     4096 Jun  6 10:29 classes
+-rw-r--r--  1 mdemarne mdemarne   767818 Jun  6 10:34 tests_2.11-0.1-SNAPSHOT-asts.jar
+-rw-r--r--  1 mdemarne mdemarne  5524069 Jun  6 10:29 tests_2.11-0.1-SNAPSHOT.jar
+-rw-r--r--  1 mdemarne mdemarne 15858557 Jun  6 10:38 tests_2.11-0.1-SNAPSHOT-javadoc.jar
+-rw-r--r--  1 mdemarne mdemarne   891105 Jun  6 10:38 tests_2.11-0.1-SNAPSHOT-sources.jar
