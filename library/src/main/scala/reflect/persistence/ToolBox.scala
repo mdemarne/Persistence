@@ -8,6 +8,8 @@ package scala.reflect.persistence
 
 import java.io.{ DataInputStream, FileNotFoundException }
 import scala.language.existentials
+import scala.annotation.tailrec
+
 /* Fetch trees and subtrees from the decompressed AST. */
 class ToolBox[U <: scala.reflect.api.Universe](val u: U) {
   import u._
@@ -18,15 +20,34 @@ class ToolBox[U <: scala.reflect.api.Universe](val u: U) {
 
   var saved: Map[String, (Node, RevList[NodeBFS], NameDict, ConstantDict)] = Map()
 
-  def getSource(s: Symbol, file: Option[String]): Tree = {
-    val fullName: List[String] = s.fullName.split('.').toList
-    val path = file match {
-      case Some(sourcePath) =>
-        sourcePath
-      case None =>
-        throw new PersistenceException("Getting ASTs back from associated file to symbol is not yet implemented. Its implementation should be fixed first.")
-      /* TODO: once associated files are fixed in Symbols,  */
+  def getSource(s: Symbol): Tree = {
+    /* TODO: this is a temporary hack until Symbol.pos.source is fixed */
+    @tailrec def getOriginDef(ss: Symbol): ClassSymbol = ss match {
+      case cl: ClassSymbol if cl.owner.isPackage => cl
+      case x => getOriginDef(x.owner)
     }
+    /* Let's first get the main class definition */
+    val originSymbol = getOriginDef(s)
+    /* Let's then find the full name by removing the packages */
+    val packagedFullName = originSymbol.fullName.split('.').toList.init
+    val fullName: List[String] = s.fullName.split('.').toList.drop(packagedFullName.size)
+    /* Let's also find the package herarchy */
+
+    /* Let's now find the origin class type using runtime class (limitiation of the current 
+     * implementation which will be solved once Symbol.pos.source is fixed) */
+    val originClass = scala.reflect.runtime.universe
+      .runtimeMirror(getClass.getClassLoader)
+      .runtimeClass(originSymbol.asInstanceOf[reflect.runtime.universe.ClassSymbol])
+    /* We can load the JavaClass */
+    val jClass = org.apache.bcel.Repository.lookupClass(originClass)
+    /* And we can select the source file name */
+    val sourceName = jClass.getAttributes.toList
+      .find(x => x.isInstanceOf[org.apache.bcel.classfile.SourceFile])
+      .getOrElse(throw new PersistenceException("No source file linked to the main class symbol."))
+      .asInstanceOf[org.apache.bcel.classfile.SourceFile]
+      .getSourceFileName
+    /* We now need to add the packaging hierarchy prior to the source file name */
+    val path = packagedFullName.mkString("/") + (if(!packagedFullName.isEmpty) "/" else "") + sourceName + ".ast"
     s match {
       case _ if s.isModule => getModuleDef(path, fullName)
       case _ if s.isClass => getClassDef(path, fullName)
@@ -115,7 +136,7 @@ class ToolBox[U <: scala.reflect.api.Universe](val u: U) {
 
   /* Helper function that reads all the elements we need to reconstruct the tree */
   def readAstFile(file: String, name: String): (Node, NameDict, ConstantDict) = {
-    val stream = this.getClass().getResourceAsStream("/" + file)
+    val stream = this.getClass.getClassLoader.getResourceAsStream(file)
     if (stream == null) throw new FileNotFoundException("AST file does not exist: " + file)
     val src = new DataInputStream(stream)
     val bytes: List[Byte] = new XZReader(src)()
@@ -130,7 +151,6 @@ class ToolBox[U <: scala.reflect.api.Universe](val u: U) {
 
   /* Implicit wrapper to get a definition from a symbol */
   implicit class RichSymbol(s: Symbol) {
-    def source = getSource(s, None)
-    def sourceFrom(file: String) = getSource(s, Some(file))
+    def source = getSource(s)
   }
 }

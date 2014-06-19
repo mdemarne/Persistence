@@ -45,7 +45,8 @@ class Plugin(val global: Global) extends NscPlugin {
         case None => sys.error("No output directory?") /* Should never happen */
         case Some(compilationDest) => compilationDest.container.toString
       }) + "/asts/" + (unit.body match {
-        case p: PackageDef if p.name.toString != "<empty>" => p.name.toString.replaceAll("\\.", "/") + "/"
+        case p @ PackageDef(pid: Ident, stree) if p.name.toString != "<empty>"=> p.name.toString
+        case p @ PackageDef(pid: Select, stree) if p.name.toString != "<empty>"=> (pid.qualifier.toString + "." + pid.name.toString).replaceAll("\\.", "/") + "/"
         case _ => "" /* No package at all */
       })
       val folder = new File(outputDir)
