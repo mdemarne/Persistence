@@ -19,6 +19,10 @@ class ToolBox[U <: scala.reflect.api.Universe](val u: U) {
   type ConstantDict = Map[Any, List[Int]]
 
   var saved: Map[String, (Node, RevList[NodeBFS], NameDict, ConstantDict)] = Map()
+  
+  def resetCache {
+    saved = Map()
+  }
 
   def getSource(s: Symbol): Tree = {
     /* TODO: this is a temporary hack until Symbol.pos.source is fixed */
