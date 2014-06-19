@@ -174,9 +174,18 @@ object build extends Build {
     libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test",
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test",
     libraryDependencies += "org.tukaani" % "xz" % "1.5",
+    libraryDependencies+= "org.apache.ant" % "ant-apache-bcel" % "1.8.4",
     scalacOptions ++= Seq()
   ) settings (
     test in assembly := {}
+  ) settings (
+    artifact in (Compile, assembly) ~= { art =>
+      art.copy(`classifier` = Some(""))
+    }
+  ) settings (
+    addArtifact(artifact in (Compile, assembly), assembly).settings: _*
+  ) settings (
+    publishArtifact in (Compile, packageBin) := false
   ) dependsOn(plugin % "test->test;compile->compile")
 
   lazy val sbtPPlugin = Project(

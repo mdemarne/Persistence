@@ -36,7 +36,8 @@ class ShowRawPlugin(val global: Global) extends NscPlugin {
           case None => sys.error("No output directory?")
           case Some(compilationDest) => compilationDest.container.toString
         }) + "/sources/" + (unit.body match {
-          case p: PackageDef if p.name.toString != "<empty>" => p.name.toString.replaceAll("\\.", "/") + "/"
+          case p @ PackageDef(pid: Ident, stree) if p.name.toString != "<empty>" => p.name.toString
+          case p @ PackageDef(pid: Select, stree) if p.name.toString != "<empty>" => (pid.qualifier.toString + "." + pid.name.toString).replaceAll("\\.", "/") + "/"
           case _ => ""
         })
         val folder = new File(outputDir)
@@ -58,7 +59,8 @@ class ShowRawPlugin(val global: Global) extends NscPlugin {
           case None => sys.error("No output directory?")
           case Some(compilationDest) => compilationDest.container.toString
         }) + "/raw/" + (unit.body match {
-          case p: PackageDef if p.name.toString != "<empty>" => p.name.toString.replaceAll("\\.", "/") + "/"
+          case p @ PackageDef(pid: Ident, stree) if p.name.toString != "<empty>" => p.name.toString
+          case p @ PackageDef(pid: Select, stree) if p.name.toString != "<empty>" => (pid.qualifier.toString + "." + pid.name.toString).replaceAll("\\.", "/") + "/"
           case _ => ""
         })
         val folder = new File(outputDir)
@@ -76,7 +78,8 @@ class ShowRawPlugin(val global: Global) extends NscPlugin {
           case None => sys.error("No output directory?")
           case Some(compilationDest) => compilationDest.container.toString
         }) + "/codes/" + (unit.body match {
-          case p: PackageDef if p.name.toString != "<empty>" => p.name.toString.replaceAll("\\.", "/") + "/"
+          case p @ PackageDef(pid: Ident, stree) if p.name.toString != "<empty>" => p.name.toString
+          case p @ PackageDef(pid: Select, stree) if p.name.toString != "<empty>" => (pid.qualifier.toString + "." + pid.name.toString).replaceAll("\\.", "/") + "/"
           case _ => ""
         })
         val folder = new File(outputDir)
